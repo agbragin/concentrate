@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html ng-app='ghop-ui'>
+<head>
+    <meta charset='utf-8'>
+    <title>Parseq gHop web-client</title>
+    <link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
+</head>
+<body ng-controller='MainController'>
+    <form>
+        <input type='file' ng-file='file'>
+        <button ng-click='createTrackFromFile()'>upload</button>
+    </form>
+
+    <script src='lib/angular/angular.js'></script>
+    <script src='lib/angular-resource/angular-resource.js'></script>
+
+    <!-- Angular application script -->
+    <script src='js/app.js'></script>
+    <!-- Constants -->
+    <script src='js/constants/aggregate-operators.js'></script>
+    <script src='js/constants/filter-operators.js'></script>
+    <script src='js/constants/hateoas-utils.js'></script>
+    <!-- Controllers -->
+    <script src='js/controllers/main.js'></script>
+    <!-- Resources -->
+    <script src='js/resources/attribute.js'></script>
+    <script src='js/resources/attributes.js'></script>
+    <script src='js/resources/bands.js'></script>
+    <script src='js/resources/contigs.js'></script>
+    <script src='js/resources/data-source.js'></script>
+    <script src='js/resources/data-sources.js'></script>
+    <script src='js/resources/reference-genomes.js'></script>
+    <script src='js/resources/track.js'></script>
+    <script src='js/resources/track-attributes.js'></script>
+    <script src='js/resources/track-data-source.js'></script>
+    <script src='js/resources/track-filters.js'></script>
+    <script src='js/resources/tracks.js'></script>
+    <!-- Providers -->
+    <script src='js/providers/genetics.js'></script>
+    <!-- Services -->
+    <script src='js/services/attributes.js'></script>
+    <script src='js/services/bands.js'></script>
+    <script src='js/services/data-sources.js'></script>
+    <script src='js/services/reference-genomes.js'></script>
+    <script src='js/services/tracks.js'></script>
+    <!-- Directives -->
+    <script src='js/directives/ng-file.js'></script>
+</body>
+</html>
