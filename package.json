@@ -1,0 +1,16 @@
+{
+    "name": "ghop-webclient",
+    "description": "gHop Web-client",
+    "version": "0.1.0",
+    "repository": {
+        "type": "git",
+        "url": "http://stash.corp.parseq.pro/stash/projects/SB/repos/ghop-webclient"
+    },
+    "devDependencies": {
+        "grunt": "~0.4.x",
+        "grunt-bower-task": "git+https://github.com/yatskevich/grunt-bower-task",
+        "grunt-connect-proxy": "git+https://github.com/drewzboto/grunt-connect-proxy.git",
+        "grunt-contrib-connect": "git+https://github.com/gruntjs/grunt-contrib-connect",
+        "grunt-contrib-watch": "git+https://github.com/gruntjs/grunt-contrib-watch"
+    }
+}

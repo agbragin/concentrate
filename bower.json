@@ -1,0 +1,21 @@
+{
+    "name": "ghop-webclient",
+    "authors": [
+        "Alexander Afanasyev <aafanasyev@parseq.pro>"
+    ],
+    "description": "gHop front-end dependencies",
+    "main": "",
+    "license": "MIT",
+    "homepage": "",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_modules",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "angular": "*",
+        "angular-resource": "*"
+    }
+}
