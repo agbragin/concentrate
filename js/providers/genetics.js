@@ -3,6 +3,7 @@ class GeneticsProvider {
     constructor() {}
 
     $get(ReferenceGenomes) {
+
         return {
             /**
              * TODO: change to actual types fetching when API would be ready

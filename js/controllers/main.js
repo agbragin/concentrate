@@ -1,9 +1,16 @@
 angular.module('ghop-ui')
-.controller('MainController', ['$scope', '$log', 'AggregateOperators', 'FilterOperator', 'TrackService', 'BandService', 'HateoasUtils', ($scope, $log, AggregateOperators, FilterOperator, TrackService, BandService, HateoasUtils) => {
+.controller('MainController', ['$scope', '$log',
+        'AggregateOperators', 'FilterOperator',
+        'TrackService', 'BandService', 'HateoasUtils',
+        'StriperFactory', 'ReferenceGenomeService',
+        ($scope, $log,
+        AggregateOperators, FilterOperator,
+        TrackService, BandService, HateoasUtils,
+        StriperFactory, ReferenceGenomeService) => {
 
     $log.debug('Application main controller running');
 
-    /*$log.warn(FilterOperator.LESS);
+    $log.warn(FilterOperator.LESS);
     $log.warn(AggregateOperators);
 
     TrackService.findAll().then(
@@ -25,7 +32,7 @@ angular.module('ghop-ui')
             }
         },
         error => $log.error(error)
-    );*/
+    );
 
     $scope.createTrackFromFile = () => {
         TrackService.createFromFile($scope.file, 'variants', 'variants_bed', 'GRCh37.p13').then(
@@ -33,4 +40,14 @@ angular.module('ghop-ui')
             error => $log.error(error)
         );
     };
+
+    let coord = new GenomicCoordinate('GRCh37.p13', 'chr1', 10);
+    let striper = StriperFactory.newStriperInstance(coord, 0, 1, ['api/dataSources/1']);
+    striper.stripes.then(
+        bandsResponse => $log.info(bandsResponse),
+        error => $log.error(error)
+    );
+
+    ReferenceGenomeService.getReferenceGenomes(referenceGenomes => ReferenceGenomeService
+            .getContigs(referenceGenomes[0], contigs => $log.info(contigs), error => $log.error(error)));
 }]);
