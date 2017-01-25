@@ -10,6 +10,8 @@
         <input type='file' ng-file='file'>
         <button ng-click='createTrackFromFile()'>upload</button>
     </form>
+    <div>Available reference genomes are: <span ng-bind='referenceGenomeIds'></span></div>
+    <div>Contigs mapping is: <span ng-bind='contigsMapping'></span></div>
 
     <script src='lib/angular/angular.js'></script>
     <script src='lib/angular-resource/angular-resource.js'></script>
@@ -38,9 +40,11 @@
     <!-- Providers -->
     <script src='js/providers/genetics.js'></script>
     <!-- Services -->
+    <script src='js/services/async.js'></script>
     <script src='js/services/attributes.js'></script>
     <script src='js/services/bands.js'></script>
     <script src='js/services/data-sources.js'></script>
+    <script src='js/services/genomic-coordinate-comparators.js'></script>
     <script src='js/services/reference-genomes.js'></script>
     <script src='js/services/stripers.js'></script>
     <script src='js/services/tracks.js'></script>

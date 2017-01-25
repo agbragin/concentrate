@@ -17,6 +17,10 @@ class GenomicCoordinate {
     get genome() { return this._genome }
     get contig() { return this._contig }
     get coord()  { return this._coord  }
+
+    toString() {
+        return `${this._genome}:${this._contig}:${this._coord}`;
+    }
 }
 
 class Stripe {
@@ -48,25 +52,28 @@ class Striper {
     /**
      * @constructor
      * @this {Striper}
-     * @param {BandService} BandService Bands requesting service 
+     * @param {GenomicCoordinateComparator} genomicCoordinateComparator Coordinate comparator
+     * @param {BandService} bandService Bands requesting service 
      * @param {GenomicCoordinate} coord Bearing genomic coordinate
      * @param {Number} left Number of left borders to request
      * @param {Number} right Number of right borders to request
      * @param {String[]} dataSources Array of data source URIs to request from
      */
-    constructor(logger, BandService, coord, left, right, dataSources) {
+    constructor(logger, genomicCoordinateComparator, bandService, coord, left, right, dataSources) {
 
-        logger.debug(`Instantiate Striper in: ${coord.genome}:${coord.contig}:${coord.coord}[${left};${right}] for data sources: ${dataSources}`);
+        logger.debug(`Instantiating Striper in: ${coord.genome}:${coord.contig}:${coord.coord}[${left};${right}] for data sources: ${dataSources}`);
         this._logger = logger;
 
-        this._request = (genome, contig, coord, left, right, dataSources) => BandService
+        this._request = (genome, contig, coord, left, right, dataSources) => bandService
                 .request(genome, contig, coord, left, right, dataSources);
+        this._coordCompare = (o1, o2) => genomicCoordinateComparator.compare(o1, o2);
+
         this._coord = coord;
         this._left = left;
         this._right = right;
         this._dataSources = dataSources;
 
-        this._stripes = this._requestBands();
+        this._stripes = this._requestStripes();
     }
 
     get stripes     () { return this._stripes     }
@@ -89,7 +96,15 @@ class Striper {
         this._left = left;
         this._right = right;
 
-        this._stripes = this._requestBands();
+        this._stripes = this._requestStripes();
+    }
+
+    _requestStripes() {
+
+        return this._requestBands().then(
+            bandsResource => this._parseStripes(bandsResource),
+            error => this._logger.error(error)
+        );
     }
 
     _requestBands() {
@@ -105,6 +120,19 @@ class Striper {
         if (!bandsResource['_embedded'] || !bandsResource['_embedded'].bands) {
             return new Array();
         }
+
+        // Collect all points retrieved bands are generating
+        let points = bandsResource['_embedded'].bands.reduce((points, band) => {
+
+            points.add(band.startCoord);
+            points.add(band.endCoord);
+
+            return points;
+        }, new Set());
+
+        // TODO: etc.
+
+        return bandsResource['_embedded'].bands;
     }
 }
 
@@ -115,9 +143,11 @@ class StriperFactory {
      * @this {Striper}
      * @param {BandService} BandService Bands requesting service 
      */
-    constructor($log, BandService) {
+    constructor($log, GenomicCoordinateComparatorFactory, BandService) {
+
         this._logger = $log;
-        this._BandService = BandService;
+        this._comparatorFactory = GenomicCoordinateComparatorFactory;
+        this._bandService = BandService;
     }
 
     /**
@@ -126,9 +156,11 @@ class StriperFactory {
      * @param {Number} left Number of left borders to request
      * @param {Number} right Number of right borders to request
      * @param {String[]} dataSources Array of data source URIs to request from
+     * @param {Map} contigsMapping Available reference genomes' contigs list mapping
      */
-    newStriperInstance(coord, left, right, dataSources) {
-        return new Striper(this._logger, this._BandService, coord, left, right, dataSources);
+    newStriperInstance(coord, left, right, dataSources, contigsMapping) {
+        return new Striper(this._logger, this._comparatorFactory.newGenomicCoordinateComparatorInstance(contigsMapping),
+                this._bandService, coord, left, right, dataSources);
     }
 }
 
