@@ -38,10 +38,10 @@ class GenomicCoordinateComparator {
      */
     compare(o1, o2) {
 
-        if (!this._contigsMapping.has(o1.genome)) {
+        if (!this._contigsMapping[o1.genome]) {
             throw new UnknownReferenceGenomeException(o1.genome);
         }
-        if (!this._contigsMapping.has(o2.genome)) {
+        if (!this._contigsMapping[o2.genome]) {
             throw new UnknownReferenceGenomeException(o2.genome);
         }
 
@@ -50,11 +50,11 @@ class GenomicCoordinateComparator {
             return genomesComparisonResult;
         }
 
-        let o1ContigIdx = this._contigsMapping.get(o1.genome).indexOf(o1.contig);
+        let o1ContigIdx = this._contigsMapping[o1.genome].indexOf(o1.contig);
         if (o1ContigIdx === -1) {
             throw new UnknownContigException(o1.genome, o1.contig);
         }
-        let o2ContigIdx = this._contigsMapping.get(o1.genome).indexOf(o2.contig);
+        let o2ContigIdx = this._contigsMapping[o1.genome].indexOf(o2.contig);
         if (o2ContigIdx === -1) {
             throw new UnknownContigException(o2.genome, o2.contig);
         }
