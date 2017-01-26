@@ -51,7 +51,7 @@ angular.module('ghop-ui')
         let striper = StriperFactory.newStriperInstance(coord, 0, 1, ['api/dataSources/1'], mapping);
         striper.hopTo(coord, 0, 6, ['api/dataSources/1']);
         striper.stripes.then(
-            bandsResponse => $log.info(bandsResponse),
+            stripes => $log.info(stripes),
             error => $log.error(error)
         );
     });
