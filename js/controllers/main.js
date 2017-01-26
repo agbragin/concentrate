@@ -1,58 +1,81 @@
 angular.module('ghop-ui')
-.controller('MainController', ['$rootScope', '$scope', '$log',
-        'AggregateOperators', 'FilterOperator',
-        'TrackService', 'BandService', 'HateoasUtils',
-        'StriperFactory', 'ReferenceGenomeService', 'AsyncService',
-        'BinarySearch', 'GenomicCoordinateComparatorFactory',
-        ($rootScope, $scope, $log,
-        AggregateOperators, FilterOperator,
-        TrackService, BandService, HateoasUtils,
-        StriperFactory, ReferenceGenomeService, AsyncService,
-        BinarySearch, GenomicCoordinateComparatorFactory) => {
+.controller('MainController', ['$scope', '$log', '$uibModal', 'AsyncService', 'DataSourceService', 'Genetics', 'HateoasUtils', 'ReferenceGenomeService', 'StriperFactory',
+        ($scope, $log, $uibModal, AsyncService, DataSourceService, Genetics, HateoasUtils, ReferenceGenomeService, StriperFactory) => {
 
     $log.debug('Application main controller running');
 
-    $log.warn(FilterOperator.LESS);
-    $log.warn(AggregateOperators);
+    $scope.dataSourceTypes = Genetics.dataSourceTypes;
 
-    TrackService.findAll().then(
-        tracksResource => $log.warn(tracksResource),
-        error => $log.error(error)
-    );
-    TrackService.getOne('some_track').then(
-        trackResource => $log.warn(trackResource),
-        error => $log.error(error)
-    );
-    TrackService.getOne('variants').then(
-        trackResource => {
-            $log.info(HateoasUtils.getResourceUri(trackResource));
-            $log.info(HateoasUtils.getResourceId(trackResource));
-            try {
-                HateoasUtils.getResourceUri({'hateoas': false});
-            } catch (e) {
-                $log.error(e);
-            }
-        },
-        error => $log.error(error)
-    );
+    /**
+     * Retrieve available reference genomes data
+     */
+    AsyncService.asyncHandle(ReferenceGenomeService.referenceGenomeIds, ids => {
+        $log.debug(`Reference genome ids successfully retrieved and saved into controller's model`);
+        $scope.referenceGenomeIds = ids;
+    });
+    AsyncService.asyncHandle(ReferenceGenomeService.contigsMapping, mapping => {
+        $log.debug(`Contigs mapping successfully retrieved and saved into controller's model`);
+        $scope.contigsMapping = mapping;
+    });
+    /**
+     * Retrieve available data sources data
+     */
+    AsyncService.asyncHandle(DataSourceService.findAll(), dataSourcesResource => {
+        $scope.dataSources = dataSourcesResource['_embedded'].dataSources;
+        $log.debug(`Found ${$scope.dataSources.length} data sources: ${$scope.dataSources.map(HateoasUtils.getResourceUri)}`);
+    });
 
-    $scope.createTrackFromFile = () => {
-        TrackService.createFromFile($scope.file, 'variants', 'variants_bed', 'GRCh37.p13').then(
-            trackResource => $log.info(`Created ${trackResource.track} track of id: ${HateoasUtils.getResourceId(trackResource)}`),
+    $scope.openTrackCreationModal = () => {
+
+        let modalInstance = $uibModal.open({
+            animation: true,
+            controller: 'TrackCreationController',
+            size: 'md',
+            resolve: {
+                dataSourceTypes: () => $scope.dataSourceTypes,
+                referenceGenomeIds: () => $scope.referenceGenomeIds
+            },
+            templateUrl: 'templates/modals/track-creation.html'
+        });
+
+        modalInstance.result.then(
+            trackResource => {
+
+                $log.info(`Created ${trackResource.track} track on uri: ${HateoasUtils.getResourceUri(trackResource)}`);
+                DataSourceService.findAll().then(
+                    dataSourcesResource => {
+                        $scope.dataSources = dataSourcesResource['_embedded'].dataSources;
+                        $log.debug(`Found ${$scope.dataSources.length} data sources: ${$scope.dataSources.map(HateoasUtils.getResourceUri)}`);
+                    },
+                    error => $log.error(error)
+                );
+            },
+            () => $log.info('Track creation dismissed')
+        );
+    };
+
+    $scope.createStriper = () => {
+
+        $scope.striper = StriperFactory.newStriperInstance(
+                new GenomicCoordinate($scope.genome, $scope.contig, $scope.coord),
+                $scope.left, $scope.right,
+                $scope.dataSources.filter(dataSource => dataSource.checked)
+                        .map(HateoasUtils.getResourceUri), $scope.contigsMapping);
+        $scope.revealStripes();
+    };
+
+    $scope.revealStripes = () => {
+        $scope.striper.stripes.then(
+            stripes => $scope.stripes = stripes,
             error => $log.error(error)
         );
     };
 
-    AsyncService.asyncHandle(ReferenceGenomeService.referenceGenomeIds, ids => $scope.referenceGenomeIds = ids);
-    AsyncService.asyncHandle(ReferenceGenomeService.contigsMapping, mapping => $scope.contigsMapping = mapping);
-    AsyncService.asyncHandle(ReferenceGenomeService.contigsMapping, mapping => {
+    $scope.leftTrivialHop = () => {
+        // TODO: implement
+    };
 
-        let coord = new GenomicCoordinate('GRCh37.p13', 'chr1', 19845);
-        let striper = StriperFactory.newStriperInstance(coord, 0, 1, ['api/dataSources/1'], mapping);
-        striper.hopTo(coord, 0, 6, ['api/dataSources/1']);
-        striper.stripes.then(
-            stripes => $log.info(stripes),
-            error => $log.error(error)
-        );
-    });
+    $scope.rightTrivialHop = () => {
+        // TODO: implement
+    };
 }]);

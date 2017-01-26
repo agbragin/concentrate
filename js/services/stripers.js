@@ -123,8 +123,11 @@ class Striper {
             return new Array();
         }
 
+        let bands = bandsResource['_embedded'].bands;
+        this._logger.debug(`Got ${bands.length} retrieved bands: ${bands.map(band => band.name)}`);
+
         // Collect all points retrieved bands are generating
-        let points = bandsResource['_embedded'].bands.map(band => [
+        let points = bands.map(band => [
             new GenomicCoordinate(band.startCoord.contig.referenceGenome.id, band.startCoord.contig.id, band.startCoord.coord),
             new GenomicCoordinate(band.endCoord.contig.referenceGenome.id, band.endCoord.contig.id, band.endCoord.coord)
         ]).reduce((points, bandBounds) => {
@@ -134,7 +137,6 @@ class Striper {
 
             return points;
         }, new Set());
-
         // Sort them
         let coords = new Array(...points).sort(this._coordCompare);
 
@@ -149,7 +151,7 @@ class Striper {
             (rightHorizont > (coords.length - 1)) ? (coords.length - 1) : rightHorizont
         ];
 
-        return bandsResource['_embedded'].bands.map(band => {
+        return bands.map(band => {
 
             let startCoord = this._binarySearchUtils
                     .indexSearch(coords,

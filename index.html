@@ -4,16 +4,60 @@
     <meta charset='utf-8'>
     <title>Parseq gHop web-client</title>
     <link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
+    <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.min.css'>
 </head>
 <body ng-controller='MainController'>
-    <form>
-        <input type='file' ng-file='file'>
-        <button ng-click='createTrackFromFile()'>upload</button>
-    </form>
-    <div>Available reference genomes are: <span ng-bind='referenceGenomeIds'></span></div>
-    <div>Contigs mapping is: <span ng-bind='contigsMapping'></span></div>
+    <div class='container'>
+        <form>
+            <div class='form-group'>
+                <input type='submit' class='btn btn-warning form-control' ng-click='openTrackCreationModal()' value='Add new track'>
+            </div>
+        </form>
+    </div>
+    <div class='container'>
+        <form name='striperCreation'>
+            <label>Check data sources to fetch bands from</label>
+            <div class='form-group' ng-repeat='dataSource in dataSources'>
+                <input type='checkbox' ng-model='dataSource.checked'> {{ dataSource }}
+            </div>
+            <div class='form-group'>
+                <label>Choose reference genome</label>
+                <select id='genome' name='genome' class='form-control' ng-model='genome' ng-options='genome for genome in referenceGenomeIds' required></select>
+            </div>
+            <div class='form-group'>
+                <label>Choose contig</label>
+                <select id='contig' name='contig' class='form-control' ng-model='contig' ng-options='contig for contig in contigsMapping[genome]' required ng-disabled='!genome'></select>
+            </div>
+            <div class='form-group'>
+                <label>Enter coordinate</label>
+                <input id='coord' name='coord' type='number' class='form-control' ng-model='coord' required>
+            </div>
+            <div class='form-group'>
+                <label>Specify left borders count</label>
+                <input id='left' name='left' type='number' class='form-control' ng-model='left' required>
+            </div>
+            <div class='form-group'>
+                <label>Specify right borders count</label>
+                <input id='right' name='right' type='number' class='form-control' ng-model='right' required>
+            </div>
+            <div class='form-group'>
+                <input type='submit' class='btn btn-primary form-control' ng-click='createStriper()' value='Create striper instance' ng-disabled='!striperCreation.$valid'>
+            </div>
+        </form>
+    </div>
+    <div class='container' ng-if='stripes'>
+        <div ng-bind='stripes'></div>
+        <div>
+            <button class='col-xs-2 btn btn-default'><</button>
+            <button class='col-xs-2 btn btn-default pull-right'>></button>
+        </div>
+    </div>
+
+    <script src='lib/jquery/jquery.js'></script>
+    <script src='lib/bootstrap/bootstrap.js'></script>
 
     <script src='lib/angular/angular.js'></script>
+    <script src='lib/angular-bootstrap/ui-bootstrap-tpls.js'></script>
     <script src='lib/angular-resource/angular-resource.js'></script>
 
     <!-- Angular application script -->
@@ -25,6 +69,7 @@
     <script src='js/constants/hateoas-utils.js'></script>
     <!-- Controllers -->
     <script src='js/controllers/main.js'></script>
+    <script src='js/controllers/track-creation.js'></script>
     <!-- Resources -->
     <script src='js/resources/attribute.js'></script>
     <script src='js/resources/attributes.js'></script>

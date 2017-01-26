@@ -16,6 +16,8 @@
     ],
     "dependencies": {
         "angular": "*",
-        "angular-resource": "*"
+        "angular-resource": "*",
+        "angular-bootstrap": "*",
+        "bootstrap": "*"
     }
 }

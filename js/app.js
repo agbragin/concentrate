@@ -1,5 +1,6 @@
 angular.module('ghop-ui', [
-    'ngResource'
+    'ngResource',
+    'ui.bootstrap'
 ]).config(['$resourceProvider', 'GeneticsProvider', ($resourceProvider, GeneticsProvider) => {
 
 }]).run(['$log', 'ReferenceGenomeService', ($log, ReferenceGenomeService) => {
