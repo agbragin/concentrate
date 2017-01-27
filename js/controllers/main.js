@@ -71,11 +71,47 @@ angular.module('ghop-ui')
         );
     };
 
+    $scope.leftmostStripeCoord = () => {
+
+        return $scope.stripes
+                .filter(stripe => (stripe.startCoord === 0 || stripe.endCoord === 0))[0] ? 0 : 1;
+    };
+
+    $scope.rightmostStripeCoord = () => {
+
+        return $scope.stripes
+                .filter(stripe => (stripe.startCoord === ($scope.left + $scope.right)
+                        || stripe.endCoord === ($scope.left + $scope.right)))[0] ? ($scope.left + $scope.right) : ($scope.left + $scope.right) - 1;
+    };
+
     $scope.leftTrivialHop = () => {
-        // TODO: implement
+
+        let leftmostCoord = $scope.leftmostStripeCoord();
+        let leftmostStripe = $scope.stripes
+                .filter(stripe => (stripe.startCoord === leftmostCoord || stripe.endCoord === leftmostCoord))[0];
+        let newBearingPoint = GenomicCoordinate
+                .parseCoordinate(leftmostStripe.properties[(leftmostStripe.startCoord === leftmostCoord) ? 'startCoord' : 'endCoord']);
+
+        /**
+         * TODO: somehow detect the leftmost band to prevent future hops
+         */
+        $scope.striper.hopTo(newBearingPoint, 1, $scope.left + $scope.right - 1);
+        $scope.revealStripes();
     };
 
     $scope.rightTrivialHop = () => {
-        // TODO: implement
+
+        let rightmostCoord = $scope.rightmostStripeCoord();
+        let rightmostStripe = $scope.stripes
+                .filter(stripe => (stripe.startCoord === rightmostCoord
+                        || stripe.endCoord === rightmostCoord))[0];
+        let newBearingPoint = GenomicCoordinate
+                .parseCoordinate(rightmostStripe.properties[(rightmostStripe.startCoord === rightmostCoord) ? 'startCoord' : 'endCoord']);
+
+        /**
+         * TODO: somehow detect the rightmost band to prevent future hops
+         */
+        $scope.striper.hopTo(newBearingPoint, $scope.left + $scope.right - 1, 1);
+        $scope.revealStripes();
     };
 }]);

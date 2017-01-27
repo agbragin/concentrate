@@ -1,3 +1,14 @@
+class GenomicSerializationException {
+
+    constructor(point, error) {
+        this._point = point;
+        this._error = error;
+    }
+
+    get point () { return this._point }
+    get error () { return this._error }
+}
+
 class GenomicCoordinate {
 
     /**
@@ -12,6 +23,20 @@ class GenomicCoordinate {
         this._genome = genome;
         this._contig = contig;
         this._coord = coord;
+    }
+
+    /**
+     * @static {GenomicCoordinate}
+     * @param {Object} point Genomic coordinate JSON representation
+     * @returns {GenomicCoordinate}
+     */
+    static parseCoordinate(point) {
+
+        try {
+            return new GenomicCoordinate(point.contig.referenceGenome.id, point.contig.id, point.coord);
+        } catch (e) {
+            throw new GenomicSerializationException(point, e);
+        }
     }
 
     get genome() { return this._genome }
