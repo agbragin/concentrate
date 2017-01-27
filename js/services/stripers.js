@@ -146,9 +146,9 @@ class Striper {
         // Search for bearing point inside retrieved points
         let bearingPointIndex = this._bsUtils.indexSearch(coords, this._coord, this._coordCompare);
         // If present we need not to account it while looking up for next left points
-        let leftCorrection = this._bsUtils.contains(coords, this._coord, this._coordCompare);
+        let leftCorrection = !this._bsUtils.contains(coords, this._coord, this._coordCompare);
         // Define a 'visualization horizonts' (every point outside 'atfer them' we threat as Infinity)
-        let [leftHorizont, rightHorizont] = [bearingPointIndex - this._left - (leftCorrection ? 1 : 0), bearingPointIndex + this._right];
+        let [leftHorizont, rightHorizont] = [bearingPointIndex - this._left + (leftCorrection ? 1 : 0), bearingPointIndex + this._right];
         [leftHorizont, rightHorizont] = [
             (leftHorizont < 0) ? 0 : leftHorizont,
             (rightHorizont > (coords.length - 1)) ? (coords.length - 1) : rightHorizont
@@ -163,8 +163,8 @@ class Striper {
                     new GenomicCoordinate(band.endCoord.contig.referenceGenome.id, band.endCoord.contig.id, band.endCoord.coord),
                     this._coordCompare);
             [startCoord, endCoord] = [
-                    (startCoord < leftHorizont) ? -Infinity : (startCoord - leftHorizont),
-                    (endCoord > rightHorizont) ? +Infinity : (endCoord - leftHorizont)
+                    (startCoord < leftHorizont) ? '-Infinity' : (startCoord - leftHorizont),
+                    (endCoord > rightHorizont) ? '+Infinity' : (endCoord - leftHorizont)
             ];
 
             let properties = band.properties;
