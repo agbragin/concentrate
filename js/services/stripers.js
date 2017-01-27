@@ -28,19 +28,22 @@ class Stripe {
     /**
      * @constructor
      * @this {Stripe}
+     * @param {String} track Track name stripe belongs to
      * @param {String} name Stripe name
      * @param {Number} startCoord Stripe start absolute coordinate (1-based or -Infinity)
      * @param {Number} endCoord Stripe end absoute coordinate (1-based or +Infinity)
      * @param {Object} properties Stripe properties
      */
-    constructor(name, startCoord, endCoord, properties) {
+    constructor(track, name, startCoord, endCoord, properties) {
 
+        this._track = track;
         this._name = name;
         this._startCoord = startCoord;
         this._endCoord = endCoord;
         this._properties = properties;
     }
 
+    get track      () { return this._track      }
     get name       () { return this._name       }
     get startCoord () { return this._startCoord }
     get endCoord   () { return this._endCoord   }
@@ -52,23 +55,23 @@ class Striper {
     /**
      * @constructor
      * @this {Striper}
-     * @param {GenomicCoordinateComparator} genomicCoordinateComparator Coordinate comparator
-     * @param {BandService} bandService Bands requesting service 
-     * @param {BinarySearch} binarySearchUtils Binary search utils
+     * @param {GenomicCoordinateComparator} comparator Coordinate comparator instance
+     * @param {BandService} bander Bands requesting service
+     * @param {BinarySearch} bsUtils Binary search utils
      * @param {GenomicCoordinate} coord Bearing genomic coordinate
      * @param {Number} left Number of left borders to request
      * @param {Number} right Number of right borders to request
      * @param {String[]} dataSources Array of data source URIs to request from
      */
-    constructor(logger, genomicCoordinateComparator, bandService, binarySearchUtils, coord, left, right, dataSources) {
+    constructor(logger, comparator, bander, bsUtils, coord, left, right, dataSources) {
 
         logger.debug(`Instantiating Striper in: ${coord.genome}:${coord.contig}:${coord.coord}[${left};${right}] for data sources: ${dataSources}`);
         this._logger = logger;
 
-        this._request = (genome, contig, coord, left, right, dataSources) => bandService
+        this._request = (genome, contig, coord, left, right, dataSources) => bander
                 .request(genome, contig, coord, left, right, dataSources);
-        this._coordCompare = (o1, o2) => genomicCoordinateComparator.compare(o1, o2);
-        this._binarySearchUtils = binarySearchUtils;
+        this._coordCompare = (o1, o2) => comparator.compare(o1, o2);
+        this._bsUtils = bsUtils;
 
         this._coord = coord;
         this._left = left;
@@ -141,9 +144,9 @@ class Striper {
         let coords = new Array(...points).sort(this._coordCompare);
 
         // Search for bearing point inside retrieved points
-        let bearingPointIndex = this._binarySearchUtils.indexSearch(coords, this._coord, this._coordCompare);
+        let bearingPointIndex = this._bsUtils.indexSearch(coords, this._coord, this._coordCompare);
         // If present we need not to account it while looking up for next left points
-        let leftCorrection = this._binarySearchUtils.contains(coords, this._coord, this._coordCompare);
+        let leftCorrection = this._bsUtils.contains(coords, this._coord, this._coordCompare);
         // Define a 'visualization horizonts' (every point outside 'atfer them' we threat as Infinity)
         let [leftHorizont, rightHorizont] = [bearingPointIndex - this._left - (leftCorrection ? 1 : 0), bearingPointIndex + this._right];
         [leftHorizont, rightHorizont] = [
@@ -153,14 +156,12 @@ class Striper {
 
         return bands.map(band => {
 
-            let startCoord = this._binarySearchUtils
-                    .indexSearch(coords,
-                            new GenomicCoordinate(band.startCoord.contig.referenceGenome.id, band.startCoord.contig.id, band.startCoord.coord),
-                            this._coordCompare);
-            let endCoord = this._binarySearchUtils
-                    .indexSearch(coords,
-                            new GenomicCoordinate(band.endCoord.contig.referenceGenome.id, band.endCoord.contig.id, band.endCoord.coord),
-                            this._coordCompare);
+            let startCoord = this._bsUtils.indexSearch(coords,
+                    new GenomicCoordinate(band.startCoord.contig.referenceGenome.id, band.startCoord.contig.id, band.startCoord.coord),
+                    this._coordCompare);
+            let endCoord = this._bsUtils.indexSearch(coords,
+                    new GenomicCoordinate(band.endCoord.contig.referenceGenome.id, band.endCoord.contig.id, band.endCoord.coord),
+                    this._coordCompare);
             [startCoord, endCoord] = [
                     (startCoord < leftHorizont) ? -Infinity : (startCoord - leftHorizont),
                     (endCoord > rightHorizont) ? +Infinity : (endCoord - leftHorizont)
@@ -169,7 +170,7 @@ class Striper {
             let properties = band.properties;
             [properties.startCoord, properties.endCoord] = [band.startCoord, band.endCoord];
 
-            return new Stripe(band.name, startCoord, endCoord, properties);
+            return new Stripe(band.track, band.name, startCoord, endCoord, properties);
         });
     }
 }
@@ -178,14 +179,18 @@ class StriperFactory {
 
     /**
      * @constructor
-     * @this {Striper}
+     * @this {StriperFactory}
+     * @param {Object} logger Injected logger
+     * @param {GenomicCoordinateComparatorFactory} comparatorFactory Coordinate comparator factory
+     * @param {BandService} bander Bands requesting service
+     * @param {BinarySearch} bsUtils Binary search utils
      */
-    constructor($log, GenomicCoordinateComparatorFactory, BandService, BinarySearch) {
+    constructor(logger, comparatorFactory, bander, bsUtils) {
 
-        this._logger = $log;
-        this._coordCompareFactory = GenomicCoordinateComparatorFactory;
-        this._bandService = BandService;
-        this._binarySearchUtils = BinarySearch;
+        this._logger = logger;
+        this._comparatorFactory = comparatorFactory;
+        this._bander = bander;
+        this._bsUtils = bsUtils;
     }
 
     /**
@@ -197,10 +202,11 @@ class StriperFactory {
      * @param {Object} contigsMapping Available reference genomes' contigs list mapping
      */
     newStriperInstance(coord, left, right, dataSources, contigsMapping) {
-        return new Striper(this._logger, this._coordCompareFactory.newGenomicCoordinateComparatorInstance(contigsMapping),
-                this._bandService, this._binarySearchUtils, coord, left, right, dataSources);
+        return new Striper(this._logger, this._comparatorFactory.newGenomicCoordinateComparatorInstance(contigsMapping),
+                this._bander, this._bsUtils, coord, left, right, dataSources);
     }
 }
 
 angular.module('ghop-ui')
-.factory('StriperFactory', StriperFactory);
+.factory('StriperFactory', ($log, GenomicCoordinateComparatorFactory, BandService, BinarySearch) =>
+        new StriperFactory($log, GenomicCoordinateComparatorFactory, BandService, BinarySearch));
