@@ -1,5 +1,11 @@
 class BinarySearchException {
 
+    /**
+     * @constructor
+     * @this {BinarySearchException}
+     * @param {Object} arr Input object
+     * @param {String} message Exception message
+     */
     constructor(arr, message) {
         this._arr = arr;
         this._message = message;

@@ -1,2 +1,6 @@
 angular.module('ghop-ui')
-.constant('AggregateOperators', new Set(['AND', 'OR', 'XOR']));
+.constant('AggregateOperator', {
+    AND: 'AND',
+    OR: 'OR',
+    XOR: 'XOR'
+});
