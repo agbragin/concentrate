@@ -160,13 +160,13 @@ class Striper {
             new GenomicCoordinate(band.endCoord.contig.referenceGenome.id, band.endCoord.contig.id, band.endCoord.coord)
         ]).reduce((points, bandBounds) => {
 
-            points.add(bandBounds[0]);
-            points.add(bandBounds[1]);
+            points.set(bandBounds[0].toString(), bandBounds[0]);
+            points.set(bandBounds[1].toString(), bandBounds[1]);
 
             return points;
-        }, new Set());
+        }, new Map());
         // Sort them
-        let coords = new Array(...points).sort(this._coordCompare);
+        let coords = Array.from(points.values()).sort(this._coordCompare);
 
         // Search for bearing point inside retrieved points
         let bearingPointIndex = this._bsUtils.indexSearch(coords, this._coord, this._coordCompare);
