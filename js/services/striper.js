@@ -81,7 +81,7 @@ class Striper {
      * @constructor
      * @this {Striper}
      * @param {GenomicCoordinateComparator} comparator Coordinate comparator instance
-     * @param {BandService} bander Bands requesting service
+     * @param {Bander} bander Bands requesting service
      * @param {BinarySearch} bsUtils Binary search utils
      * @param {GenomicCoordinate} coord Bearing genomic coordinate
      * @param {Number} left Number of left borders to request
@@ -93,8 +93,8 @@ class Striper {
         logger.debug(`Instantiating Striper in: ${coord.genome}:${coord.contig}:${coord.coord}[${left};${right}] for data sources: ${dataSources}`);
         this._logger = logger;
 
-        this._request = (genome, contig, coord, left, right, dataSources) => bander
-                .request(genome, contig, coord, left, right, dataSources);
+        this._getBands = (genome, contig, coord, left, right, dataSources) => bander
+                .getBands(genome, contig, coord, left, right, dataSources);
         this._coordCompare = (o1, o2) => comparator.compare(o1, o2);
         this._bsUtils = bsUtils;
 
@@ -141,7 +141,7 @@ class Striper {
 
         this._logger.debug(`Requesting Bands in: ${this._coord.genome}:${this._coord.contig}:${this._coord.coord}[${this._left};${this._right}] for data sources: ${this._dataSources}`);
 
-        return this._request(this._coord.genome, this._coord.contig, this._coord.coord,
+        return this._getBands(this._coord.genome, this._coord.contig, this._coord.coord,
                 this._left, this._right, this._dataSources);
     }
 
@@ -207,7 +207,7 @@ class StriperFactory {
      * @this {StriperFactory}
      * @param {Object} logger Injected logger
      * @param {GenomicCoordinateComparatorFactory} comparatorFactory Coordinate comparator factory
-     * @param {BandService} bander Bands requesting service
+     * @param {Bander} bander Bands requesting service
      * @param {BinarySearch} bsUtils Binary search utils
      */
     constructor(logger, comparatorFactory, bander, bsUtils) {
@@ -233,5 +233,5 @@ class StriperFactory {
 }
 
 angular.module('ghop-ui')
-.factory('StriperFactory', ($log, GenomicCoordinateComparatorFactory, BandService, BinarySearch) =>
-        new StriperFactory($log, GenomicCoordinateComparatorFactory, BandService, BinarySearch));
+.factory('StriperFactory', ($log, GenomicCoordinateComparatorFactory, Bander, BinarySearch) =>
+        new StriperFactory($log, GenomicCoordinateComparatorFactory, Bander, BinarySearch));
