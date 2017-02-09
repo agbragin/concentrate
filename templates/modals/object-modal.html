@@ -1,0 +1,22 @@
+
+<div class="modal-header">
+    <button type="button" class="close" ng-click="cancel()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Object "<span ng-bind="object.name"></span>"</h4>
+</div>
+<div class="modal-body">
+    <ul>
+        <li>Layer: <span ng-bind="layer.name"></span></li>
+        <li>SubLayer: <span ng-bind="object.sublayer"></span></li>
+        <li>Chromosome: <span ng-bind="object.properties.startCoord.contig.id"></span> - <span ng-bind="object.properties.endCoord.contig.id"></span></li>
+        <li>Start position: <span ng-bind="object.properties.startCoord.contig.id"></span> - <span ng-bind="object.properties.startCoord.coord"></span></li>
+        <li>Stop position: <span ng-bind="object.properties.endCoord.contig.id"></span> - <span ng-bind="object.properties.endCoord.coord"></span></li>
+        <li>Length: {{ object.properties.endCoord.coord - object.properties.startCoord.coord }} </li>
+        <li>Local start position: <span ng-bind="object.startCoord"></span></li>
+        <li>Local stop position: <span ng-bind="object.endCoord"></span></li>
+    </ul>
+</div>
+<div class="modal-footer">
+    <button id="vclose-button" class="btn btn-default" type="button" ng-click="cancel()">Close</button>
+</div>

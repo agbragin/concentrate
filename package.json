@@ -8,9 +8,14 @@
     },
     "devDependencies": {
         "grunt": "~0.4.x",
+        "load-grunt-tasks": "~3.5.2",
         "grunt-bower-task": "git+https://github.com/yatskevich/grunt-bower-task",
+        "grunt-contrib-concat": "~1.0.1",
         "grunt-connect-proxy": "git+https://github.com/drewzboto/grunt-connect-proxy.git",
         "grunt-contrib-connect": "git+https://github.com/gruntjs/grunt-contrib-connect",
-        "grunt-contrib-watch": "git+https://github.com/gruntjs/grunt-contrib-watch"
+        "grunt-contrib-watch": "git+https://github.com/gruntjs/grunt-contrib-watch",
+        "grunt-babel": "~6.0.0",
+        "babel-preset-es2015": "~6.22.0",
+        "babel-preset-stage-0": "^6.0.15"
     }
 }

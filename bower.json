@@ -16,6 +16,15 @@
     ],
     "dependencies": {
         "angular": "*",
-        "angular-resource": "*"
+        "angular-resource": "*",
+        "angular-bootstrap": "*",
+        "bootstrap": "*",
+        "angular-multi-select": "*",
+        "EaselJS": "^0.8.2",
+        "jquery-ui": "latest",
+        "angular-ui-sortable": "latest",
+        "angularjs-slider" : "latest",
+        "angular-clipboard" : "latest",
+        "babel-polyfill": "latest"
     }
 }
