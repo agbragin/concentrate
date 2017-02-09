@@ -1,2 +1,2 @@
 angular.module('ghop-ui')
-.factory('TrackFilters', $resource => $resource('/ghop-core/tracks/:id/filters', { id: '@id' }));
+.factory('TrackFilters', $resource => $resource('/tracks/:id/filters', { id: '@id' }));

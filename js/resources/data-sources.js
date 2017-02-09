@@ -1,2 +1,2 @@
 angular.module('ghop-ui')
-.factory('DataSources', $resource => $resource('/ghop-core/dataSources'));
+.factory('DataSources', $resource => $resource('/dataSources'));

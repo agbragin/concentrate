@@ -57,4 +57,4 @@ class TrackService {
 }
 
 angular.module('ghop-ui')
-.factory('TrackService', TrackService);
+.factory('TrackService', (Tracks, Track, TrackAttributes, TrackDataSource, TrackFilters) => new TrackService(Tracks, Track, TrackAttributes, TrackDataSource, TrackFilters));

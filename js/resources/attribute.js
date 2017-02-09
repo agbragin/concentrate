@@ -1,2 +1,2 @@
 angular.module('ghop-ui')
-.factory('Attribute', $resource => $resource('/ghop-core/attributes/:id', { id: '@id' }));
+.factory('Attribute', $resource => $resource('/attributes/:id', { id: '@id' }));

@@ -18,4 +18,4 @@ class AsyncService {
 }
 
 angular.module('ghop-ui')
-.factory('AsyncService', AsyncService);
+.factory('AsyncService', ($rootScope, $log) => new AsyncService($rootScope, $log));

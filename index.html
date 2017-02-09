@@ -2,49 +2,152 @@
 <html ng-app='ghop-ui'>
 <head>
     <meta charset='utf-8'>
-    <title>Parseq gHop web-client</title>
+    <title>Parseq Concentrate web-client</title>
     <link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
-    <link rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.min.css'>
+    <link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"> 
+    <link rel="stylesheet" href="bower_components/angular-multi-select/isteven-multi-select.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/angularjs-slider/dist/rzslider.min.css"/>
+    <link type="text/css" rel="stylesheet" href="css/styles.css">
 </head>
 <body ng-controller='MainController'>
-    <div class='container'>
-        <form>
-            <div class='form-group'>
-                <input type='submit' class='btn btn-warning form-control' ng-click='openTrackCreationModal()' value='Add new track'>
+    <div class="genome-browser">
+        <div class="browser-container" ng-class="{'nav-expanded' : navOpen}">
+            <nav>
+                <div class="nav-body">
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs main-menu" style="border-bottom: none;">
+                        <li class="active"><a href="#current" id="current-view-tab" data-toggle="tab">Current</a></li>
+                        <li><a href="#archive" data-toggle="tab">Archive</a></li>
+                        <li><a href="#settings" data-toggle="tab">Settings</a></li>
+                        <li class="pull-right text-right" >
+                            <a href="#" id="nav-close" ng-click="toggleNav()">X</a>
+                        </li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="current">
+                            <div class="col-md-12">
+                                <button class="btn btn-default btn-xs" ng-click="relationService.createRelation('AND')">AND</button>
+                                <button class="btn btn-default btn-xs" ng-click="relationService.createRelation('OR')">OR</button>
+                                <button class="btn btn-default btn-xs" ng-click="relationService.createRelation('XOR')">XOR</button>
+                                <button class="btn btn-default btn-xs" ng-click="relationService.defaultRelations()">Clear</button>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8" style="padding-right: 5px">
+                                    <ul class="list-unstyled main-menu" ui-sortable="sortableOptions" ng-model="selectedTracks">
+                                        <li ng-repeat="track in selectedTracks"
+                                            ng-style="track.style" 
+                                            ng-click="relationService.addToRelation(track, selectedTracks)" 
+                                            ng-class="{selectable:relationService.isSelectable(track), selected:relationService.isSelected(track)}"
+                                            id="track_{{track.track}}">
+                                            <div> 
+                                                <span ng-bind="track.track"></span>
+                                                <button ng-click="openFiltersModal(track.track)" class="btn btn-xs btn-default pull-right" >Filters</button>
+                                                
+                                                <div class="selected-attributes" ng-bind="track.getSelectedFilters()"></div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                    
+                            
+                                    <button class="btn btn-primary" style="margin-left: 15px;" ng-click="applyFilters()">apply</button>
+                                    <button class="btn btn-default" ng-click="saveState()">save</button>
+                                </div>
+                                <div class="col-md-4" style="padding-left: 0">
+                                    <svg id="tracks_tree_svg" xmlns="http://www.w3.org/2000/svg" width="100%" height="700px">
+                                        <defs>
+                                            <marker id="arrowhead" viewBox="0 0 10 10" refX="3" refY="5"
+                                                markerWidth="4" markerHeight="4" orient="180">
+                                            <path d="M 0 0 L 10 5 L 0 10 z" />
+                                            </marker>
+                                        </defs>
+                                        <g fill="none" stroke="#f0f0f0" width="100%" stroke-width="2" id="tracks_tree">
+                                        </g>
+                                        <g fill="none" stroke="f0f0f0" width="100%" id="tracks_images">
+                                        </g>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="archive">
+                            <div class="row">
+                                <div class="col-md-9" style="font-weight: bold; height: 35px;">Info</div>
+                                <div class="col-md-3" style="font-weight: bold; height: 35px;">Controls</div>
+                            </div>
+                            <div class="row" ng-repeat="state in savedStates track by $index">
+                                <div class="col-md-9">
+                                    Tracks count: <span ng-bind="state.tracks.length"></span>
+                                    <br>
+                                    Position: <span ng-bind="state.position"></span>
+                                    <br>
+                                    Created: <span ng-bind="state.created | date:'medium'"></span>
+                                    <br>
+                                    Tracks: 
+                                    <ul>
+                                        <li ng-repeat="trackId in state.tracks">
+                                            <span ng-bind="trackId"></span>
+                                            <div class="selected-attributes" ng-bind="state.getSelectedFilters(trackId)"></div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="btn btn-primary btn-xs" style="width: 80%" clipboard text="state.getUrl()" >Share</div>
+                                    <div class="btn btn-default btn-xs" style="width: 80%" ng-click="loadState(state)">Load</div>
+                                    <div class="btn btn-default btn-xs" style="width: 80%" ng-click="deleteState(state)">Delete</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="settings">
+                            <div>Special place for settings</div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </nav>
+            <div class="navbar navbar-inverse navbar-fixed-top">      
+                    
+                <!--Include your brand here-->
+                <a class="navbar-brand" href="#">CONC.</a>
+                <div class="navbar-header genome-nav">
+                    <label>Check data sources to fetch bands from:</label>
+                    <div isteven-multi-select 
+                        class="multiselect"
+                            input-model="tracks"
+                            output-model="selectedTracks"
+                            
+                            item-label="track" 
+                            max-labels="2"
+                            button-label="track"
+                            on-close="onSelectTracks()"
+                            tick-property="ticked">
+                    </div>
+                    <div class="btn btn-warning load-source-btn" ng-click="openTrackCreationModal()">add</div>
+                    <div class="btn btn-default load-source-btn" ng-click="clearTracks()">remove all</div>
+
+                    <span class="nav-delimeter"></span>
+
+                    <label>Reference:</label>
+                    <span ng-bind="genome" id="genome"></span>
+                    <span class="nav-delimeter"></span>
+
+                    <label>Coordinate:</label>
+                    <select id='contig' name='contig' class='form-control' ng-model='contig' ng-disabled="positionInputDisabled()" ng-options='contig for contig in contigsMapping[genome]' required ng-disabled='!genome'></select>
+                    <input type="text" ng-disabled="positionInputDisabled()" class="form-control" ng-model="coord" ng-enter="createStriper()" />
+                    <div class="btn btn-primary" ng-click="createStriper()">hop!</div>
+                </div>
+                <div class="navbar-header pull-right">
+                    <a id="nav-expander" class="nav-expander fixed" ng-click="toggleNav()">
+                    Filters
+                    </a>
+                </div>
             </div>
-        </form>
+
+            <div class="canvas-wrapper">
+                <canvas></canvas>
+            </div>
+        </div>
     </div>
-    <div class='container'>
-        <form name='striperCreation'>
-            <label>Check data sources to fetch bands from</label>
-            <div class='form-group' ng-repeat='dataSource in dataSources'>
-                <input type='checkbox' ng-model='dataSource.checked'> {{ dataSource }}
-            </div>
-            <div class='form-group'>
-                <label>Choose reference genome</label>
-                <select id='genome' name='genome' class='form-control' ng-model='genome' ng-options='genome for genome in referenceGenomeIds' required></select>
-            </div>
-            <div class='form-group'>
-                <label>Choose contig</label>
-                <select id='contig' name='contig' class='form-control' ng-model='contig' ng-options='contig for contig in contigsMapping[genome]' required ng-disabled='!genome'></select>
-            </div>
-            <div class='form-group'>
-                <label>Enter coordinate</label>
-                <input id='coord' name='coord' type='number' class='form-control' ng-model='coord' required>
-            </div>
-            <div class='form-group'>
-                <label>Specify left borders count</label>
-                <input id='left' name='left' type='number' class='form-control' ng-model='left' required>
-            </div>
-            <div class='form-group'>
-                <label>Specify right borders count</label>
-                <input id='right' name='right' type='number' class='form-control' ng-model='right' required>
-            </div>
-            <div class='form-group'>
-                <input type='submit' class='btn btn-primary form-control' ng-click='createStriper()' value='Create striper instance' ng-disabled='!striperCreation.$valid'>
-            </div>
-        </form>
-    </div>
+
     <div class='container' ng-if='stripes'>
         <div ng-bind='stripes'></div>
         <div>
@@ -54,48 +157,21 @@
     </div>
 
     <script src='bower_components/jquery/dist/jquery.min.js'></script>
+    <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="bower_components/babel-polyfill/browser-polyfill.js"></script>
     <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
 
     <script src='bower_components/angular/angular.min.js'></script>
-    <script src='bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js'></script>
     <script src='bower_components/angular-resource/angular-resource.min.js'></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
+    <script src='bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js'></script>
+    <script src='bower_components/angular-multi-select/isteven-multi-select.js'></script>
+    <script src='bower_components/EaselJS/lib/easeljs-0.8.2.combined.js'></script>
+    <script src="bower_components/angular-ui-sortable/sortable.min.js"></script>
+    <script src="bower_components/angularjs-slider/dist/rzslider.min.js"></script>
+    <script src="bower_components/angular-clipboard/angular-clipboard.js"></script>
 
     <!-- Angular application script -->
-    <script src='js/app.js'></script>
-    <!-- Constants -->
-    <script src='js/constants/aggregate-operators.js'></script>
-    <script src='js/constants/binary-search.js'></script>
-    <script src='js/constants/filter-operators.js'></script>
-    <script src='js/constants/hateoas-utils.js'></script>
-    <!-- Controllers -->
-    <script src='js/controllers/main.js'></script>
-    <script src='js/controllers/track-creation.js'></script>
-    <!-- Resources -->
-    <script src='js/resources/attribute.js'></script>
-    <script src='js/resources/attributes.js'></script>
-    <script src='js/resources/bands.js'></script>
-    <script src='js/resources/contigs.js'></script>
-    <script src='js/resources/data-source.js'></script>
-    <script src='js/resources/data-sources.js'></script>
-    <script src='js/resources/reference-genomes.js'></script>
-    <script src='js/resources/track.js'></script>
-    <script src='js/resources/track-attributes.js'></script>
-    <script src='js/resources/track-data-source.js'></script>
-    <script src='js/resources/track-filters.js'></script>
-    <script src='js/resources/tracks.js'></script>
-    <!-- Providers -->
-    <script src='js/providers/genetics.js'></script>
-    <!-- Services -->
-    <script src='js/services/async.js'></script>
-    <script src='js/services/attributes.js'></script>
-    <script src='js/services/bander.js'></script>
-    <script src='js/services/data-sources.js'></script>
-    <script src='js/services/filters.js'></script>
-    <script src='js/services/genomic-coordinate-comparators.js'></script>
-    <script src='js/services/reference-genomes.js'></script>
-    <script src='js/services/striper.js'></script>
-    <script src='js/services/tracks.js'></script>
-    <!-- Directives -->
-    <script src='js/directives/ng-file.js'></script>
+    <script src='build/es2015/build/app.js'></script>
 </body>
 </html>

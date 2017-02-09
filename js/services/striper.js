@@ -104,6 +104,9 @@ class Striper {
         this._dataSources = dataSources;
 
         this._stripes = this._requestStripes();
+        this._stripes.then(stripes => {
+            this._lastStripes = stripes;
+        });
     }
 
     get stripes     () { return this._stripes     }
@@ -127,6 +130,9 @@ class Striper {
         this._right = right;
 
         this._stripes = this._requestStripes();
+        this._stripes.then(stripes => {
+            this._lastStripes = stripes;
+        });
     }
 
     _requestStripes() {
@@ -159,13 +165,12 @@ class Striper {
             new GenomicCoordinate(band.startCoord.contig.referenceGenome.id, band.startCoord.contig.id, band.startCoord.coord),
             new GenomicCoordinate(band.endCoord.contig.referenceGenome.id, band.endCoord.contig.id, band.endCoord.coord)
         ]).reduce((points, bandBounds) => {
-
             points.set(bandBounds[0].toString(), bandBounds[0]);
             points.set(bandBounds[1].toString(), bandBounds[1]);
 
             return points;
         }, new Map());
-        // Sort them
+       
         let coords = Array.from(points.values()).sort(this._coordCompare);
 
         // Search for bearing point inside retrieved points
@@ -197,6 +202,49 @@ class Striper {
 
             return new Stripe(band.track, band.name, startCoord, endCoord, properties);
         });
+    }
+
+    _centerCoord() {
+
+        return Math.ceil((this._left + this._right)/2);
+    };
+
+    leftTrivialHop() {
+        
+        let centerCoord = this._centerCoord();
+        let centerStripe = this._lastStripes
+                .filter(stripe => (stripe.startCoord === centerCoord || stripe.endCoord === centerCoord))[0];
+        let prevStripe = this._lastStripes
+                .filter(stripe => (stripe.startCoord === (centerCoord + 1) || stripe.endCoord === (centerCoord + 1)))[0];
+        
+        if (prevStripe) {
+            let newBearingPoint = GenomicCoordinate
+                .parseCoordinate(centerStripe.properties[(centerStripe.startCoord === centerCoord) ? 'startCoord' : 'endCoord']);
+
+            /**
+             * TODO: somehow detect the leftmost band to prevent future hops
+             */
+            this.hopTo(newBearingPoint, centerCoord - 1, this._left + this._right - centerCoord + 1);
+        }
+    }
+
+    rightTrivialHop() {
+        
+        let centerCoord = this._centerCoord();
+        let centerStripe = this._lastStripes
+                .filter(stripe => (stripe.startCoord === centerCoord || stripe.endCoord === centerCoord))[0];
+        let nextStripe = this._lastStripes
+                .filter(stripe => (stripe.startCoord === (centerCoord - 1) || stripe.endCoord === (centerCoord - 1)))[0];
+        
+        if (nextStripe) {
+            let newBearingPoint = GenomicCoordinate
+                .parseCoordinate(centerStripe.properties[(centerStripe.startCoord === centerCoord) ? 'startCoord' : 'endCoord']);
+
+            /**
+             * TODO: somehow detect the rightmost band to prevent future hops
+             */
+            this.hopTo(newBearingPoint, this._left + this._right - centerCoord + 2, centerCoord - 2);
+        }
     }
 }
 

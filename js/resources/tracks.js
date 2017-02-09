@@ -1,5 +1,5 @@
 angular.module('ghop-ui')
-.factory('Tracks', $resource => $resource('/ghop-core/tracks', {}, {
+.factory('Tracks', $resource => $resource('/tracks', {}, {
     createFromFile: {
         method: 'POST',
         headers: {

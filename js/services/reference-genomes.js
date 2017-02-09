@@ -27,4 +27,4 @@ class ReferenceGenomeService {
 }
 
 angular.module('ghop-ui')
-.factory('ReferenceGenomeService', ReferenceGenomeService);
+.factory('ReferenceGenomeService', ($log, Genetics, Contigs, HateoasUtils) => new ReferenceGenomeService($log, Genetics, Contigs, HateoasUtils));

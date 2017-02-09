@@ -4,3 +4,4 @@ bower_components/
 lib/
 node_modules/
 *.log
+build/

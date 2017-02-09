@@ -28,4 +28,4 @@ class Bander {
 }
 
 angular.module('ghop-ui')
-.factory('Bander', Bander);
+.factory('Bander', (Bands) => new Bander(Bands));

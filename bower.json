@@ -18,6 +18,13 @@
         "angular": "*",
         "angular-resource": "*",
         "angular-bootstrap": "*",
-        "bootstrap": "*"
+        "bootstrap": "*",
+        "angular-multi-select": "*",
+        "EaselJS": "^0.8.2",
+        "jquery-ui": "latest",
+        "angular-ui-sortable": "latest",
+        "angularjs-slider" : "latest",
+        "angular-clipboard" : "latest",
+        "babel-polyfill": "latest"
     }
 }

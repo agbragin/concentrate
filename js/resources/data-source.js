@@ -1,2 +1,2 @@
 angular.module('ghop-ui')
-.factory('DataSource', $resource => $resource('/ghop-core/dataSources/:id', { id: '@id' }));
+.factory('DataSource', $resource => $resource('/dataSources/:id', { id: '@id' }));
