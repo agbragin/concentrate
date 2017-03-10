@@ -1,18 +1,22 @@
 angular.module('ghop-ui')
 .constant('CanvasSettings', {
     CANVAS_MARGIN : 0,
+    CANVAS_PADDING_TOP : 85,
+    CANVAS_MIN_HEIGHT : 600,
     UNIT_WIDTH : 100,
     UNIT_HEIGHT : 30,
     SPACE_BETWEEN_LAYERS : 5,
-    LAYER_PADDING : 40,
-    CANVAS_PADDING_TOP : 70,
+    TRACK_PADDING : 40,
     SPARE_OBJECT_COUNT : 4,
+    MENU_PANEL_MIN_WIDTH : 300,
+    FILTERS_MODAL_MIN_WIDTH : 600,
     
     MAX_DARKNESS : 65,
     DEFAULT_SATURATION : 70,
     MAX_LIGHTNESS : 85,
     
     LAYER_BASE_HEIGHT : 35,
+    FILTERS_SMALL_LINE_HEIGHT : 14,
     
     OBJECT_TEXT_OPTIONS : '14px Arial',
     OBJECT_TEXT_COLOR : '#333333',
@@ -53,6 +57,7 @@ angular.module('ghop-ui')
     GRADIENT_RIGHT_MULTIPLIER : 0.9,
 
     SVG_TREE_LVL_WIDTH: 20,
+    SVG_TREE_RIGHT_PADDING: 20,
 
     ATTRIBUTE_HEIGHT: {
         'BOOLEAN' : 60,
@@ -65,7 +70,7 @@ angular.module('ghop-ui')
         'BOOLEAN' : false,
         'INTEGER' : 0,
         'STRING' : '',
-        'FLOAT' : 0,
+        'FLOAT' : [0, 0],
         'ENUM' : undefined
     },
 });

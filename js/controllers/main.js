@@ -1,26 +1,51 @@
 angular.module('ghop-ui')
 .controller('MainController', 
     ['$scope', '$log', '$uibModal', '$exceptionHandler', 'AsyncService', 'TrackService', 'DataSourceService', 
-        'Genetics', 'HateoasUtils', 'ReferenceGenomeService', 'StriperFactory', 
+        'HateoasUtils', 'ReferenceGenomeService', 'StriperFactory', 
         'CanvasSettings', 'CanvasValues', 'TrackDataSource', 'TrackAttributes', 'DrawerFactory', 
-        'TrackUtils', 'RelationsService', 'TrackFilters',
+        'TrackUtils', 'RelationsService', 'TrackFilters', 'ReferenceServiceSelector', 'ReferenceServiceType', 'ReferenceTrack',
     ($scope, $log, $uibModal, $exceptionHandler, AsyncService, TrackService, DataSourceService, 
-        Genetics, HateoasUtils, ReferenceGenomeService, StriperFactory, 
+        HateoasUtils, ReferenceGenomeService, StriperFactory, 
         CanvasSettings, CanvasValues, TrackDataSource, TrackAttributes, DrawerFactory, 
-        TrackUtils, RelationsService, TrackFilters) => {
+        TrackUtils, RelationsService, TrackFilters, ReferenceServiceSelector, ReferenceServiceType, ReferenceTrack) => {
 
     $log.debug('Application main controller running');
 
-    $scope.dataSourceTypes = Genetics.dataSourceTypes;
+    $scope.showMenuPanel = false;
+    $scope.selectedObject = {};
 
-    let calcUnitCountPerLayer = () => {
-                
-        let calcedCount = Math.round((window.innerWidth - CanvasSettings.CANVAS_MARGIN) / CanvasSettings.UNIT_WIDTH) - 1;
-        return calcedCount + 1;
-    }
+    let unitsCountPerLayer = () => Math.ceil((window.innerWidth - CanvasSettings.CANVAS_MARGIN) / CanvasSettings.UNIT_WIDTH);
+
+    $scope.lockBtns = true;
+
+    let genomicCoordinate,
+        canvasElement,
+        canvas,
+        stage;
+
+    let arrowsNavigationHandler = keyDownEvent => {
+
+        switch (keyDownEvent.keyCode) {
+            case 39:
+                // Left arrow key code
+                $scope.striper.leftTrivialHop();
+                break;
+
+            case 37:
+                // Right arrow key code
+                $scope.striper.rightTrivialHop();
+                break;
+
+            default:
+                return;
+        }
+        
+        $scope.contig = $scope.striper.coord.contig;
+        revealStripes();
+    };
 
     let initCanvas = () => {
-        
+
         let canvasElement = angular.element('canvas');
         canvas = canvasElement[0];
         canvas.width = canvasElement.width();
@@ -30,72 +55,102 @@ angular.module('ghop-ui')
         createjs.Touch.enable(stage);
         stage.enableMouseOver(50);
 
+        let prevWith = window.innerWidth;
         $(window).resize(() => {
-            $scope.$apply(() => {
-                canvasElement.width(window.innerWidth);
-                canvas.width = canvasElement.width();
-                $scope.createStriper();
-            });
-        });
+            // redraw canvas only for width changes
+            if (prevWith !== window.innerWidth ) {
+                // instant redrawing canvas on increase windows width, unit by unit redrawing on decrease
+                if (prevWith < window.innerWidth || prevWith - window.innerWidth >= CanvasSettings.UNIT_WIDTH) {
+                    prevWith = window.innerWidth;
+                    $scope.$apply(() => {
+                        canvasElement.width(window.innerWidth);
+                        canvas.width = canvasElement.width();
+                        CanvasValues.maxUnitCountPerTrack = unitsCountPerLayer();
 
-        let handler = e => {
-            if (e.keyCode === 39) {
-                striper.leftTrivialHop();
-                revealStripes();
+                        $scope.updateStriper(true);
+                    });
+                }
             }
-            if (e.keyCode === 37) {
-                striper.rightTrivialHop();
-                revealStripes();
-            }
-        };
+        });
 
         let $doc = angular.element(document);
-        $doc.on('keydown', handler);
-        $scope.$on('$destroy',function(){
-            $doc.off('keydown', handler);
-        });
+        $doc.on('keydown', arrowsNavigationHandler);
+        $scope.$on('$destroy', () => $doc.off('keydown', arrowsNavigationHandler));
     }
 
     $scope.navOpen = false;
     $scope.coord = 0;
-    CanvasValues.maxUnitCountPerLayer = calcUnitCountPerLayer();
-    
-    let genomicCoordinate,
-        canvasElement,
-        canvas,
-        stage,
-        striper,
-        left = 0,
-        right = calcUnitCountPerLayer();
-
-    initCanvas();
-
-    $scope.relationService = RelationsService.newInstance('#tracks_tree', '#tracks_images', 'track');    
+    CanvasValues.maxUnitCountPerTrack = unitsCountPerLayer();
+    $scope.relationService = RelationsService.newInstance('#tracks_tree', '#tracks_images', 'track');
+    initCanvas();   
 
     $scope.sortableOptions = {
         stop: function(e, ui) {
             $scope.relationService.updateRelations($scope.selectedTracks);
-            $scope.createStriper();
+            $scope.updateStriper(true);
         },
         axis: 'y'
     };
 
     $scope.toggleNav = () => {
+
+        if ($scope.navOpen) {
+            $('nav').css('right', -$('nav').width());
+            $('#nav-expander').css('right', 0);
+        } else {
+            $('nav').css('right', 0);
+            $('#nav-expander').css('right', $('nav').width());
+        }
+
         $scope.navOpen = !$scope.navOpen;
-    };
+    }
 
     $scope.onSelectTracks = () => {
 
+        updateTracksHeight();
         $scope.relationService.relations = [];
         $scope.selectedTracks.forEach(track => {
-            $scope.relationService.addRelation(track.track, undefined, 'SINGLE', 0, [track]);
+            $scope.relationService.relations.push(
+                $scope.relationService.createRelation(track.track, undefined, 'SINGLE', 0, [track])
+            );
         });
-        $scope.createStriper();
+
+        let canvasElement = angular.element('canvas');
+        let height = CanvasSettings.CANVAS_PADDING_TOP
+            + $scope.selectedTracks.length*(CanvasSettings.LAYER_BASE_HEIGHT + CanvasSettings.SPACE_BETWEEN_LAYERS)*2;
+
+        canvasElement.height(Math.max(height, CanvasSettings.CANVAS_MIN_HEIGHT));
+        canvas.height = canvasElement.height();
+
+        (!$scope.striper) ? $scope.createStriper() : $scope.updateStriper(true);
+    };
+
+    $scope.onAddRelationCallback = () => {
+        let lvl = $scope.relationService.maxLvl;
+        let svgWidth = lvl * CanvasSettings.SVG_TREE_LVL_WIDTH + CanvasSettings.SVG_TREE_RIGHT_PADDING;
+        $('nav').width(CanvasSettings.MENU_PANEL_MIN_WIDTH + svgWidth);
+        $('#nav-expander').css('right', $('nav').width());
+        $('#tracks_tree_svg').width(svgWidth);
+        $('#tracks_tree_svg').height(canvas.height);
+    };
+
+    let updateTracksHeight = () => {
+        $scope.selectedTracks.forEach(track => {
+
+            let baseHeight = CanvasSettings.LAYER_BASE_HEIGHT*track.sublayersCount;
+            if (track.attributes !== undefined) {
+                let filteredAttributes = track.attributes.filter(attr => (attr.disabled !== true && attr.value !== undefined));
+                let minHeight = CanvasSettings.LAYER_BASE_HEIGHT + filteredAttributes.length * CanvasSettings.FILTERS_SMALL_LINE_HEIGHT;
+                track.style.height = Math.max(minHeight, baseHeight);
+            } else {
+                track.style.height = baseHeight;
+            }
+        });
     };
 
     let layerChangeHandler = () => {
 
-        $scope.selectedTracks.forEach(track => (track.style.height = CanvasSettings.LAYER_BASE_HEIGHT*track.sublayersCount));
+        updateTracksHeight();
         $scope.relationService.updateRelations($scope.selectedTracks);
         if (!$scope.$$phase) {
             $scope.$apply();
@@ -104,59 +159,86 @@ angular.module('ghop-ui')
 
     $scope.tracks = [];
     $scope.selectedTracks = [];
-    
-    TrackService.findAll().then(
-        tracksResource => {
-            
-            $scope.tracks = tracksResource['_embedded']['tracks'];
-            $scope.tracks.forEach((track, index) => {
-                track.style = {
-                    height: CanvasSettings.LAYER_BASE_HEIGHT
+
+    $scope.positionInputDisabled = () => $scope.selectedTracks.length === 0;
+
+    ReferenceServiceSelector.toggle({ type: ReferenceServiceType.REMOTE }).$promise.then(
+        () => {
+
+            $log.debug('Application switched to use remote reference service')
+
+            ReferenceGenomeService.referenceGenomeIds.then(ids => {
+
+                $scope.referenceGenomeIds = ids;
+                $scope.genome = $scope.referenceGenomeIds.find(id => id === 'GRCh37.p13');
+                if (!$scope.genome) {
+                    $log.error('Faild to find GRCh37.p13 in available references list!');
+                } else {
+                    $log.debug('GRCh37.p13 reference has been selected as a default reference');
                 }
-                track.sort = index;
 
-                TrackDataSource.get({ id: track.track }).$promise.then(dataSource => {
-                    track.dataSource = dataSource;
-                });
+                ReferenceTrack.select({ id: $scope.genome }).$promise.then(chromosomeTrack => {
 
-                TrackAttributes.get({ id: track.track }).$promise.then(attributes => {
-                    track.attributes = attributes['_embedded']['attributes'];
-                    track.attributes.forEach(attr => {
-                        attr.style = {
-                            height: CanvasSettings.ATTRIBUTE_HEIGHT[attr.type]
-                        };
-                        attr.value = (attr.value === undefined ? CanvasSettings.ATTRIBUTE_VALUES[attr.type] : attr.value);
-                        attr.filterOperator = attr.filterOperators[0];
-                        attr.disabled = true;
+                    AsyncService.asyncHandle(ReferenceGenomeService.contigsMapping, mapping => {
+
+                        $scope.contigsMapping = mapping;
+
+                        if ($scope.contigsMapping['GRCh37.p13'].length) {
+
+                            $log.debug(`Found ${$scope.contigsMapping[$scope.genome].length} contigs for GRCh37.p13: ${$scope.contigsMapping['GRCh37.p13']}`);
+
+                            $scope.contig = $scope.contigsMapping['GRCh37.p13'][0];
+                            $scope.coord = 1;
+                        }
                     });
-                });
+
+                    TrackService.findAll().then(
+                        tracksResource => {
+                            
+                            $scope.tracks = tracksResource['_embedded'].tracks;
+                            $scope.tracks.forEach(track => {
+
+                                track.style = {
+                                    height: CanvasSettings.LAYER_BASE_HEIGHT
+                                }
+                                track.sublayersCount = 1;
+
+                                TrackDataSource.get({ id: track.track }).$promise.then(dataSource => track.dataSource = dataSource);
+
+                                TrackAttributes.get({ id: track.track }).$promise.then(attributes => {
+
+                                    if (!attributes['_embedded']) {
+                                        track.attributes = new Array();
+                                        return;
+                                    }
+
+                                    track.attributes = attributes['_embedded'].attributes;
+
+                                    track.attributes.forEach(attr => {
+
+                                        attr.style = {
+                                            height: CanvasSettings.ATTRIBUTE_HEIGHT[attr.type]
+                                        };
+
+                                        attr.value = (!attr.value) ? CanvasSettings.ATTRIBUTE_VALUES[attr.type] : attr.value;
+                                        attr.filterOperator = attr.filterOperators ? attr.filterOperators[0] : '|';
+                                        attr.disabled = true;
+                                    });
+                                });
+                            });
+
+                            draw(new Array());
+                        },
+                        error => $log.error(error)
+                    );
+                }, error => $log.error(error));
             });
         },
-        error => $log.error(error)
-    );
+        error => $log.error(error));
 
-    $scope.positionInputDisabled = () => {
-        return $scope.selectedTracks.length === 0;
-    }
+    AsyncService.asyncHandle(ReferenceGenomeService.dataSourceTypes, types => $scope.dataSourceTypes = types['_embedded'].dataSourceTypes);
 
-    /**
-     * Retrieve available reference genomes data
-     */
-    AsyncService.asyncHandle(ReferenceGenomeService.referenceGenomeIds, ids => {
-        $log.debug(`Reference genome ids successfully retrieved and saved into controller's model`);
-        $scope.referenceGenomeIds = ids.sort();
-        if ($scope.referenceGenomeIds.length) {
-            $scope.genome = $scope.referenceGenomeIds[0];
-        }
-    });
-    AsyncService.asyncHandle(ReferenceGenomeService.contigsMapping, mapping => {
-        $log.debug(`Contigs mapping successfully retrieved and saved into controller's model`);
-        $scope.contigsMapping = mapping;
-        if ($scope.contigsMapping[$scope.genome].length) {
-            $scope.contig = $scope.contigsMapping[$scope.genome][0];
-            genomicCoordinate = new GenomicCoordinate($scope.genome, $scope.contig, $scope.coord);
-        }
-    });
+    $scope.toggleMenuPanel = () => $scope.showMenuPanel = !$scope.showMenuPanel;
 
     $scope.openTrackCreationModal = () => {
 
@@ -166,123 +248,185 @@ angular.module('ghop-ui')
             size: 'md',
             resolve: {
                 dataSourceTypes: () => $scope.dataSourceTypes,
-                referenceGenomeIds: () => $scope.referenceGenomeIds
+                genome: () => $scope.genome,
+                trackNames : () => $scope.tracks.map(track => track.track)
             },
             templateUrl: 'templates/modals/track-creation.html'
         });
 
         modalInstance.result.then(
             trackResource => {
+
                 $log.info(`Created ${trackResource.track} track on uri: ${HateoasUtils.getResourceUri(trackResource)}`);
-                DataSourceService.findAll().then(
-                    dataSourcesResource => {
-                        $scope.dataSources = dataSourcesResource['_embedded'].dataSources;
-                        $log.debug(`Found ${$scope.dataSources.length} data sources: ${$scope.dataSources.map(HateoasUtils.getResourceUri)}`);
-                    },
-                    error => $log.error(error)
-                );
+
+                $scope.tracks.push(trackResource);
+
+                TrackDataSource.get({ id: trackResource.track }).$promise.then(dataSource => {
+                    trackResource.dataSource = dataSource;
+                    trackResource.ticked = true;
+                    trackResource.style = {
+                        height: CanvasSettings.LAYER_BASE_HEIGHT
+                    };
+                    trackResource.sublayersCount = 1;
+                    $scope.selectedTracks.push(trackResource);
+                    $scope.onSelectTracks();
+                });
+
+                TrackAttributes.get({ id: trackResource.track }).$promise.then(attributes => {
+
+                    trackResource.attributes = attributes['_embedded'].attributes;
+                    trackResource.attributes.forEach(attr => {
+
+                        attr.style = {
+                            height: CanvasSettings.ATTRIBUTE_HEIGHT[attr.type]
+                        };
+
+                        attr.value = (!attr.value) ? CanvasSettings.ATTRIBUTE_VALUES[attr.type] : attr.value;
+                        attr.filterOperator = attr.filterOperators ? attr.filterOperators[0] : '|';
+                        attr.disabled = true;
+                    });
+                });
             },
             () => $log.info('Track creation dismissed')
         );
     };
 
-    let openObjectModal = (stripe, layer) => {
-                
+    $scope.openTracksEditionModal = () => {
+
         let modalInstance = $uibModal.open({
-            templateUrl: 'templates/modals/object-modal.html',
-            controller: function ($scope, $uibModalInstance, stripe, layer) {
-                $scope.object = stripe;
-                $scope.layer = layer;
-
-                $scope.cancel = () => $uibModalInstance.dismiss('cancel');
-            },
+            animation: true,
+            controller: 'TracksEditionController',
+            size: 'md',
             resolve: {
-                stripe: () => {
-                    return stripe;
-                },
-                layer: () => {
-                    return layer;
-                }
-            }
+                tracks: () => $scope.tracks
+            },
+            templateUrl: 'templates/modals/tracks-edition.html'
         });
 
-        modalInstance.result.then(response => {
-            $log.info(response);
-        }, response => {
-            $log.warn(response);
-        });
+        modalInstance.result.then(() => $scope.createStriper(), () => $log.info('Track creation dismissed'));
+    };
+
+    let showObjectDetails = stripe => {
+        $scope.selectedObject = stripe;
+        $scope.$apply();
     };
 
     $scope.openFiltersModal = trackName => {
 
-        let _track = $scope.tracks.find(el => el.track === trackName);
-        if (_track === undefined) {
+        let track = $scope.selectedTracks.find(track => track.track === trackName);
+        if (!track) {
             return $exceptionHandler(`Cannot find track object with name "${trackName}"`);
         }
+
+        let attributesBackup = angular.copy(track.attributes);
+        let aggregatesBackup = track.aggregates === undefined ? [] : angular.copy(track.aggregates);
 
         let modalInstance = $uibModal.open({
             templateUrl: 'templates/modals/filters-modal.html',
             controller: 'AttributesModalController',
             resolve: {
-                track: () => _track
+                track: () => track
             }
         });
 
         modalInstance.result.then(filter => {
-            if (filter.filters.length > 0) {
-                TrackFilters.save({
-                    id: trackName
-                }, angular.toJson(filter))
-                    .$promise.then(dataSource => {
 
-                    _track.dataSource = dataSource;
-                    _track.aggregates = dataSource.aggregates;
-                    $scope.createStriper();
+            if (filter.filters.length) {
+
+                TrackFilters.save({ id: trackName }, angular.toJson(filter)).$promise.then(dataSource => {
+
+                    track.dataSource = dataSource;
+                    track.aggregates = dataSource.aggregates;
+                    $scope.updateStriper(true);
                 });
             } else {
+
                 TrackDataSource.get({ id: trackName }).$promise.then(dataSource => {
 
-                    _track.dataSource = dataSource;
-                    _track.aggregates = [];
-                    $scope.createStriper();
+                    track.dataSource = dataSource;
+                    track.aggregates = [];
+                    $scope.updateStriper(true);
                 });
             }
         }, response => {
+
             $log.warn(response);
+            // restore attributes and aggregates
+            track.aggregates = aggregatesBackup;
+            track.attributes = attributesBackup;
         });
     };
 
     let draw = stripes => {
 
-        CanvasValues.maxUnitCountPerLayer = calcUnitCountPerLayer();
+        CanvasValues.maxUnitCountPerTrack = unitsCountPerLayer();
         CanvasValues.maxStripeLength = 1;
 
         DrawerFactory.instance(
             stage, 
             canvas,
             $scope.selectedTracks,
-            striper,
-            openObjectModal,
+            $scope.striper,
+            showObjectDetails,
             layerChangeHandler
         ).draw(stripes);
-    }
+    };
 
     $scope.createStriper = () => {
+
         genomicCoordinate = new GenomicCoordinate($scope.genome, $scope.contig, $scope.coord);
-        striper = StriperFactory.newStriperInstance(
-            genomicCoordinate, left, right,
+        $scope.striper = StriperFactory.newStriperInstance(
+            genomicCoordinate, 0, CanvasValues.maxUnitCountPerTrack,
             $scope.tracks.filter(track => track.ticked).map(elem => elem.dataSource.id), 
             $scope.contigsMapping);
-        
+            
         revealStripes();
     };
 
-    let revealStripes = () => {
-        striper.stripes.then(
-            stripes => {
-                draw(stripes);
-            },
-            error => $log.error(error)
-        );
+    $scope.getSelectedFilters = track => {
+
+        if (track.attributes === undefined) {
+            return '';
+        }
+
+        let selectedAttrs = [];
+        track.attributes
+            .filter(attr => (attr.disabled !== true && attr.value !== undefined))
+            .map(attr => {
+                let label = attr.name;
+                if (attr.filter_operator !== undefined) {
+                    if (attr.filter_operator === '=') {
+                        label += ':';
+                    } else {
+                        label += '\xa0' + attr.filter_operator;
+                    }
+                }
+                label += '\xa0' + attr.value;
+                selectedAttrs.push(label);
+            });
+        updateTracksHeight();
+        return selectedAttrs.length > 0 ? selectedAttrs.join(';\n ') : '';
     };
+
+    $scope.updateStriper = (sameCoord = false) => {
+
+        if (!$scope.striper) {
+            return;
+        }
+
+        $scope.striper.dataSources = $scope.selectedTracks.map(track => track.dataSource.id);
+
+        if (sameCoord) {
+            $scope.striper.hopTo($scope.striper.coord, 0, CanvasValues.maxUnitCountPerTrack);
+        } else {
+            $scope.striper.hopTo(
+                new GenomicCoordinate($scope.genome, $scope.contig, $scope.coord), 
+                0, CanvasValues.maxUnitCountPerTrack);
+            $scope.selectedObject = {};
+        }
+
+        revealStripes();
+    };
+
+    let revealStripes = () => $scope.striper.stripes.then(stripes => draw(stripes), error => $log.error(error));
 }]);

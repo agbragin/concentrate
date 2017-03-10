@@ -1,30 +1,30 @@
 class ReferenceGenomeService {
 
-    constructor($log, Genetics, Contigs, HateoasUtils) {
+    constructor($log, DataSourceTypes, ReferenceGenomes, Contigs, HateoasUtils) {
 
-        let referenceGenomeIdsPromise = Genetics.referenceGenomes
-                .then(resource => resource['_embedded'].referenceGenomes)
-                .then(resources => resources.map(resource => resource.id));
-
-        this._referenceGenomeIds = referenceGenomeIdsPromise;
-        this._contigsMapping = referenceGenomeIdsPromise
-                .then(ids => Promise.all(ids.map(id => Contigs.get({ id: id }).$promise
-                        .then(resource => [HateoasUtils.getResourceId(resource), resource['contigs']]))))
-                .then(mappings => mappings.reduce((map, mapping) => {
-                    map[mapping[0]] = mapping[1];
-                    return map;
-                }, {}));
-
-        /**
-         * TODO: handle promise (see Genetics)
-         */
-        this._dataSourceTypes = Genetics.dataSourceTypes;
+        this._referenceGenomes = ReferenceGenomes.get;
+        this._contigsResource = Contigs;
+        this._hateoasUtils = HateoasUtils;
+        this._dataSourceTypes = DataSourceTypes.get;
     }
 
-    get referenceGenomeIds () { return this._referenceGenomeIds }
-    get contigsMapping     () { return this._contigsMapping     }
-    get dataSourceTypes    () { return this._dataSourceTypes    }
+    get referenceGenomeIds() { 
+        return this._referenceGenomes().$promise
+                    .then(genomes => genomes['_embedded'].referenceGenomes.map(genome => genome.id)); 
+    }
+
+    get contigsMapping () {
+       return  this.referenceGenomeIds.then(ids => Promise.all(ids.map(id => this._contigsResource.get({ id: id }).$promise
+                            .then(resource => [this._hateoasUtils.getResourceId(resource), resource['contigs']]))))
+                    .then(mappings => mappings.reduce((map, mapping) => {
+                        map[mapping[0]] = mapping[1];
+                        return map;
+                    }, {}));
+    }
+
+    get dataSourceTypes    () { return this._dataSourceTypes().$promise }
 }
 
 angular.module('ghop-ui')
-.factory('ReferenceGenomeService', ($log, Genetics, Contigs, HateoasUtils) => new ReferenceGenomeService($log, Genetics, Contigs, HateoasUtils));
+.factory('ReferenceGenomeService', ($log, DataSourceTypes, ReferenceGenomes, Contigs, HateoasUtils) =>
+        new ReferenceGenomeService($log, DataSourceTypes, ReferenceGenomes, Contigs, HateoasUtils));

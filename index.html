@@ -15,10 +15,8 @@
             <nav>
                 <div class="nav-body">
                     <!-- Nav tabs -->
-                    <ul class="nav nav-tabs main-menu" style="border-bottom: none;">
+                    <ul class="nav nav-tabs main-menu">
                         <li class="active"><a href="#current" id="current-view-tab" data-toggle="tab">Current</a></li>
-                        <li><a href="#archive" data-toggle="tab">Archive</a></li>
-                        <li><a href="#settings" data-toggle="tab">Settings</a></li>
                         <li class="pull-right text-right" >
                             <a href="#" id="nav-close" ng-click="toggleNav()">X</a>
                         </li>
@@ -26,35 +24,34 @@
                     <!-- Tab panes -->
                     <div class="tab-content">
                         <div class="tab-pane active" id="current">
-                            <div class="col-md-12">
-                                <button class="btn btn-default btn-xs" ng-click="relationService.createRelation('AND')">AND</button>
-                                <button class="btn btn-default btn-xs" ng-click="relationService.createRelation('OR')">OR</button>
-                                <button class="btn btn-default btn-xs" ng-click="relationService.createRelation('XOR')">XOR</button>
-                                <button class="btn btn-default btn-xs" ng-click="relationService.defaultRelations()">Clear</button>
+                            <div class="filter-btns-block col-md-12">
+                                <button class="btn btn-default btn-xs" ng-disabled="lockBtns" ng-click="relationService.startSelection('AND')">AND</button>
+                                <button class="btn btn-default btn-xs" ng-disabled="lockBtns" ng-click="relationService.startSelection('OR')">OR</button>
+                                <button class="btn btn-default btn-xs" ng-disabled="lockBtns" ng-click="relationService.startSelection('XOR')">XOR</button>
+                                <button class="btn btn-default btn-xs" ng-disabled="lockBtns" ng-click="relationService.defaultRelations()">Clear</button>
                             </div>
-                            <div class="row">
-                                <div class="col-md-8" style="padding-right: 5px">
-                                    <ul class="list-unstyled main-menu" ui-sortable="sortableOptions" ng-model="selectedTracks">
-                                        <li ng-repeat="track in selectedTracks"
-                                            ng-style="track.style" 
-                                            ng-click="relationService.addToRelation(track, selectedTracks)" 
-                                            ng-class="{selectable:relationService.isSelectable(track), selected:relationService.isSelected(track)}"
-                                            id="track_{{track.track}}">
-                                            <div> 
+                            <div class="tracks-list row">
+                                <div>
+                                    <div class="only-tracks">
+                                        <ul class="list-unstyled main-menu" ui-sortable="sortableOptions" ng-model="selectedTracks">
+                                            <li ng-repeat="track in selectedTracks"
+                                                ng-style="track.style"
+                                                ng-mouseover="relationService.setHighlight(track)"
+                                                ng-click="relationService.addToSelection(track, selectedTracks, updateStriper, onAddRelationCallback)" 
+                                                ng-class="{selectable:relationService.isHighlighted(track), selected:relationService.checkInRelation(track)}"
+                                                id="track_{{track.track}}">
                                                 <span ng-bind="track.track"></span>
-                                                <button ng-click="openFiltersModal(track.track)" class="btn btn-xs btn-default pull-right" >Filters</button>
+                                                <button ng-click="openFiltersModal(track.track)" 
+                                                        class="btn btn-xs btn-default pull-right">Filters</button>
                                                 
-                                                <div class="selected-attributes" ng-bind="track.getSelectedFilters()"></div>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                    
-                            
-                                    <button class="btn btn-primary" style="margin-left: 15px;" ng-click="applyFilters()">apply</button>
-                                    <button class="btn btn-default" ng-click="saveState()">save</button>
-                                </div>
-                                <div class="col-md-4" style="padding-left: 0">
-                                    <svg id="tracks_tree_svg" xmlns="http://www.w3.org/2000/svg" width="100%" height="700px">
+                                                <div class="selected-attributes" ng-bind="getSelectedFilters(track)"></div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <svg id="tracks_tree_svg" 
+                                        xmlns="http://www.w3.org/2000/svg" 
+                                        width="0"
+                                        height="0">
                                         <defs>
                                             <marker id="arrowhead" viewBox="0 0 10 10" refX="3" refY="5"
                                                 markerWidth="4" markerHeight="4" orient="180">
@@ -69,37 +66,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane" id="archive">
-                            <div class="row">
-                                <div class="col-md-9" style="font-weight: bold; height: 35px;">Info</div>
-                                <div class="col-md-3" style="font-weight: bold; height: 35px;">Controls</div>
-                            </div>
-                            <div class="row" ng-repeat="state in savedStates track by $index">
-                                <div class="col-md-9">
-                                    Tracks count: <span ng-bind="state.tracks.length"></span>
-                                    <br>
-                                    Position: <span ng-bind="state.position"></span>
-                                    <br>
-                                    Created: <span ng-bind="state.created | date:'medium'"></span>
-                                    <br>
-                                    Tracks: 
-                                    <ul>
-                                        <li ng-repeat="trackId in state.tracks">
-                                            <span ng-bind="trackId"></span>
-                                            <div class="selected-attributes" ng-bind="state.getSelectedFilters(trackId)"></div>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="btn btn-primary btn-xs" style="width: 80%" clipboard text="state.getUrl()" >Share</div>
-                                    <div class="btn btn-default btn-xs" style="width: 80%" ng-click="loadState(state)">Load</div>
-                                    <div class="btn btn-default btn-xs" style="width: 80%" ng-click="deleteState(state)">Delete</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="settings">
-                            <div>Special place for settings</div>
-                        </div>
                     </div>
                     
                 </div>
@@ -109,12 +75,11 @@
                 <!--Include your brand here-->
                 <a class="navbar-brand" href="#">CONC.</a>
                 <div class="navbar-header genome-nav">
-                    <label>Check data sources to fetch bands from:</label>
+                    <label class="long-collapsable-label" title="Check data sources to fetch bands from">Check data sources:</label>
                     <div isteven-multi-select 
                         class="multiselect"
                             input-model="tracks"
                             output-model="selectedTracks"
-                            
                             item-label="track" 
                             max-labels="2"
                             button-label="track"
@@ -122,18 +87,42 @@
                             tick-property="ticked">
                     </div>
                     <div class="btn btn-warning load-source-btn" ng-click="openTrackCreationModal()">add</div>
-                    <div class="btn btn-default load-source-btn" ng-click="clearTracks()">remove all</div>
 
-                    <span class="nav-delimeter"></span>
+                    <div class="btn btn-default load-source-btn" ng-click="openTracksEditionModal()">edit list</div>
+                    
+                    <span class="collapsable" ng-class="{'show-as-menu':showMenuPanel}">
+                        <span class="nav-delimeter"></span>
 
-                    <label>Reference:</label>
-                    <span ng-bind="genome" id="genome"></span>
-                    <span class="nav-delimeter"></span>
-
-                    <label>Coordinate:</label>
-                    <select id='contig' name='contig' class='form-control' ng-model='contig' ng-disabled="positionInputDisabled()" ng-options='contig for contig in contigsMapping[genome]' required ng-disabled='!genome'></select>
-                    <input type="text" ng-disabled="positionInputDisabled()" class="form-control" ng-model="coord" ng-enter="createStriper()" />
-                    <div class="btn btn-primary" ng-click="createStriper()">hop!</div>
+                        <span class="menu-block">
+                            <label>Reference:</label>
+                            <span ng-bind="genome" id="genome"></span>
+                        </span>
+                        <span class="nav-delimeter"></span>
+                        <span class="menu-block">
+                            <form id="hop-to-coordinate-form" name="hopToCoordinate">
+                                <label>Coordinate:</label>
+                                <select id="contig"
+                                        name="contig"
+                                        class="form-control"
+                                        ng-model="contig"
+                                        ng-disabled="positionInputDisabled()" 
+                                        ng-options="contig for contig in contigsMapping[genome]"
+                                        required 
+                                        ng-disabled="!genome"></select>
+                                <input  type="text"
+                                        name="coord"
+                                        ng-disabled="positionInputDisabled()" 
+                                        class="form-control"
+                                        ng-model="coord"
+                                        ng-value="striper.coord.coord"
+                                        ng-enter="updateStriper()" />
+                                <div class="btn btn-primary" 
+                                    ng-click="updateStriper()"
+                                    ng-disabled="positionInputDisabled()">hop!</div>
+                            </form>
+                        </span>
+                    </span>
+                    <span class="btn btn-primary dropdown-menu-btn" ng-click="toggleMenuPanel()">more...</span>
                 </div>
                 <div class="navbar-header pull-right">
                     <a id="nav-expander" class="nav-expander fixed" ng-click="toggleNav()">
@@ -144,15 +133,50 @@
 
             <div class="canvas-wrapper">
                 <canvas></canvas>
+                <div class="container">
+                    <div class="row" ng-show="selectedObject.track !== undefined">
+                        <div class="col-md-4">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">Main params</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Track:</td>
+                                        <td><span ng-bind="selectedObject.track"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Start:</td>
+                                        <td><span ng-bind="selectedObject.properties.startCoord.contig.id"></span> - <span ng-bind="selectedObject.properties.startCoord.coord"></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>End: </td>
+                                        <td><span ng-bind="selectedObject.properties.endCoord.contig.id"></span> - <span ng-bind="selectedObject.properties.endCoord.coord"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">Attributes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="(attributeName, attributeValue) in selectedObject.properties" 
+                                        ng-if="attributeName !== 'startCoord' && attributeName !== 'endCoord'">
+                                        <td><span ng-bind="attributeName"></span></td>
+                                        <td><span ng-bind="attributeValue"></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-
-    <div class='container' ng-if='stripes'>
-        <div ng-bind='stripes'></div>
-        <div>
-            <button class='col-xs-2 btn btn-default' ng-click='leftTrivialHop()'><</button>
-            <button class='col-xs-2 btn btn-default pull-right' ng-click='rightTrivialHop()'>></button>
         </div>
     </div>
 

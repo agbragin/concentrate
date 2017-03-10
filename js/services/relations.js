@@ -2,18 +2,51 @@ angular.module('ghop-ui')
 .factory('RelationsService', 
     ['$log', 'SVGDrawer', 'TrackUtils', 'CanvasSettings', ($log, SVGDrawer, TrackUtils, CanvasSettings) => {
 
+    class Relation {
+
+        constructor(id, firstId, secondId, type, lvl, items) {
+            this._first = firstId;
+            this._second = secondId,
+            this._type = type,
+            this._lvl = lvl,
+            this._id = id,
+            this._items = items
+        }
+
+        get id     () { return this._id     }
+        get first  () { return this._first  }
+        get second () { return this._second }
+        get type   () { return this._type   }
+        get lvl    () { return this._lvl    }
+        get items  () { return this._items  }
+
+        toJson() {
+
+            return {
+                'id': this._id,
+                'filters': [
+                    this._first,
+                    this._second,
+                ],
+                'operator': this._type
+            }
+        }
+    }
+    
     class RelationsService {
 
-        constructor(arrowsContainerSelector, imagesContainerSelector, idFieldName = 'id') {
+        constructor(arrowsContainerSelector, imagesContainerSelector, idField = 'id') {
 
             this._collection = [];
-            this._idFieldName = idFieldName;
+            this._idField = idField;
             this._operation = 'AND';
             this._drawer = SVGDrawer.newDrawer(arrowsContainerSelector, imagesContainerSelector);
             this._selectionMode = false;
-            this._maxRelationId = 0;
+            this._maxId = 0;
+            this._maxLvl = 0;
             this._relations = [];
-            this._itemsInRelation = [];
+            this._selection = [];
+            this._highlighted = [];
         }
 
         set collection (collection) {
@@ -21,6 +54,7 @@ angular.module('ghop-ui')
         }
 
         get relations () { return this._relations }
+        get maxLvl () { return this._maxLvl }
 
         set relations (relations) {
             this._relations = relations;
@@ -28,85 +62,91 @@ angular.module('ghop-ui')
             this._relations.forEach(relation => {
                 this._maxRelationId = Math.max(this._maxRelationId, relation.id);
             });
+        }        
+
+        createRelation(firstId, secondId, type, lvl, items) {
+            this._maxId++;
+            this._maxLvl = Math.max(this._maxLvl, lvl);
+            return new Relation(this._maxId, firstId, secondId, type, lvl, items);
         }
 
-        addToRelation (item, collection) {
+        _createRelationFromSelection(selection) {
 
-            if (!this._selectionMode) {
-                return;
-            }
+            let first = selection[0],
+                second = selection[1],
+                lvlA = first.lvl,
+                lvlB = second.lvl;
 
-            let relationItem = false;
+            return this.createRelation(
+                    first.id, 
+                    second.id, 
+                    this._operation, 
+                    Math.max(lvlA, lvlB) + 1,
+                    first.items.concat(second.items));
+        }
 
-            
+        _getRelationByItem(item) {
+
+            let relation;
+            let relLvl = 0;
             this._relations.forEach(rel => {
-                
-                if (TrackUtils.indexOf(rel.items, item, this._idFieldName) !== -1) {
-                    return (relationItem = rel);
+                let r = rel.items.find(el => el[this._idField] === item[this._idField]);
+                if (r !== undefined && rel.lvl >= relLvl) {
+                    relLvl = rel.lvl;
+                    relation = rel;
                 }
             });
+            return relation;
+        }
 
-            if (relationItem === false) {
+        addToSelection (item, collection, onChangeOrderCallback, onAddRelationCallback) {
+            
+            if (!this._selectionMode || this.checkInRelation(item) || item.disabled === true) {
                 return;
             }
             
-            this._itemsInRelation.push(relationItem);
+            this._selection.push(this._getRelationByItem(item));
 
-            if (this._itemsInRelation.length === 2) {
-                
-                let firstRelation = this._itemsInRelation[0],
-                    secondRelation = this._itemsInRelation[1],
-                    lvlA = firstRelation.lvl,
-                    lvlB = secondRelation.lvl,
-                    i = TrackUtils.indexOf(collection, firstRelation.items[0], this._idFieldName),
-                    j = TrackUtils.indexOf(collection, secondRelation.items[0], this._idFieldName);
+            if (this._selection.length === 2) {
+                let first = this._selection[0],
+                    second = this._selection[1],
+                    i = collection.findIndex(el => el[this._idField] === first.items[0][this._idField]),
+                    j = collection.findIndex(el => el[this._idField] === second.items[0][this._idField]);
                 
                 if (i === -1 || j === -1) return;
                 
                 let from = Math.max(i, j);
-                let to = i < j ? (i + firstRelation.items.length) : (j + secondRelation.items.length);
-                let count = i < j ? firstRelation.items.length : secondRelation.items.length;
+                let to = i < j ? (i + first.items.length) : (j + second.items.length);
+                let count = i < j ? first.items.length : second.items.length;
                 collection.splice(to, 0, ...collection.splice(from, count));
 
-                let readyRelation = {
-                    first: firstRelation.id,
-                    second: secondRelation.id,
-                    type: this._operation,
-                    lvl: Math.max(lvlA, lvlB) + 1,
-                    id: ++this._maxRelationId,
-                    items: firstRelation.items.concat(secondRelation.items)
-                };
-
-                this._relations.push(readyRelation);
+                this._relations.push(this._createRelationFromSelection(this._selection));
                 this._selectionMode = false;
 
-                this._drawer.draw(this._relations, collection, this._idFieldName);
+                this._drawer.draw(this._relations, collection, this._idField);
                 
-                this._itemsInRelation = [];
+                this._selection = [];
+
+                if (onChangeOrderCallback !== undefined) {
+                    onChangeOrderCallback(true);
+                }
+
+                if (onAddRelationCallback !== undefined) {
+                    onAddRelationCallback();
+                }
             }
         };
 
         updateRelations (collection) {
-            this._drawer.draw(this._relations, collection, this._idFieldName);
-        };
-
-        addRelation (firstId, secondId, type, lvl, items) {
-
-            this._relations.push({
-                first: firstId,
-                second: secondId,
-                type: type,
-                lvl: lvl,
-                id: ++this._maxRelationId,
-                items: items
-            });
+            this._drawer.draw(this._relations, collection, this._idField);
         };
 
         defaultRelations () {
 
-            this._itemsInRelation = [];
+            this._selection = [];
             this._selectionMode = false;
             this._maxRelationId = 0;
+            this._maxLvl = 0;
             this._relations = this._relations.filter(rel => rel.type === 'SINGLE');
             this._relations.forEach(relation => {
                 this._maxRelationId = Math.max(this._maxRelationId, relation.id);
@@ -114,40 +154,23 @@ angular.module('ghop-ui')
             this._drawer.clearAll();
         };
 
-        isSelected (item) {
-
-            let alreadySelected = false;
-            this._itemsInRelation.forEach(relation => {
-                relation.items.forEach(f => {
-                    if (f[this._idFieldName] === item[this._idFieldName]) {
-                        alreadySelected = true;
-                        return;
-                    }
-                });
-            });
-
-            return alreadySelected;
+        checkInRelation (item) {
+            return this._selection.indexOf(this._getRelationByItem(item)) !== -1;
         };
 
-        createRelation (type) {
+        startSelection (type) {
             this._operation = type;
             this._selectionMode = true;
         };
 
-        isSelectable (item) {
+        setHighlight (item) {
+            if (!this._selectionMode) return;
 
-            let alreadySelected = false;
+            this._highlighted = this._getRelationByItem(item).items;
+        }
 
-            this._itemsInRelation.forEach(relation => {
-                relation.items.forEach(f => {
-                    if (f[this._idFieldName] === item[this._idFieldName]) {
-                        alreadySelected = true;
-                        return;
-                    }
-                });
-            });
-
-            return this._selectionMode;
+        isHighlighted (item) {
+            return this._selectionMode && this._highlighted.indexOf(item) !== -1;
         };
     }
 
