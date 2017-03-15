@@ -1,14 +1,3 @@
-class GenomicSerializationException {
-
-    constructor(point, error) {
-        this._point = point;
-        this._error = error;
-    }
-
-    get point () { return this._point }
-    get error () { return this._error }
-}
-
 class GenomicCoordinate {
 
     /**
@@ -35,7 +24,7 @@ class GenomicCoordinate {
         try {
             return new GenomicCoordinate(point.contig.referenceGenome.id, point.contig.id, point.coord);
         } catch (e) {
-            throw new GenomicSerializationException(point, e);
+            throw new Error(e);
         }
     }
 
