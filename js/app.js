@@ -20,7 +20,7 @@ angular.module('ghop-ui', [
                     && request.url.indexOf('template') === -1
                     && request.url.indexOf('isteven') === -1) {
 
-                    request.url = apiURI + request.url
+                    request.url = apiURI + request.url;
                 }
                 return request || $q.when(request);
             }

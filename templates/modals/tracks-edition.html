@@ -1,0 +1,27 @@
+<div class='modal-header'>
+    <h3 class='modal-title'>Tracks list</h3>
+</div>
+<div class='modal-body tracks-list'>
+    <div class="row" ng-repeat="track in tracks track by $index">
+        <div class="col-md-10">
+            <div class="row">
+                <div class="col-md-12">
+                    <h4 ng-bind="track.track"></h4>
+                </div>
+                <div class="col-md-12">
+                    <div>Attributes:</div>
+                    <ul style="font-size: 12px;">
+                        <li ng-repeat="attr in track.attributes" ng-bind="attr.name"></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="btn btn-default" ng-click="removeTrack(track)">remove</div>
+        </div>
+    </div>
+</div>
+<div class='modal-footer'>
+    <button class="btn btn-danger" ng-click="removeTracks()">Remove all</button>
+    <button class='btn btn-primary' type='button' ng-click='cancel()'>Cancel</button>
+</div>

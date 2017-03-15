@@ -24,15 +24,14 @@ angular.module('ghop-ui')
          */
         _calcCellRanges (data, layers) {
 
-            let ranges = new Array(CanvasValues.maxUnitCountPerLayer);
+            let ranges = new Array(CanvasValues.maxUnitCountPerTrack);
             ranges = ranges.fill().map(val => (val = [undefined, undefined]));
-
             
             data.forEach(_stripe => {
                 
                 let layerName = _stripe.track;
-                if (_stripe.startCoord < CanvasValues.maxUnitCountPerLayer && _stripe.endCoord > 0) {
-                    let end = Math.min(_stripe.endCoord, CanvasValues.maxUnitCountPerLayer) - 1;
+                if (_stripe.startCoord < CanvasValues.maxUnitCountPerTrack && _stripe.endCoord > 0) {
+                    let end = Math.min(_stripe.endCoord, CanvasValues.maxUnitCountPerTrack) - 1;
                     let start = Math.max(0, _stripe.startCoord);
 
                     if (_stripe.startCoord >= 0) {
@@ -86,13 +85,13 @@ angular.module('ghop-ui')
                     }
                    
                     for (let j = start; j <= end; j++) {
-                        let cell = this.getCell(CanvasValues.getLayerIdByName(layerName, layers), j);
+                        let cell = this.getCell(CanvasValues.getTrackIdByName(layerName, layers), j);
                         cell.stripes.push(_stripe);
                         cell.leftInf = _stripe.startCoord < 0;
                         cell.rightInf = _stripe.endCoord > end;
                     }
                 } else {
-                    if (_stripe.startCoord < CanvasValues.maxUnitCountPerLayer && _stripe.endCoord === 0) {
+                    if (_stripe.startCoord < CanvasValues.maxUnitCountPerTrack && _stripe.endCoord === 0) {
                         let end = 0;
                         let start = _stripe.startCoord;
                         ranges[start] = [undefined, undefined];
@@ -125,7 +124,7 @@ angular.module('ghop-ui')
                 if (this._rows[r] === undefined) {
                     let rowCells = [];
 
-                    for (let c = 0; c < CanvasValues.maxUnitCountPerLayer; c++) {
+                    for (let c = 0; c < CanvasValues.maxUnitCountPerTrack; c++) {
                         let cell = new Cell(i++, c, r);
 
                         this._cells.push(cell);
@@ -180,7 +179,6 @@ angular.module('ghop-ui')
             });
 
             if (result === undefined) {
-
                 $log.warn(`could not find a cell with row ${row} and column ${col}`);
             }
 
@@ -189,13 +187,13 @@ angular.module('ghop-ui')
 
         getCellByCoords (xCoord, yCoord, shift) {
 
-            let col = Math.floor((xCoord - CanvasSettings.LAYER_PADDING - shift)/CanvasSettings.UNIT_WIDTH);
+            let col = Math.floor((xCoord - CanvasSettings.TRACK_PADDING - shift)/CanvasSettings.UNIT_WIDTH);
             
             if (col < 0) {
                 col = 0;
             }
-            if (col >= CanvasValues.maxUnitCountPerLayer) {
-                col = CanvasValues.maxUnitCountPerLayer - 1;
+            if (col >= CanvasValues.maxUnitCountPerTrack) {
+                col = CanvasValues.maxUnitCountPerTrack - 1;
             }
             let row = 0;
             if (yCoord !== 0) {
@@ -245,7 +243,8 @@ angular.module('ghop-ui')
 
             let ranges = this._calcCellRanges(data, layers);
 
-            for (let i = 0; i < CanvasValues.maxUnitCountPerLayer; i++) {
+
+            for (let i = 0; i < CanvasValues.maxUnitCountPerTrack; i++) {
                 
                 if (ranges[i][0] !== undefined && ranges[i][1] !== undefined) {
                     this._densityByCell.push({
@@ -273,7 +272,7 @@ angular.module('ghop-ui')
 
             let selectedCells = [];
             this._rows.forEach((row, index) => {
-                selectedCells.push(this._cells[index * CanvasValues.maxUnitCountPerLayer + colId]);
+                selectedCells.push(this._cells[index * CanvasValues.maxUnitCountPerTrack + colId]);
             });
             return this._columns[colId];
         };

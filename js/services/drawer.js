@@ -48,7 +48,8 @@ angular.module('ghop-ui')
 
             striper.stripes.then(
                 stripes => {
-
+                    
+                    this._mainContainer.off("pressmove");
                     this.draw(stripes);
                     if (Math.abs(shift) > CanvasSettings.UNIT_WIDTH) {
                         if (shift < 0) {
@@ -108,7 +109,7 @@ angular.module('ghop-ui')
              */
             data.forEach(_stripe => {
 
-                if (_stripe.startCoord < CanvasValues.maxUnitCountPerLayer) {
+                if (_stripe.startCoord < CanvasValues.maxUnitCountPerTrack) {
                     
                     let stripeContainer = this._drawStripe(_stripe, this._layers[_stripe.track]);
 
@@ -124,14 +125,15 @@ angular.module('ghop-ui')
 
                         let cell = this._table.getCellByCoords(event.stageX, event.stageY, this._mainContainer.x);
                         let row = this._table.fetchRow(cell.row);
-                        let layerId = CanvasValues.getLayerIdByName(_stripe.track, this._layers);
+                        let layerId = CanvasValues.getTrackIdByName(_stripe.track, this._layers);
                         this._modalHandler(_stripe, this._layers[layerId]);
                     });
 
                         
                     let sublayerNum =  _stripe.sublayer !== undefined ? _stripe.sublayer : 0;
                 
-                    let layerId = CanvasValues.getLayerIdByName(_stripe.track, this._layers);
+
+                    let layerId = CanvasValues.getTrackIdByName(_stripe.track, this._layers);
                     this._layers[layerId].shapes[sublayerNum].addChild(stripeContainer);
                     
             
@@ -196,7 +198,7 @@ angular.module('ghop-ui')
         _drawSolidFill (stripeShape, stripe) {
 
             let stripeSize = stripe.properties.endCoord.coord - stripe.properties.startCoord.coord;
-            let layerId = CanvasValues.getLayerIdByName(stripe.track, this._layers);
+            let layerId = CanvasValues.getTrackIdByName(stripe.track, this._layers);
 
             /**
              * CanvasValues.maxStripeLength - is a max size (in genome coordinates) of element on current layer
@@ -218,11 +220,11 @@ angular.module('ghop-ui')
 
         _drawGradientFill (stripeShape, stripe, coordStart, stripeWidth) {
 
-            let layerId = CanvasValues.getLayerIdByName(stripe.track, this._layers);
+            let layerId = CanvasValues.getTrackIdByName(stripe.track, this._layers);
 
             let colors = [];
             let positions = [];
-            let stripeEnd = Math.min(stripe.endCoord, CanvasValues.maxUnitCountPerLayer);
+            let stripeEnd = Math.min(stripe.endCoord, CanvasValues.maxUnitCountPerTrack);
             let stripeStart = Math.max(stripe.startCoord, 0);
             let stripeSize = stripeEnd - stripeStart;
 
@@ -254,9 +256,9 @@ angular.module('ghop-ui')
 
         _drawOverloadIndicator (stripe) {
 
-            let layerId = CanvasValues.getLayerIdByName(stripe.track, this._layers);
+            let layerId = CanvasValues.getTrackIdByName(stripe.track, this._layers);
             
-            for (let i = stripe.startCoord; i < Math.min(stripe.endCoord, CanvasValues.maxUnitCountPerLayer); i++) {
+            for (let i = stripe.startCoord; i < Math.min(stripe.endCoord, CanvasValues.maxUnitCountPerTrack); i++) {
                 let cell = this._table.getCell(layerId, i);
                 
                 if (cell !== undefined && cell.stripes.length > 1) {
@@ -279,7 +281,6 @@ angular.module('ghop-ui')
         _drawStripe (stripe, layer) {
 
             if (stripe.startCoord < 0 && stripe.endCoord < 0) {
-                $log.info(stripe);
                 return false;
             }
 
@@ -287,7 +288,7 @@ angular.module('ghop-ui')
             if (stripe.startCoord < 0) {
                 coordStart = 0;
             } else {
-                coordStart = CanvasSettings.LAYER_PADDING + stripe.startCoord * CanvasSettings.UNIT_WIDTH;
+                coordStart = CanvasSettings.TRACK_PADDING + stripe.startCoord * CanvasSettings.UNIT_WIDTH;
             }
            
             let stripeContainer = new createjs.Container();        
@@ -296,9 +297,12 @@ angular.module('ghop-ui')
 
             let stripeShape = new createjs.Shape();
 
-            let stripeWidth = 0, stripeSize = 0, gradientStart = 0, gradientWidth = 0;
+            let stripeWidth = 0, 
+                stripeSize = 0, 
+                gradientStart = 0, 
+                gradientWidth = 0;
             let stripeHeight = CanvasSettings.UNIT_HEIGHT;
-            let stripeEnd = Math.min(stripe.endCoord, CanvasValues.maxUnitCountPerLayer);
+            let stripeEnd = Math.min(stripe.endCoord, CanvasValues.maxUnitCountPerTrack);
              
             if (stripe.startCoord < 0) {
                 stripeSize = Math.max(stripeEnd, 0);
@@ -306,25 +310,25 @@ angular.module('ghop-ui')
                 stripeSize = stripeEnd - stripe.startCoord;
             }
 
-            if (stripe.endCoord > CanvasValues.maxUnitCountPerLayer) {
+            if (stripe.endCoord > CanvasValues.maxUnitCountPerTrack) {
                 stripeWidth = this._canvas.width - stripeContainer.x;
                 gradientWidth = stripeSize * CanvasSettings.UNIT_WIDTH;
 
                 if (stripe.startCoord < 0) {
-                    gradientStart = CanvasSettings.LAYER_PADDING;
-                    gradientWidth += CanvasSettings.LAYER_PADDING;
+                    gradientStart = CanvasSettings.TRACK_PADDING;
+                    gradientWidth += CanvasSettings.TRACK_PADDING;
                 }
             } else {
                 
                 stripeWidth = CanvasSettings.UNIT_WIDTH * stripeSize;
 
                 if (stripe.startCoord < 0) {
-                    stripeWidth += CanvasSettings.LAYER_PADDING;
+                    stripeWidth += CanvasSettings.TRACK_PADDING;
 
                     if (stripe.endCoord === 0) {
                          gradientStart = 0;
                     } else {
-                         gradientStart = CanvasSettings.LAYER_PADDING;
+                         gradientStart = CanvasSettings.TRACK_PADDING;
                     }
                 }
                 
@@ -394,13 +398,13 @@ angular.module('ghop-ui')
             this._sublayersCount = 0;
             let bg = new createjs.Shape();
 
-            for (let i = 0; i <= CanvasValues.maxUnitCountPerLayer; i++) {
+            for (let i = 0; i <= CanvasValues.maxUnitCountPerTrack; i++) {
                 let color = i % 2 === 0 ? CanvasSettings.BG_VERTICAL_STRIPE_COLOR_ODD : CanvasSettings.BG_VERTICAL_STRIPE_COLOR_EVEN;
                 
                 bg.graphics.beginFill(color).drawRect(
-                    i === 0 ? 0 : i * CanvasSettings.UNIT_WIDTH + CanvasSettings.LAYER_PADDING, 
+                    i === 0 ? 0 : i * CanvasSettings.UNIT_WIDTH + CanvasSettings.TRACK_PADDING, 
                     0, 
-                    i === 0 ? CanvasSettings.UNIT_WIDTH + CanvasSettings.LAYER_PADDING : CanvasSettings.UNIT_WIDTH,
+                    i === 0 ? CanvasSettings.UNIT_WIDTH + CanvasSettings.TRACK_PADDING : CanvasSettings.UNIT_WIDTH,
                     this._canvas.height
                 );
             }
@@ -413,12 +417,12 @@ angular.module('ghop-ui')
             let positions = [];
             let colors = [];
             let firstCellDensity = this._table.getDensityByCell(0);
-            let lastCellDensity = this._table.getDensityByCell(CanvasValues.maxUnitCountPerLayer - 2);
-            let stripeSize = CanvasValues.maxUnitCountPerLayer;
+            let lastCellDensity = this._table.getDensityByCell(CanvasValues.maxUnitCountPerTrack - 2);
+            let stripeSize = CanvasValues.maxUnitCountPerTrack;
             let maxStripeLengthLog = Math.max(1, Math.log(CanvasValues.maxStripeLength)) / Math.log(10);
             
             let prevDensity;
-            for (let index = 0; index < CanvasValues.maxUnitCountPerLayer; index++) {
+            for (let index = 0; index < CanvasValues.maxUnitCountPerTrack; index++) {
                 let density = this._table.getDensityByCell(index);
 
                 if (density !== undefined) {
@@ -437,7 +441,7 @@ angular.module('ghop-ui')
                     positions.push(index/stripeSize + 1/(10*stripeSize));
                     positions.push(index/stripeSize + 9/(10*stripeSize));
                     
-                    let cellStartCoord = CanvasSettings.LAYER_PADDING + index * CanvasSettings.UNIT_WIDTH;
+                    let cellStartCoord = CanvasSettings.TRACK_PADDING + index * CanvasSettings.UNIT_WIDTH;
                     let line = new createjs.Shape();
                     line.graphics
                         .beginStroke(CanvasSettings.RULER_NICK_COLOR_STROKE)
@@ -461,9 +465,9 @@ angular.module('ghop-ui')
                 
             }
 
-            let cellStartCoord = CanvasSettings.LAYER_PADDING + CanvasSettings.UNIT_WIDTH * CanvasValues.maxUnitCountPerLayer;
+            let cellStartCoord = CanvasSettings.TRACK_PADDING + CanvasSettings.UNIT_WIDTH * CanvasValues.maxUnitCountPerTrack;
             let line = new createjs.Shape();
-            let density = this._table.getDensityByCell(CanvasValues.maxUnitCountPerLayer - 1);
+            let density = this._table.getDensityByCell(CanvasValues.maxUnitCountPerTrack - 1);
             
             if (density.end.coord !== 0) {
                 line.graphics
@@ -482,7 +486,7 @@ angular.module('ghop-ui')
 
             let ruler = new createjs.Shape();
             ruler.graphics
-                .beginLinearGradientFill(colors, positions, CanvasSettings.LAYER_PADDING, 0, CanvasSettings.LAYER_PADDING + CanvasSettings.UNIT_WIDTH * CanvasValues.maxUnitCountPerLayer, 0)
+                .beginLinearGradientFill(colors, positions, CanvasSettings.TRACK_PADDING, 0, CanvasSettings.TRACK_PADDING + CanvasSettings.UNIT_WIDTH * CanvasValues.maxUnitCountPerTrack, 0)
                 .drawRect(
                     -CanvasSettings.UNIT_WIDTH, 
                     CanvasSettings.UNIT_HEIGHT / 2, 

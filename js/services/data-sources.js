@@ -17,4 +17,4 @@ class DataSourceService {
 }
 
 angular.module('ghop-ui')
-.factory('DataSourceService', (DataSources, DataSource) => new AsyncService(DataSources, DataSource));
+.factory('DataSourceService', (DataSources, DataSource) => new DataSourceService(DataSources, DataSource));

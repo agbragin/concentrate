@@ -13,13 +13,13 @@ angular.module('ghop-ui')
             $timeout(() => {
                 this._arrowsContainer = document.querySelector(arrowsContainerSelector);
                 this._imagesContainer = document.querySelector(imagesContainerSelector);
-            })
+            });
         }
         
         draw(relations, collection, idField) {
 
             this.clear();
-            
+
             relations.filter(r => r.type !== 'SINGLE').forEach(relation => {
                 let divsA = [],
                     divsB = [],
@@ -106,8 +106,12 @@ angular.module('ghop-ui')
         }
 
         clear () {
-            while(this._arrowsContainer.firstChild) this._arrowsContainer.removeChild(this._arrowsContainer.firstChild);
-            while(this._imagesContainer.firstChild) this._imagesContainer.removeChild(this._imagesContainer.firstChild);
+            if (this._arrowsContainer !== undefined) {
+                while(this._arrowsContainer.firstChild) this._arrowsContainer.removeChild(this._arrowsContainer.firstChild);
+            }
+            if (this._arrowsContainer !== undefined) {
+                while(this._imagesContainer.firstChild) this._imagesContainer.removeChild(this._imagesContainer.firstChild);
+            }
         }
 
         clearAll () {

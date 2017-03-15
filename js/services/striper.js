@@ -1,14 +1,3 @@
-class GenomicSerializationException {
-
-    constructor(point, error) {
-        this._point = point;
-        this._error = error;
-    }
-
-    get point () { return this._point }
-    get error () { return this._error }
-}
-
 class GenomicCoordinate {
 
     /**
@@ -35,7 +24,7 @@ class GenomicCoordinate {
         try {
             return new GenomicCoordinate(point.contig.referenceGenome.id, point.contig.id, point.coord);
         } catch (e) {
-            throw new GenomicSerializationException(point, e);
+            throw new Error(e);
         }
     }
 
@@ -93,8 +82,8 @@ class Striper {
         logger.debug(`Instantiating Striper in: ${coord.genome}:${coord.contig}:${coord.coord}[${left};${right}] for data sources: ${dataSources}`);
         this._logger = logger;
 
-        this._getBands = (genome, contig, coord, left, right, dataSources) => bander
-                .getBands(genome, contig, coord, left, right, dataSources);
+        this._getBands = (contig, coord, left, right, dataSources) => bander
+                .getBands(contig, coord, left, right, dataSources);
         this._coordCompare = (o1, o2) => comparator.compare(o1, o2);
         this._bsUtils = bsUtils;
 
@@ -114,6 +103,7 @@ class Striper {
     get left        () { return this._left        }
     get right       () { return this._right       }
     get dataSources () { return this._dataSources }
+    set dataSources (dataSources) { this._dataSources = dataSources }
 
     /**
      * @this {Striper}
@@ -131,7 +121,7 @@ class Striper {
 
         this._stripes = this._requestStripes();
         this._stripes.then(stripes => {
-            this._lastStripes = stripes;
+            this._lastStripes = stripes || [];
         });
     }
 
@@ -147,7 +137,7 @@ class Striper {
 
         this._logger.debug(`Requesting Bands in: ${this._coord.genome}:${this._coord.contig}:${this._coord.coord}[${this._left};${this._right}] for data sources: ${this._dataSources}`);
 
-        return this._getBands(this._coord.genome, this._coord.contig, this._coord.coord,
+        return this._getBands(this._coord.contig, this._coord.coord,
                 this._left, this._right, this._dataSources);
     }
 
@@ -197,7 +187,7 @@ class Striper {
                     (endCoord > rightHorizont) ? '+Infinity' : (endCoord - leftHorizont)
             ];
 
-            let properties = band.properties;
+            let properties = band.properties ? band.properties : new Object();
             [properties.startCoord, properties.endCoord] = [band.startCoord, band.endCoord];
 
             return new Stripe(band.track, band.name, startCoord, endCoord, properties);

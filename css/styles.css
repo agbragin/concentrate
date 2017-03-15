@@ -9,6 +9,11 @@
     box-shadow: 0px 2px 6px 0px rgba(156,156,156,1);
 }
 
+.table {
+    background-color: #f0f0f0;
+    margin-top: 10px;
+}
+
 input[type=text].form-control, input[type=number].form-control, select.form-control {
   -webkit-border-radius: 2px;
 	-moz-border-radius: 2px;
@@ -45,9 +50,18 @@ select[multiple].form-control {
 .canvas-wrapper {
     width: 100%;
     padding: 10px 0;
-    margin-top: 26px;
+    margin-top: 16px;
     display: block;
     background-color: white;
+}
+
+.modal-dialog {
+  width: 600px;
+}
+
+.filter-block-wrapper {
+  width: 600px;
+  float: none;
 }
 
 a.nav-expander {
@@ -84,7 +98,7 @@ a.nav-expander.fixed {
 }
  
 .nav-expanded a.nav-expander.fixed {
-    right: 30em;
+    right: 300px;
 }
 
 .navbar-brand {
@@ -131,10 +145,10 @@ nav {
   height: 100%;
   overflow: auto;
   position: fixed;
-  right: -30em;
+  right: -300px;
   font-size: 15px;
   top: 0;
-  width: 30em;
+  width: 300px;
   z-index: 2000;
  
   transition: right 0.3s ease-in-out 0s;
@@ -249,6 +263,8 @@ nav {
 
 .selected-attributes {
   font-size: 10px;
+  white-space: pre-line;
+  word-wrap: break-word;
   display: block;
 }
 
@@ -280,12 +296,12 @@ nav {
 }
 
 div.selectable, li.selectable {
-  background-color: #dadada;
+  background-color: #666;
   cursor: pointer;
 }
 
 div.selectable:hover, div.selected, li.selectable:hover, li.selected {
-  background-color: #448aff;
+  background-color: #2392f1;
   color: #FFFFFF;
 }
 
@@ -322,8 +338,8 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 }
 
 .disable-filter-block {
-	width: 60px;
-	height: 20px;
+	width: 40px;
+	height: 16px;
 	background: #fafafa;
 	margin: 0 auto;
   z-index: 1500;
@@ -332,7 +348,7 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 	-moz-border-radius: 40px;
 	border-radius: 40px;
   position: absolute;
-  top: 25px;
+  top: 10px;
   right: 20px;
 
 	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,0.2);
@@ -377,8 +393,8 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 	transition: all .4s ease;
 	
 	position: absolute;
-	top: 3px;
-	left: 3px;
+	top: 2px;
+	left: 2px;
 	z-index: 1;
 
 	-webkit-box-shadow: 0px 2px 5px 0px rgba(0,0,0,0.3);
@@ -388,10 +404,21 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 }
 
 .disable-filter-block input[type=checkbox]:checked + span {
-	left: 32px;
+	left: 24px;
 }
 .squared-checkbox input[type=checkbox] {
   display: none;
+}
+
+.disable-status {
+	font: 10px/16px Arial, sans-serif;
+	color: #333;
+	position: absolute;
+  text-align: right;
+	right: 43px;
+	z-index: 0;
+	font-weight: bold;
+	text-shadow: 1px 1px 0px rgba(255,255,255,.15);
 }
 
 .squared-checkbox {
@@ -468,8 +495,7 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 .logic-btn-and {
   background-repeat: no-repeat;
   background-size: 18px;
-  background-position-x: 92%;
-  background-position-y: 3px;
+  background-position: 92% 3px;
   padding-right: 25px;
   background-image: url(../images/logic_AND.png);
 }
@@ -477,8 +503,7 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 .logic-btn-or {
   background-repeat: no-repeat;
   background-size: 18px;
-  background-position-x: 92%;
-  background-position-y: 3px;
+  background-position: 92% 3px;
   padding-right: 25px;
   background-image: url(../images/logic_OR.png);
 }
@@ -486,12 +511,105 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 .logic-btn-xor {
   background-repeat: no-repeat;
   background-size: 18px;
-  background-position-x: 92%;
-  background-position-y: 3px;
+  background-position: 92% 3px;
   padding-right: 25px;
   background-image: url(../images/logic_XOR.png);
 }
 
 #tracks_tree_svg {
   padding-top: 10px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#filters_tree_svg {
+  position: absolute;
+  top: 15px;
+  right: 10px;
+}
+
+.tracks-list > .row + .row {
+  border-top: 1px solid #f0f0f0; 
+  padding-top: 10px;
+}
+
+.dropdown-menu-btn {
+  display: none;
+}
+
+@media (max-width: 1550px) {
+  .collapsable {
+    display: none;
+  }
+  .dropdown-menu-btn {
+    display: inline-block;
+  }
+  .show-as-menu {
+    text-align: left;
+    padding: 10px;
+    padding-bottom: 0;
+    display: block;
+    position: absolute;
+    width: 300px;
+    right: -3rem;
+    background-color:#222;
+  }
+  .show-as-menu .nav-delimeter {
+    display: none;
+  }
+  
+  .show-as-menu input.form-control, .show-as-menu .btn, .show-as-menu select.form-control {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+
+  .show-as-menu .menu-block {
+    display: block;
+  }
+}
+
+@media (max-width: 950px) {
+  label.long-collapsable-label {
+    display: none;
+  }
+}
+
+#hop-to-coordinate-form {
+  display: inline-block;
+}
+
+.nav.nav-tabs.main-menu {
+  border-bottom: none;
+}
+
+.filter-btns-block {
+  overflow: auto;
+}
+
+.tracks-list {
+  margin-right: 0;
+}
+
+.tracks-list > div {
+  position: relative;
+  overflow: visible;
+  float: left;
+  width:100%;
+  padding-left: 15px;
+}
+
+.tracks-list .only-tracks {
+  width: 260px;
+}
+
+.tracks-list .only-tracks > ul > li {
+  position: relative;
+}
+
+.tracks-list .only-tracks > ul > li > button {
+  position: absolute; 
+  top: 4px; 
+  right: 0;
 }
