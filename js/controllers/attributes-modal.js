@@ -25,8 +25,8 @@ angular.module('ghop-ui')
         let boundType;
         return {
             disabled: attribute.disabled, 
-            floor: attribute.range.lowerBound, 
-            ceil: attribute.range.upperBound,
+            floor: attribute.range ? attribute.range.lowerBound : undefined,
+            ceil: attribute.range ? attribute.range.upperBound : undefined,
             precision:2, 
             step: 0.01, 
             translate: (value, sliderId, label) => {
@@ -60,12 +60,14 @@ angular.module('ghop-ui')
         }, 0);
     } else {
         $scope.track.attributes.forEach(attr => {
+
             $scope.relationService.relations.push(
                 $scope.relationService.createRelation(attr.id, undefined, 'SINGLE', 0, [attr])
             );
 
             // Float attributes visualized as two filters: low bound and high bound
             if (attr.type === 'FLOAT') {
+
                 $scope.relationService.relations.push(
                     $scope.relationService.createRelation(attr.id, undefined, 'SINGLE', 0, [attr])
                 );
@@ -102,13 +104,13 @@ angular.module('ghop-ui')
                         id: relation.id,
                         attribute: attribute.id,
                         operator: attribute.operators[0] ? '>=' : '>',
-                        values: [values[0]]
+                        values: [attribute.from]
                     });
                     filters.push({
                         id: secondRelation.id,
                         attribute: attribute.id,
                         operator: attribute.operators[1] ? '<=' : '<',
-                        values: [values[1]]
+                        values: [attribute.to]
                     });
                 } else {
                     filters.push({

@@ -44,7 +44,7 @@
                         </div>
                         <div class="col-md-7">
                             <label ng-bind="filter.name"></label>
-                            <input type="text" ng-disabled="filter.disabled"  ng-model="filter.value" class="form-control" />
+                            <input type="text" ng-disabled="filter.disabled" ng-model="filter.value" class="form-control" />
                         </div>
                     </div>
                 </div>
@@ -91,17 +91,17 @@
                             <div class="col-md-4" style="padding-left: 0";>
                                 <input type="number" 
                                        ng-disabled="filter.disabled" 
-                                       ng-model="filter.value[0]"
-                                       min="{{filter.range.lowerBound}}"
-                                       max="{{filter.value[1]}}"
+                                       ng-model="filter.from"
+                                       min="{{filter.range ? filter.range.lowerBound : undefined}}"
+                                       max="{{filter.to}}"
                                        class="form-control" />
                             </div>
                             <div class="col-md-4" style="padding-right: 0";>
                                 <input type="number" 
                                        ng-disabled="filter.disabled" 
-                                       ng-model="filter.value[1]"
-                                       min="{{filter.value[0]}}"
-                                       max="{{filter.range.upperBound}}"
+                                       ng-model="filter.to"
+                                       min="{{filter.from}}"
+                                       max="{{filter.range ? filter.range.upperBound : undefined}}"
                                        class="form-control" />
                             </div>
                             <div class="col-md-1 checkbox" style="margin: 4px; padding-right: 0; padding-left: 15px">
@@ -110,11 +110,6 @@
                                 </label>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-md-12">
-                        <rzslider rz-slider-model="filter.value[0]"
-                                  rz-slider-high="filter.value[1]"
-                                  rz-slider-options="getSliderOptions(filter)"></rzslider>
                     </div>
                 </div>
                 </div>

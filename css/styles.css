@@ -352,7 +352,7 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 }
 
 .disable-filter-block:after {
-	content: 'OFF';
+	content: 'ON';
 	font: 10px/22px Arial, sans-serif;
 	color: #333;
 	position: absolute;
@@ -363,7 +363,7 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 }
 
 .disable-filter-block:before {
-	content: 'ON';
+	content: 'OFF';
   font: 10px/22px Arial, sans-serif;
 	color: #2392f1;
 	position: absolute;
