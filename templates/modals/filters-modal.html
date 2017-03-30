@@ -21,7 +21,8 @@
     </div>
     <div class="row" id="filter-list">
         <div class="col-md-12 filter-block-wrapper" 
-             ng-repeat="filter in track.attributes track by $index" id="filter_{{filter.id}}">
+             ng-repeat="filter in track.attributes track by $index" id="filter_{{filter.id}}"
+             uib-tooltip='{{filter.description}}'>
             
             <span ng-if="filter.type === 'STRING' || filter.type === 'INTEGER'">
                 <div class="filter-block" 
@@ -63,7 +64,7 @@
                         <div class="col-md-12 squared-checkbox">
                             <input type="checkbox" ng-disabled="filter.disabled" id="{{layer.name + '_' + filter.name}}" ng-model="filter.value" />
                             <label for="{{layer.name + '_' + filter.name}}">
-                                <span ng-bind="filter.name" ></span>
+                                <span ng-bind="filter.name"></span>
                             </label>
                         </div>
                     </div>
