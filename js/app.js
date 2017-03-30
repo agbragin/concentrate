@@ -7,7 +7,7 @@ angular.module('ghop-ui', [
     'angular-clipboard'
 ]).config(['$httpProvider', ($httpProvider) => {
 
-    let apiURI = '/ghop-core';
+    let apiURI = '/solvent';
         
     $httpProvider.interceptors.push($q => {
         
