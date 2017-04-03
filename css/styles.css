@@ -522,6 +522,7 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
   position: absolute;
   top: 15px;
   right: 10px;
+  z-index: -100;
 }
 
 .tracks-list > .row + .row {
