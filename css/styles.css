@@ -533,6 +533,10 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
   display: none;
 }
 
+.menu-block .form-control {
+  max-width: 200px;
+}
+
 @media (max-width: 1550px) {
   .collapsable {
     display: none;
