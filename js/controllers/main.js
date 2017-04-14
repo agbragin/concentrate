@@ -332,16 +332,18 @@ angular.module('ghop-ui')
         });
 
         modalInstance.result.then(
-            trackFilterEntity => {
+            trackFilter => {
 
-                if (trackFilterEntity) {
+                if (trackFilter) {
                     // Apply track filters
-                    TrackFilters.save({ id: track.track }, JSON.stringify(trackFilterEntity)).$promise.then(dataSource => {
+                    TrackFilters.save({ id: track.track }, JSON.stringify(new TrackFilterEntity(trackFilter))).$promise.then(dataSource => {
 
                         track.dataSource = dataSource;
                         track.aggregates = dataSource.aggregates;
 
                         $scope.updateStriper(true);
+
+                        $rootScope.trackQueries[track.track] = trackFilter;
                     });
                 } else {
                     // Remove track filtration
@@ -353,7 +355,7 @@ angular.module('ghop-ui')
                         $scope.updateStriper(true);
                     });
 
-                    $rootScope.rootAggregate = AttributeAggregate.empty('AND');
+                    $rootScope.trackQueries[track.track] = AttributeAggregate.empty('AND');
                 }
             },
             () => $log.debug(`${track.track} track filter modal window was dismissed`));

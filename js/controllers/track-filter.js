@@ -3,12 +3,24 @@ angular.module('ghop-ui')
 
     $log.debug(`${track.track} track filter model window activated`);
 
-    $scope.attributes = track.attributes;
-    if (!$rootScope.rootAggregate) {
-        $rootScope.rootAggregate = AttributeAggregate.empty('AND');
+    if (!$rootScope.trackQueries) {
+        $log.debug('TrackQueries is undefined: creating new one');
+        $rootScope.trackQueries = new Object();
     }
 
+    if (!$rootScope.trackQueries[track.track]) {
+        $log.debug(`${track.track} query is undefined: creating new one`);
+        $rootScope.trackQueries[track.track] = AttributeAggregate.empty('AND');
+    }
+
+    $rootScope.rootAggregate = new AttributeAggregate(
+            Array.from($rootScope.trackQueries[track.track].filters),
+            Array.from($rootScope.trackQueries[track.track].aggregates),
+            $rootScope.trackQueries[track.track].operator);
+
+    $scope.attributes = track.attributes;
     $scope.activeAttribute = undefined;
+    $rootScope.attributeFilterToAdd = undefined;
 
     $scope.setActiveAttribute = attribute => {
         $rootScope.attributeFilterToAdd = undefined;
@@ -62,7 +74,7 @@ angular.module('ghop-ui')
 
     $scope.filterIsEmpty = () => !$rootScope.rootAggregate.filters.length && !$rootScope.rootAggregate.aggregates.length;
 
-    $scope.createFilter = () => $uibModalInstance.close(new TrackFilterEntity($rootScope.rootAggregate));
+    $scope.createFilter = () => $uibModalInstance.close($rootScope.rootAggregate);
     $scope.clearFilter = () => $uibModalInstance.close(null);
     $scope.cancel = () => $uibModalInstance.dismiss();
 }]);
