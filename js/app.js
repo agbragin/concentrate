@@ -1,6 +1,8 @@
 angular.module('ghop-ui', [
     'ngResource',
+    'ngSanitize',
     'ui.bootstrap',
+    'ui.bootstrap.contextMenu',
     'isteven-multi-select',
     'ui.sortable',
     'rzModule',
@@ -22,12 +24,11 @@ angular.module('ghop-ui', [
 
                     request.url = apiURI + request.url;
                 }
+
                 return request || $q.when(request);
             }
         }
     });
-    
 }]).run(['$log', 'ReferenceGenomeService', ($log, ReferenceGenomeService) => {
-
     $log.debug('gHop web-client application started');
 }]);

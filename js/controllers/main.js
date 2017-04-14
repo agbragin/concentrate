@@ -1,10 +1,10 @@
 angular.module('ghop-ui')
 .controller('MainController', 
-    ['$scope', '$log', '$uibModal', '$exceptionHandler', 'AsyncService', 'TrackService', 'DataSourceService', 
+    ['$rootScope', '$scope', '$log', '$uibModal', '$exceptionHandler', 'AsyncService', 'TrackService', 'DataSourceService', 
         'HateoasUtils', 'ReferenceGenomeService', 'StriperFactory', 
         'CanvasSettings', 'CanvasValues', 'TrackDataSource', 'TrackAttributes', 'DrawerFactory', 
         'TrackUtils', 'RelationsService', 'TrackFilters', 'ReferenceServiceSelector', 'ReferenceServiceType', 'ReferenceTrack',
-    ($scope, $log, $uibModal, $exceptionHandler, AsyncService, TrackService, DataSourceService, 
+    ($rootScope, $scope, $log, $uibModal, $exceptionHandler, AsyncService, TrackService, DataSourceService, 
         HateoasUtils, ReferenceGenomeService, StriperFactory, 
         CanvasSettings, CanvasValues, TrackDataSource, TrackAttributes, DrawerFactory, 
         TrackUtils, RelationsService, TrackFilters, ReferenceServiceSelector, ReferenceServiceType, ReferenceTrack) => {
@@ -162,6 +162,66 @@ angular.module('ghop-ui')
 
     $scope.positionInputDisabled = () => $scope.selectedTracks.length === 0;
 
+    $scope.referenceSelect = () => {
+
+        ReferenceTrack.select({ id: $scope.genome }).$promise.then(chromosomeTrack => {
+
+            AsyncService.asyncHandle(ReferenceGenomeService.contigsMapping, mapping => {
+
+                $scope.contigsMapping = mapping;
+                $scope.genomes = Object.getOwnPropertyNames(mapping);
+
+                if ($scope.contigsMapping[$scope.genome].length) {
+
+                    $log.debug(`Found ${$scope.contigsMapping[$scope.genome].length} contigs for ${$scope.genome}: ${$scope.contigsMapping[$scope.genome]}`);
+
+                    $scope.contig = $scope.contigsMapping[$scope.genome][0];
+                    $scope.coord = 1;
+                }
+            });
+
+            TrackService.findAll().then(
+                tracksResource => {
+
+                    $scope.tracks = tracksResource['_embedded'].tracks;
+                    $scope.tracks.forEach(track => {
+
+                        track.style = {
+                            height: CanvasSettings.LAYER_BASE_HEIGHT
+                        }
+                        track.sublayersCount = 1;
+
+                        TrackDataSource.get({ id: track.track }).$promise.then(dataSource => track.dataSource = dataSource);
+
+                        TrackAttributes.get({ id: track.track }).$promise.then(attributes => {
+
+                            if (!attributes['_embedded']) {
+                                track.attributes = new Array();
+                                return;
+                            }
+
+                            track.attributes = attributes['_embedded'].attributes;
+
+                            track.attributes.forEach(attr => {
+
+                                attr.style = {
+                                    height: CanvasSettings.ATTRIBUTE_HEIGHT[attr.type]
+                                };
+
+                                attr.value = (!attr.value) ? CanvasSettings.ATTRIBUTE_VALUES[attr.type] : attr.value;
+                                attr.filterOperator = attr.filterOperators ? attr.filterOperators[0] : '|';
+                                attr.disabled = true;
+                            });
+                        });
+                    });
+
+                    draw(new Array());
+                },
+                error => $log.error(error)
+            );
+        }, error => $log.error(error));
+    };
+
     ReferenceServiceSelector.toggle({ type: ReferenceServiceType.REMOTE }).$promise.then(
         () => {
 
@@ -172,66 +232,13 @@ angular.module('ghop-ui')
                 $scope.referenceGenomeIds = ids;
                 $scope.genome = $scope.referenceGenomeIds.find(id => id === 'GRCh37.p13');
                 if (!$scope.genome) {
-                    $log.error('Faild to find GRCh37.p13 in available references list!');
+                    $scope.genome = $scope.referenceGenomeIds[0];
+                    $log.debug(`Failed to find GRCh37.p13 in available references list; took first available: ${$scope.genome}`);
                 } else {
                     $log.debug('GRCh37.p13 reference has been selected as a default reference');
                 }
 
-                ReferenceTrack.select({ id: $scope.genome }).$promise.then(chromosomeTrack => {
-
-                    AsyncService.asyncHandle(ReferenceGenomeService.contigsMapping, mapping => {
-
-                        $scope.contigsMapping = mapping;
-
-                        if ($scope.contigsMapping['GRCh37.p13'].length) {
-
-                            $log.debug(`Found ${$scope.contigsMapping[$scope.genome].length} contigs for GRCh37.p13: ${$scope.contigsMapping['GRCh37.p13']}`);
-
-                            $scope.contig = $scope.contigsMapping['GRCh37.p13'][0];
-                            $scope.coord = 1;
-                        }
-                    });
-
-                    TrackService.findAll().then(
-                        tracksResource => {
-                            
-                            $scope.tracks = tracksResource['_embedded'].tracks;
-                            $scope.tracks.forEach(track => {
-
-                                track.style = {
-                                    height: CanvasSettings.LAYER_BASE_HEIGHT
-                                }
-                                track.sublayersCount = 1;
-
-                                TrackDataSource.get({ id: track.track }).$promise.then(dataSource => track.dataSource = dataSource);
-
-                                TrackAttributes.get({ id: track.track }).$promise.then(attributes => {
-
-                                    if (!attributes['_embedded']) {
-                                        track.attributes = new Array();
-                                        return;
-                                    }
-
-                                    track.attributes = attributes['_embedded'].attributes;
-
-                                    track.attributes.forEach(attr => {
-
-                                        attr.style = {
-                                            height: CanvasSettings.ATTRIBUTE_HEIGHT[attr.type]
-                                        };
-
-                                        attr.value = (!attr.value) ? CanvasSettings.ATTRIBUTE_VALUES[attr.type] : attr.value;
-                                        attr.filterOperator = attr.filterOperators ? attr.filterOperators[0] : '|';
-                                        attr.disabled = true;
-                                    });
-                                });
-                            });
-
-                            draw(new Array());
-                        },
-                        error => $log.error(error)
-                    );
-                }, error => $log.error(error));
+                $scope.referenceSelect();
             });
         },
         error => $log.error(error));
@@ -303,12 +310,55 @@ angular.module('ghop-ui')
             templateUrl: 'templates/modals/tracks-edition.html'
         });
 
-        modalInstance.result.then(() => $scope.createStriper(), () => $log.info('Track creation dismissed'));
+        modalInstance.result.then(
+            () => $scope.createStriper(),
+            () => $log.info('Track creation dismissed'));
     };
 
     let showObjectDetails = stripe => {
         $scope.selectedObject = stripe;
         $scope.$apply();
+    };
+
+    $scope.openTrackFilterModal = track => {
+
+        let modalInstance = $uibModal.open({
+            templateUrl: 'templates/modals/track-filter.html',
+            controller: 'TrackFilterController',
+            resolve: {
+                track: () => track
+            },
+            size: 'lg'
+        });
+
+        modalInstance.result.then(
+            trackFilter => {
+
+                if (trackFilter) {
+                    // Apply track filters
+                    TrackFilters.save({ id: track.track }, JSON.stringify(new TrackFilterEntity(trackFilter))).$promise.then(dataSource => {
+
+                        track.dataSource = dataSource;
+                        track.aggregates = dataSource.aggregates;
+
+                        $scope.updateStriper(true);
+
+                        $rootScope.trackQueries[track.track] = trackFilter;
+                    });
+                } else {
+                    // Remove track filtration
+                    TrackDataSource.get({ id: track.track }).$promise.then(dataSource => {
+
+                        track.dataSource = dataSource;
+                        track.aggregates = [];
+
+                        $scope.updateStriper(true);
+                    });
+
+                    $rootScope.trackQueries[track.track] = AttributeAggregate.empty('AND');
+                }
+            },
+            () => $log.debug(`${track.track} track filter modal window was dismissed`));
     };
 
     $scope.openFiltersModal = trackName => {

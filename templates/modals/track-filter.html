@@ -1,0 +1,46 @@
+<div class='modal-header'>
+    <h3 class='modal-title'>Track filtration</h3>
+</div>
+<div class='modal-body track-filtration-body'>
+    <div class='attribute-table-container'>
+        <table class='table table-hover attribute-table'>
+            <tbody>
+                <tr ng-repeat='attribute in attributes'
+                        class='attribute-opt'
+                        ng-class='{ active: isActiveAttribute(attribute) }'
+                        ng-click='setActiveAttribute(attribute)'>
+                    <th ng-bind='attribute.name'></th>
+                    <td class='attribute-type'>
+                        <label ng-class='typeClass(attribute.type)' class='label' ng-bind='attribute.type'></label>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class='query-container'>
+        <filter-query query='rootAggregate'></filter-query>
+    </div>
+    <div class='attribute-details' ng-if='activeAttribute'>
+        <button class='btn btn-add' ng-class='additionBtnStyle()' ng-disabled='!consistent()' ng-bind='additionStep()' ng-click='buildAttributeFilter()'></button>
+        <div class='form-group'>
+            <textarea class='form-control' ng-model='activeAttribute.description' disabled rows='3'></textarea>
+        </div>
+        <div class='form-group'>
+            <div class='form-group'>
+                <select class='form-control' ng-model='$parent.operator'
+                        ng-options='it for it in activeAttribute.filterOperators'></select>
+            </div>
+        </div>
+        <div class='form-group'>
+            <attribute-values attribute='activeAttribute' values='$parent.values'></attribute-values>
+        </div>
+        <div class='form-group'>
+            <label><input type='checkbox' ng-model='$parent.includeNulls' /> Include bands without this attribute</label>
+        </div>
+    </div>
+</div>
+<div class='modal-footer'>
+    <button class='btn btn-primary' ng-click='createFilter()' ng-disabled='filterIsEmpty()'>Filter</button>
+    <button class='btn btn-warning' ng-click='clearFilter()'>Clear</button>
+    <button class='btn btn-default' ng-click='cancel()'>Cancel</button>
+</div>

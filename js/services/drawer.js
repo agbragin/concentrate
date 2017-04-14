@@ -422,10 +422,11 @@ angular.module('ghop-ui')
             let maxStripeLengthLog = Math.max(1, Math.log(CanvasValues.maxStripeLength)) / Math.log(10);
             
             let prevDensity;
+            let currentContig = undefined;
             for (let index = 0; index < CanvasValues.maxUnitCountPerTrack; index++) {
                 let density = this._table.getDensityByCell(index);
 
-                if (density !== undefined) {
+                if (density) {
 
                     let currentStripeLengthLog = 0;
 
@@ -449,10 +450,20 @@ angular.module('ghop-ui')
                         .lineTo(cellStartCoord, CanvasSettings.UNIT_HEIGHT*1.5);
 
                     let text;
-                    if (prevDensity !== undefined && density.start.coord < prevDensity.end.coord) {
-                        text = new createjs.Text(prevDensity.end.coord, CanvasSettings.RULER_NICK_TEXT_OPTIONS, CanvasSettings.OBJECT_TEXT_COLOR);
+                    if (prevDensity && density.start.coord < prevDensity.end.coord) {
+                        if (currentContig && currentContig == prevDensity.end.contig) {
+                            text = new createjs.Text(prevDensity.end.coord, CanvasSettings.RULER_NICK_TEXT_OPTIONS, CanvasSettings.OBJECT_TEXT_COLOR);
+                        } else {
+                            text = new createjs.Text(`${prevDensity.end.contig}:${prevDensity.end.coord}`, CanvasSettings.RULER_NICK_TEXT_OPTIONS, CanvasSettings.OBJECT_TEXT_COLOR);
+                            currentContig = prevDensity.end.contig;
+                        }
                     } else {
-                        text = new createjs.Text(density.start.coord, CanvasSettings.RULER_NICK_TEXT_OPTIONS, CanvasSettings.OBJECT_TEXT_COLOR);
+                        if (currentContig && currentContig == density.start.contig) {
+                            text = new createjs.Text(density.start.coord, CanvasSettings.RULER_NICK_TEXT_OPTIONS, CanvasSettings.OBJECT_TEXT_COLOR);
+                        } else {
+                            text = new createjs.Text(`${density.start.contig}:${density.start.coord}`, CanvasSettings.RULER_NICK_TEXT_OPTIONS, CanvasSettings.OBJECT_TEXT_COLOR);
+                            currentContig = density.start.contig;
+                        }
                     }
                     
                     text.x = cellStartCoord + CanvasSettings.RULER_NICK_TEXT_PADDING_LEFT;

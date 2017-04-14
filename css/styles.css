@@ -54,10 +54,6 @@ select[multiple].form-control {
     background-color: white;
 }
 
-.modal-dialog {
-  width: 600px;
-}
-
 .filter-block-wrapper {
   width: 600px;
   float: none;
@@ -518,12 +514,6 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
   right: 0;
 }
 
-#filters_tree_svg {
-  position: absolute;
-  top: 15px;
-  right: 10px;
-}
-
 .tracks-list > .row + .row {
   border-top: 1px solid #f0f0f0; 
   padding-top: 10px;
@@ -531,6 +521,10 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
 
 .dropdown-menu-btn {
   display: none;
+}
+
+.menu-block .form-control {
+  max-width: 200px;
 }
 
 @media (max-width: 1550px) {
@@ -607,4 +601,187 @@ div.selectable:hover, div.selected, li.selectable:hover, li.selected {
   position: absolute; 
   top: 4px; 
   right: 0;
+}
+
+.ctx {
+  padding: 5px 5px;
+  border-radius: 10px;
+}
+
+.ctx-and {
+  background-color: lightblue;
+}
+
+.ctx-or {
+  background-color: mediumaquamarine;
+}
+
+.ctx-xor {
+  background-color: lightyellow;
+}
+
+.track-filtration-body {
+  position: relative;
+  height: 600px;
+  padding: 0 0;
+  user-select: none;
+}
+
+.query-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 598px;
+  padding: 8px 8px;
+}
+
+.attribute-details {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 598px;
+  padding: 8px 8px;
+  border-top: 1px solid lightgray;
+}
+
+.attribute-details > .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.attribute-details textarea {
+  resize: none;
+}
+
+.btn-add {
+  margin-bottom: 8px;
+  text-align: center;
+  width: 100%;
+}
+
+.attribute-filter-drag-entity {
+  cursor: move;
+  font-size: 18px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  vertical-align: middle;
+  background-color: burlywood;
+  margin-bottom: 8px;
+  border-radius: 5px;
+}
+
+.attribute-table-container {
+  display: inline-block;
+  width: 300px;
+  height: 600px;
+  overflow-y: auto;
+}
+
+.attribute-table {
+  margin: 0 0;
+  width: 100%;
+  background-color: white;
+}
+
+.attribute-opt {
+  cursor: pointer;
+}
+
+td.attribute-type {
+  text-align: right;
+}
+
+.empty-filter {
+  text-align: center;
+  color: grey;
+  font-size: 44px;
+  padding: 30px 0;
+  cursor: default;
+}
+
+filter-query {
+  cursor: pointer;
+}
+
+.filter-query-content > attribute-filter-card:first-child > .filter-aggregation-operator {
+  display: none;
+}
+
+filter-query > .filter-query-content > filter-query:first-child > .filter-aggregation-operator {
+  display: none;
+}
+
+.filter-query-content > .filter-container:first-child > attribute-filter-operator {
+  display: none;
+}
+
+.add-entity-btn {
+  text-align: center;
+  cursor: pointer;
+  font-size: 22px;
+  color: white;
+  background-color: darksalmon;
+  padding: 5px 0;
+}
+
+.add-entity-btn:hover {
+  background-color: sandybrown;;
+}
+
+.ctx-name {
+  padding: 5px 5px;
+  color: grey;
+  font-size: 20px;
+  cursor: default;
+}
+
+.attribute-filter-card {
+  display: inline-block;
+}
+
+.attribute-filter-card::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.attribute-filter-card-title {
+  font-weight: bold;
+  font-size: 16px;
+  text-align: center;
+  padding: 5px 0;
+  background-color: cadetblue
+}
+
+.attribute-filter-card-body {
+  width: 100%;
+  min-width: 200px;
+}
+
+.attribute-filter-card-body td {
+  background-color: lightseagreen;
+}
+
+.draggable {
+  cursor: move;
+}
+
+.filter-query-content {
+  display: inline-block;
+  border: 1px dotted lightslategrey;
+}
+
+attribute-filter-card {
+  display: inline-block;
+  padding-right: 5px;
+}
+
+.filter-query-content .filter-query-content {
+  margin-top: 5px;
+}
+
+.filter-query-content::after {
+  content: "";
+  display: table;
+  clear: both;
 }
