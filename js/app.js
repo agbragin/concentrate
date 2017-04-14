@@ -1,6 +1,8 @@
 angular.module('ghop-ui', [
     'ngResource',
+    'ngSanitize',
     'ui.bootstrap',
+    'ui.bootstrap.contextMenu',
     'isteven-multi-select',
     'ui.sortable',
     'rzModule',

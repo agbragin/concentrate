@@ -1,0 +1,13 @@
+<div class='empty-filter' ng-show='emptyFilter()' ng-click='handleCtxClick(); $event.stopPropagation();'>Empty filter</div>
+<div class='ctx filter-query-content' ng-class='ctxStyle(query.operator)'
+        ng-hide='emptyFilter()' ng-click='handleCtxClick(); $event.stopPropagation();'>
+    <span ng-repeat='filter in query.filters track by $index' class='filter-container'>
+        <attribute-filter-operator operator='query.operator' context-menu='aggregateOpts'></attribute-filter-operator>
+        <attribute-filter filter='filter' context-menu='filterOpts'></attribute-filter>
+    </span>
+    <span ng-repeat='aggregate in query.aggregates track by $index'>
+        <attribute-filter-operator operator='query.operator' context-menu='aggregateOpts'
+                ng-hide='$index == 0 && query.filters.length == 0'></attribute-filter-operator>
+        <filter-query query='aggregate' parent='query'></filter-query>
+    </span>
+</div>

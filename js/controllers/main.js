@@ -1,10 +1,10 @@
 angular.module('ghop-ui')
 .controller('MainController', 
-    ['$scope', '$log', '$uibModal', '$exceptionHandler', 'AsyncService', 'TrackService', 'DataSourceService', 
+    ['$rootScope', '$scope', '$log', '$uibModal', '$exceptionHandler', 'AsyncService', 'TrackService', 'DataSourceService', 
         'HateoasUtils', 'ReferenceGenomeService', 'StriperFactory', 
         'CanvasSettings', 'CanvasValues', 'TrackDataSource', 'TrackAttributes', 'DrawerFactory', 
         'TrackUtils', 'RelationsService', 'TrackFilters', 'ReferenceServiceSelector', 'ReferenceServiceType', 'ReferenceTrack',
-    ($scope, $log, $uibModal, $exceptionHandler, AsyncService, TrackService, DataSourceService, 
+    ($rootScope, $scope, $log, $uibModal, $exceptionHandler, AsyncService, TrackService, DataSourceService, 
         HateoasUtils, ReferenceGenomeService, StriperFactory, 
         CanvasSettings, CanvasValues, TrackDataSource, TrackAttributes, DrawerFactory, 
         TrackUtils, RelationsService, TrackFilters, ReferenceServiceSelector, ReferenceServiceType, ReferenceTrack) => {
@@ -310,12 +310,53 @@ angular.module('ghop-ui')
             templateUrl: 'templates/modals/tracks-edition.html'
         });
 
-        modalInstance.result.then(() => $scope.createStriper(), () => $log.info('Track creation dismissed'));
+        modalInstance.result.then(
+            () => $scope.createStriper(),
+            () => $log.info('Track creation dismissed'));
     };
 
     let showObjectDetails = stripe => {
         $scope.selectedObject = stripe;
         $scope.$apply();
+    };
+
+    $scope.openTrackFilterModal = track => {
+
+        let modalInstance = $uibModal.open({
+            templateUrl: 'templates/modals/track-filter.html',
+            controller: 'TrackFilterController',
+            resolve: {
+                track: () => track
+            },
+            size: 'lg'
+        });
+
+        modalInstance.result.then(
+            trackFilterEntity => {
+
+                if (trackFilterEntity) {
+                    // Apply track filters
+                    TrackFilters.save({ id: track.track }, JSON.stringify(trackFilterEntity)).$promise.then(dataSource => {
+
+                        track.dataSource = dataSource;
+                        track.aggregates = dataSource.aggregates;
+
+                        $scope.updateStriper(true);
+                    });
+                } else {
+                    // Remove track filtration
+                    TrackDataSource.get({ id: track.track }).$promise.then(dataSource => {
+
+                        track.dataSource = dataSource;
+                        track.aggregates = [];
+
+                        $scope.updateStriper(true);
+                    });
+
+                    $rootScope.rootAggregate = AttributeAggregate.empty('AND');
+                }
+            },
+            () => $log.debug(`${track.track} track filter modal window was dismissed`));
     };
 
     $scope.openFiltersModal = trackName => {

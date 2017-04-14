@@ -43,9 +43,18 @@ module.exports = function(grunt) {
                     }
                 },
                 proxies: [
+                    /*
                     {
-                        context: '/ghop-core',
-                        host: 'tests.parseq.pro',
+                        context: '/solvent',
+                        host: 'localhost',
+                        port: 8080,
+                        rewrite: {
+                            '/solvent': '/'
+                        }
+                    }*/
+                    {
+                        context: '/solvent',
+                        host: 'conc.tests.parseq.pro',
                         port: 8080
                     }
                 ]

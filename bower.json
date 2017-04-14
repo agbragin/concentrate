@@ -1,30 +1,32 @@
 {
-    "name": "ghop-webclient",
-    "authors": [
-        "Alexander Afanasyev <aafanasyev@parseq.pro>"
-    ],
-    "description": "gHop front-end dependencies",
-    "main": "",
-    "license": "MIT",
-    "homepage": "",
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_modules",
-        "test",
-        "tests"
-    ],
-    "dependencies": {
-        "angular": "*",
-        "angular-resource": "*",
-        "angular-bootstrap": "*",
-        "bootstrap": "*",
-        "angular-multi-select": "*",
-        "EaselJS": "^0.8.2",
-        "jquery-ui": "latest",
-        "angular-ui-sortable": "latest",
-        "angularjs-slider" : "latest",
-        "angular-clipboard" : "latest",
-        "babel-polyfill": "latest"
-    }
+  "name": "concentrate",
+  "authors": [
+    "Alexander Afanasyev <aafanasyev@parseq.pro>"
+  ],
+  "description": "Concentrate Genome Browser web-client",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_modules",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "*",
+    "angular-resource": "*",
+    "angular-bootstrap": "*",
+    "bootstrap": "*",
+    "angular-multi-select": "*",
+    "EaselJS": "^0.8.2",
+    "jquery-ui": "latest",
+    "angular-ui-sortable": "latest",
+    "angularjs-slider": "latest",
+    "angular-clipboard": "latest",
+    "babel-polyfill": "latest",
+    "angular-sanitize": "^1.6.4",
+    "angular-bootstrap-contextmenu": "^0.9.9"
+  }
 }

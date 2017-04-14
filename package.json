@@ -1,6 +1,6 @@
 {
-    "name": "ghop-webclient",
-    "description": "gHop Web-client",
+    "name": "concentrate",
+    "description": "Concentrate Genome Browser web-client",
     "version": "0.1.0",
     "repository": {
         "type": "git",
