@@ -44,9 +44,7 @@ angular.module('ghop-ui')
                     ['XOR', $itemScope => $scope.putInto('XOR', $itemScope.filter)]
                 ]],
                 null,
-                ['Remove', $itemScope => {
-                    $scope.removeFilter($itemScope.filter);
-                }]
+                ['Remove', $itemScope => $scope.removeFilter($itemScope.filter)]
             ];
 
             $scope.aggregateOpts = [
