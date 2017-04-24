@@ -23,7 +23,7 @@ angular.module('ghop-ui')
 
     $log.debug('Track creation controller running');
 
-    $scope.dataSourceTypes = dataSourceTypes;
+    $scope.dataSourceTypes = dataSourceTypes.filter(it => it !== 'REFERENCE' && it !== 'CHROMOSOME');
     $scope.trackNames = trackNames;
 
     $scope.createTrackFromFile = () => {
