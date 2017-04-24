@@ -176,7 +176,9 @@ angular.module('ghop-ui')
                     $log.debug(`Found ${$scope.contigsMapping[$scope.genome].length} contigs for ${$scope.genome}: ${$scope.contigsMapping[$scope.genome]}`);
 
                     $scope.contig = $scope.contigsMapping[$scope.genome][0];
-                    $scope.coord = 1;
+                    $scope.coord = 0;
+
+                    $scope.updateStriper();
                 }
             });
 
