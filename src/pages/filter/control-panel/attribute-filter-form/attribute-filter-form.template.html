@@ -1,0 +1,11 @@
+<button class='btn center width-expand mb1' disabled ng-hide='readyToBuild()'>Select operator and specify filter value</button>
+<button class='btn center width-expand mb1 bg-orange' ng-show='readyToBuild() && !builtAttributeFilter' ng-click='buildAttributeFilter()'>Click here to build the filter</button>
+<button class='btn center width-expand mb1 bg-teal' ng-show='builtAttributeFilter' ng-click='destroyAttributeFilter()'>Now click on the context of interest (or here again to cancel)</button>
+<textarea class='textarea no-resize' rows='3' ng-bind='attribute.description' disabled></textarea>
+<select class='select' ng-options='operator as operator for operator in attribute.filterOperators' ng-model='filterOperator'>
+    <option value='' disabled selected>Select filter operator</option>
+</select>
+<attribute-filter-value value='values' attribute='attribute'></attribute-filter-value>
+<label class='block'>
+    <input type='checkbox' ng-model='includeNulls' /> Include bands without this attribute
+</label>

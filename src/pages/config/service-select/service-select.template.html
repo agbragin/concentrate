@@ -1,0 +1,3 @@
+<select class='select' ng-options='type.value as type.name disable when type.value === "LOCAL" for type in types' ng-model='type' ng-change='selectServiceType()'>
+    <option value='' disabled selected>Select reference service type</option>
+</select>

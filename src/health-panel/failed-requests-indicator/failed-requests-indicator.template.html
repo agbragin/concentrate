@@ -1,0 +1,8 @@
+<span>
+    <span ng-show='failedRequests.array.length' ui-sref='errors' class='clickable-indicator'>
+        <span ng-bind='failedRequests.array.length'></span> <i class='fa fa-warning red'></i>
+    </span>
+    <span ng-hide='failedRequests.array.length'>
+        OK <i class='fa fa-shield olive'></i>
+    </span>
+</span>

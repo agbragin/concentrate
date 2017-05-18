@@ -1,0 +1,12 @@
+<form name='form' class='track-form mt2 col-6 mx-auto' novalidate>
+    <h3>Track parameters</h3>
+    <input type='text' class='input' name='name' ng-model='name' placeholder='Enter track name' track-name required />
+    <select class='select' name='type' ng-options='type disable when type === "REFERENCE" || type === "CHROMOSOME" for type in types' ng-model='type' required>
+        <option value='' disabled selected>Select source type</option>
+    </select>
+    <input type='file' name='file' ng-file='file' required />
+    <div class='mt2'>
+        <button class='btn btn-primary' ng-click='upload()' ng-disabled='form.$invalid || !file'>Upload</button>
+        <button class='btn' ng-click='goBack()'>Cancel</button>
+    </div>
+</form>

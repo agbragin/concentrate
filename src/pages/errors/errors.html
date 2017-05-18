@@ -1,0 +1,14 @@
+<div class='mt2'>
+    <error ng-repeat='failedRequest in failedRequests.array' request='failedRequest' ng-if='failedRequests.array.length'></error>
+    <div class='clearfix' ng-hide='failedRequests.array.length'>
+        <div class='col-8 mx-auto center h1 gray'>
+            No errors
+        </div>
+    </div>
+</div>
+<div class='clearfix mt2 mb4'>
+    <div class='col-2 mx-auto center'>
+        <button class='btn' ng-click='goBack()'>Back</button>
+        <button class='btn btn-primary bg-orange' ng-click='flushErrors()' ng-disabled='!failedRequests.array.length'>Flush</button>
+    </div>
+</div>

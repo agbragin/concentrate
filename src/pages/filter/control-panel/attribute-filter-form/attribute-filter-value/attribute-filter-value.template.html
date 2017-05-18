@@ -1,0 +1,6 @@
+<label class='block' ng-if='attribute.type === "BOOLEAN"'>
+    <input type='checkbox' ng-model='booleanValue' ng-change='setAttributeFilterValue(booleanValue)' /> Target bands <i>should have</i> this attribute set to <code>true</code>
+</label>
+<input class='input' type='number' ng-model='numberValue' ng-change='setAttributeFilterValue(numberValue)' ng-if='attribute.type === "INTEGER" || attribute.type === "FLOAT"'>
+<select class='select multiple-select' multiple ng-model='setValues' ng-change='setAttributeFilterValue(setValues)' ng-options='it for it in attribute.range.values' ng-if='attribute.type === "SET"'></select>
+<input class='input' type='text' ng-model='stringValue' ng-change='setAttributeFilterValue(stringValue)' ng-if='attribute.type === "STRING"'>

@@ -1,0 +1,96 @@
+.clickable-indicator {
+    cursor: pointer;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.max-height-300 {
+    max-height: 300px;
+    overflow: auto;
+}
+
+.max-width-400 {
+    max-width: 400px;
+}
+
+.expand {
+    width: 100%;
+    height: 100%;
+}
+
+.height-expand {
+    height: 100%;
+}
+
+.width-expand {
+    width: 100%;
+}
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: inherit;
+}
+
+.overflow-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.no-resize {
+    resize: none;
+}
+
+.multiple-select {
+    height: 5rem;
+}
+
+.filter-token:first-child > .ctx-operator {
+    display: none;
+}
+
+.context-menu *, .filter-menu * {
+    color: black;
+}
+
+.context-menu ul, .filter-menu ul {
+    background-color: white;
+    padding: 10px 0px;
+    list-style: none;
+    border: 1px solid rgb(200, 200, 200);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color: rgb(250, 250, 250);
+}
+
+.context-menu li, .filter-menu li {
+    margin: 5px 0px;
+    padding: 5px 15px;
+}
+
+.context-menu li:hover, .filter-menu li:hover {
+    background-color: rgb(230, 230, 230);
+}
+
+.context-menu a, .filter-menu a {
+    text-decoration: none;
+}
+
+.context-opt:hover {
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.hovered-opt {
+    opacity: 0.7;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.track-form input.ng-invalid.ng-touched {
+    border: 1px solid rosybrown;
+}

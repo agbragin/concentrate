@@ -1,0 +1,8 @@
+<span>
+    <span ng-show='httpService.pendingRequests.length'>
+        <span ng-bind='httpService.pendingRequests.length'></span> requests are running <i class='fa fa-cog fa-spin'></i>
+    </span>
+    <span ng-hide='httpService.pendingRequests.length'>
+        Ready <i class='fa fa-circle olive'></i>
+    </span>
+</span>

@@ -1,0 +1,4 @@
+<select class='select' ng-options='referenceGenome as referenceGenome.name for referenceGenome in availableReferenceGenomes'
+        ng-model='referenceGenome' ng-change='selectReferenceGenome()' ng-disabled='!referenceServiceType'>
+    <option value='' disabled selected>Select reference genome</option>
+</select>

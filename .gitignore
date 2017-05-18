@@ -1,7 +1,1 @@
-.*
-*~
-bower_components/
-lib/
-node_modules/
-*.log
-build/
+node_modules

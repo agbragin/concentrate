@@ -1,0 +1,11 @@
+<div class='pb2'>
+    <hr />
+    <attribute-filter-form attribute='activeAttribute' built-attribute-filter='$parent.builtAttributeFilter' ng-if='activeAttribute'></attribute-filter-form>
+    <div class='clearfix right mt1'>
+        <button class='btn bg-orange' ng-click='applyFilter()'
+                 ng-hide='!(filter.filters.length || filter.aggregates.length)'>Apply</button>
+        <button class='btn bg-teal' ng-click='disableFilter()'
+                 ng-hide='!(filter.filters.length || filter.aggregates.length) || track.activeDataSource.id === track.dataSource.id'>Disable</button>
+        <button class='btn' ui-sref='browser'>Back</button>
+    </div>
+</div>

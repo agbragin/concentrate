@@ -1,0 +1,11 @@
+<h1 class='h1 p4 truncate gray center context-opt' ng-show='filterIsEmpty()' ng-click='handleCtxClick(); $event.stopPropagation();'>Empty filter</h1>
+<div class='m1 p1 inline-block' ng-class='ctxClass()' ng-click='handleCtxClick(); $event.stopPropagation();' ng-hide='filterIsEmpty()'>
+    <span class='filter-token' ng-repeat='filter in query.filters track by $index'>
+        <code class='bold mx1 ctx-operator' ng-bind='query.operator' context-menu='contextMenu' context-menu-class='context-menu'></code>
+        <attribute-filter-card class='inline-block context-opt' filter='filter' context-menu='filterMenu' context-menu-class='filter-menu'></attribute-filter-card>
+    </span>
+    <span class='aggregate-token' ng-repeat='aggregate in query.aggregates track by $index'>
+        <code class='bold mx1 ctx-operator' ng-bind='query.operator' context-menu='contextMenu' context-menu-class='context-menu'></code>
+        <attribute-filter-query query='aggregate' parent='query' origin='origin' built-attribute-filter='$parent.builtAttributeFilter'></attribute-filter-query>
+    </span>
+</div>

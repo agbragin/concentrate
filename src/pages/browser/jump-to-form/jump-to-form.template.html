@@ -1,0 +1,11 @@
+<div class='p2'>
+    <div class='mb2'>
+        <b>Target coordinate:</b>
+    </div>
+    <select class='select' ng-options='contig as contig for contig in activeReferenceGenome.contigs'
+            ng-model='focusContigName'></select>
+    <input type='number' class='input' ng-model='focusCoordinate' />
+    <div class='mt2'>
+        <button class='btn btn-narrow bg-orange' ng-click='jumpTo()'>Jump</button>
+    </div>
+</div>

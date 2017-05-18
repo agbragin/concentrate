@@ -1,0 +1,15 @@
+<div class='clearfix mb1'>
+    <div class='col-8 mx-auto'>
+        <div class='clearfix bg-darken-1'>
+            <div class='sm-col sm-col-2 h3 center' ng-class='methodBg(request.method)' ng-bind='request.method'></div>
+            <div class='sm-col sm-col-2 h3 center' ng-bind='request.status'></div>
+            <div class='sm-col sm-col-8 h3 pl1' ng-bind='request.url'></div>
+        </div>
+        <div class='clearfix' ng-show='request.data'>
+            <pre class='sm-col sm-col-12' ng-bind='stringify(request.data)'></pre>
+        </div>
+        <div class='clearfix' ng-hide='request.data'>
+            <div class='sm-col sm-col-12 center gray'>No data</div>
+        </div>
+    </div>
+</div>

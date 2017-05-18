@@ -1,206 +1,198 @@
 <!DOCTYPE html>
-<html ng-app='ghop-ui'>
+<html ng-app='concentrate'>
 <head>
     <meta charset='utf-8'>
-    <title>Parseq Concentrate web-client</title>
-    <link rel='shortcut icon' href='favicon.ico' type='image/x-icon'>
-    <link type="text/css" rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"> 
-    <link rel="stylesheet" href="bower_components/angular-multi-select/isteven-multi-select.css">
-    <link rel="stylesheet" type="text/css" href="bower_components/angularjs-slider/dist/rzslider.min.css"/>
-    <link type="text/css" rel="stylesheet" href="css/styles.css">
+    <title>Parseq Concentrate Genome Browser</title>
+    <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
+    <link rel='stylesheet' type='text/css' href='node_modules/ace-css/css/ace.min.css'>
+    <link rel='stylesheet' type='text/css' href='node_modules/font-awesome/css/font-awesome.min.css'>
+    <link rel='stylesheet' type='text/css' href='css/main.css'>
 </head>
-<body ng-controller='MainController'>
-    <div class="genome-browser">
-        <div class="browser-container" ng-class="{'nav-expanded' : navOpen}">
-            <nav>
-                <div class="nav-body">
-                    <!-- Nav tabs -->
-                    <ul class="nav nav-tabs main-menu">
-                        <li class="active"><a href="#current" id="current-view-tab" data-toggle="tab">Current</a></li>
-                        <li class="pull-right text-right" >
-                            <a href="#" id="nav-close" ng-click="toggleNav()">X</a>
-                        </li>
-                    </ul>
-                    <!-- Tab panes -->
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="current">
-                            <div class="filter-btns-block col-md-12">
-                                <button class="btn btn-default btn-xs" ng-disabled="lockBtns" ng-click="relationService.startSelection('AND')">AND</button>
-                                <button class="btn btn-default btn-xs" ng-disabled="lockBtns" ng-click="relationService.startSelection('OR')">OR</button>
-                                <button class="btn btn-default btn-xs" ng-disabled="lockBtns" ng-click="relationService.startSelection('XOR')">XOR</button>
-                                <button class="btn btn-default btn-xs" ng-disabled="lockBtns" ng-click="relationService.defaultRelations()">Clear</button>
-                            </div>
-                            <div class="tracks-list row">
-                                <div>
-                                    <div class="only-tracks">
-                                        <ul class="list-unstyled main-menu" ui-sortable="sortableOptions" ng-model="selectedTracks">
-                                            <li ng-repeat="track in selectedTracks"
-                                                ng-style="track.style"
-                                                ng-mouseover="relationService.setHighlight(track)"
-                                                ng-click="relationService.addToSelection(track, selectedTracks, updateStriper, onAddRelationCallback)" 
-                                                ng-class="{selectable:relationService.isHighlighted(track), selected:relationService.checkInRelation(track)}"
-                                                id="track_{{track.track}}">
-                                                <span ng-bind="track.track"></span>
-                                                <button class='btn btn-xs btn-default pull-right' ng-click='openTrackFilterModal(track)'>Filters</button>
-                                                
-                                                <div class="selected-attributes" ng-bind="getSelectedFilters(track)"></div>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <svg id="tracks_tree_svg" 
-                                        xmlns="http://www.w3.org/2000/svg" 
-                                        width="0"
-                                        height="0">
-                                        <defs>
-                                            <marker id="arrowhead" viewBox="0 0 10 10" refX="3" refY="5"
-                                                markerWidth="4" markerHeight="4" orient="180">
-                                            <path d="M 0 0 L 10 5 L 0 10 z" />
-                                            </marker>
-                                        </defs>
-                                        <g fill="none" stroke="#f0f0f0" width="100%" stroke-width="2" id="tracks_tree">
-                                        </g>
-                                        <g fill="none" stroke="f0f0f0" width="100%" id="tracks_images">
-                                        </g>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-            <div class="navbar navbar-inverse navbar-fixed-top">      
-                    
-                <!--Include your brand here-->
-                <a class="navbar-brand" href="#">CONC.</a>
-                <div class="navbar-header genome-nav">
-                    <label class="long-collapsable-label" title="Check data sources to fetch bands from">Check data sources:</label>
-                    <div isteven-multi-select 
-                        class="multiselect"
-                            input-model="tracks"
-                            output-model="selectedTracks"
-                            item-label="track" 
-                            max-labels="2"
-                            button-label="track"
-                            on-close="onSelectTracks()"
-                            tick-property="ticked">
-                    </div>
-                    <div class="btn btn-warning load-source-btn" ng-click="openTrackCreationModal()">add</div>
+<body>
+    <top-panel></top-panel>
+    <ui-view></ui-view>
+    <health-panel></health-panel>
 
-                    <div class="btn btn-default load-source-btn" ng-click="openTracksEditionModal()">edit list</div>
-                    
-                    <span class="collapsable" ng-class="{'show-as-menu':showMenuPanel}">
-                        <span class="nav-delimeter"></span>
+    <script type='text/javascript' src='node_modules/angular/angular.min.js'></script>
+    <script type='text/javascript' src='node_modules/angular-bootstrap-contextmenu/contextMenu.js'></script>
+    <script type='text/javascript' src='node_modules/angular-ui-router/release/angular-ui-router.min.js'></script>
+    <script type='text/javascript' src='node_modules/createjs-easeljs/lib/easeljs-0.8.2.min.js'></script>
+    <script type='text/javascript' src='node_modules/jquery/dist/jquery.min.js'></script>
 
-                        <span class="menu-block">
-                            <label>Reference:</label>
-                            <select id="genome"
-                                    name="genome"
-                                    class="form-control"
-                                    ng-model="genome"
-                                    ng-options="genome for genome in genomes"
-                                    ng-change="referenceSelect()"></select>
-                        </span>
-                        <span class="nav-delimeter"></span>
-                        <span class="menu-block">
-                            <form id="hop-to-coordinate-form" name="hopToCoordinate">
-                                <label>Coordinate:</label>
-                                <select id="contig"
-                                        name="contig"
-                                        class="form-control"
-                                        ng-model="contig"
-                                        ng-disabled="positionInputDisabled()" 
-                                        ng-options="contig for contig in contigsMapping[genome]"
-                                        required 
-                                        ng-disabled="!genome"></select>
-                                <input  type="text"
-                                        name="coord"
-                                        ng-disabled="positionInputDisabled()" 
-                                        class="form-control"
-                                        ng-model="coord"
-                                        ng-value="striper.coord.coord"
-                                        ng-enter="updateStriper()" />
-                                <div class="btn btn-primary" 
-                                    ng-click="updateStriper()"
-                                    ng-disabled="positionInputDisabled()">Move to</div>
-                            </form>
-                        </span>
-                    </span>
-                    <span class="btn btn-primary dropdown-menu-btn" ng-click="toggleMenuPanel()">more...</span>
-                </div>
-                <div class="navbar-header pull-right">
-                    <a id="nav-expander" class="nav-expander fixed" ng-click="toggleNav()">
-                    Filters
-                    </a>
-                </div>
-            </div>
+    <!-- Application entry point script -->
+    <script type='text/javascript' src='src/app.js'></script>
 
-            <div class="canvas-wrapper">
-                <canvas></canvas>
-                <div class="container">
-                    <div class="row" ng-show="selectedObject.track !== undefined">
-                        <div class="col-md-4">
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2">Main params</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Track:</td>
-                                        <td><span ng-bind="selectedObject.track"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Start:</td>
-                                        <td><span ng-bind="selectedObject.properties.startCoord.contig.id"></span> - <span ng-bind="selectedObject.properties.startCoord.coord"></span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>End: </td>
-                                        <td><span ng-bind="selectedObject.properties.endCoord.contig.id"></span> - <span ng-bind="selectedObject.properties.endCoord.coord"></span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="col-md-4">
-                            <table class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2">Attributes</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="(attributeName, attributeValue) in selectedObject.properties" 
-                                        ng-if="attributeName !== 'startCoord' && attributeName !== 'endCoord'">
-                                        <td><span ng-bind="attributeName"></span></td>
-                                        <td><span ng-bind="attributeValue"></span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- Core classes and services -->
 
-    <script src='bower_components/jquery/dist/jquery.min.js'></script>
-    <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
-    <script src="bower_components/babel-polyfill/browser-polyfill.js"></script>
-    <script src='bower_components/bootstrap/dist/js/bootstrap.min.js'></script>
+    <script type='text/javascript' src='src/core/band.js'></script>
+    <script type='text/javascript' src='src/core/band.service.js'></script>
+    <script type='text/javascript' src='src/core/exception.js'></script>
+    <script type='text/javascript' src='src/core/genomic-coordinate-comparator.js'></script>
+    <script type='text/javascript' src='src/core/genomic-coordinate.js'></script>
+    <script type='text/javascript' src='src/core/stripe.js'></script>
+    <script type='text/javascript' src='src/core/stripe.service.js'></script>
+    <script type='text/javascript' src='src/core/unknown-contig-exception.js'></script>
+    <script type='text/javascript' src='src/core/unknown-reference-genome-exception.js'></script>
+    <script type='text/javascript' src='src/core/visualization-focus.js'></script>
 
-    <script src='bower_components/angular/angular.min.js'></script>
-    <script src='bower_components/angular-sanitize/angular-sanitize.min.js'></script>
-    <script src='bower_components/angular-resource/angular-resource.min.js'></script>
-    <script src="bower_components/angular-bootstrap/ui-bootstrap.min.js"></script>
-    <script src='bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js'></script>
-    <script src='bower_components/angular-bootstrap-contextmenu/contextMenu.js'></script>
-    <script src='bower_components/angular-multi-select/isteven-multi-select.js'></script>
-    <script src='bower_components/EaselJS/lib/easeljs-0.8.2.combined.js'></script>
-    <script src="bower_components/angular-ui-sortable/sortable.min.js"></script>
-    <script src="bower_components/angularjs-slider/dist/rzslider.min.js"></script>
-    <script src="bower_components/angular-clipboard/angular-clipboard.js"></script>
+    <script type='text/javascript' src='src/core/binary-search/binary-search.js'></script>
 
-    <!-- Angular application script -->
-    <script src='build/es2015/build/app.js'></script>
+    <script type='text/javascript' src='src/core/canvas/drawer/drawer.js'></script>
+    <script type='text/javascript' src='src/core/canvas/visualization-properties.js'></script>
+
+    <script type='text/javascript' src='src/core/grid/grid-track-level.js'></script>
+    <script type='text/javascript' src='src/core/grid/grid-track.js'></script>
+    <script type='text/javascript' src='src/core/grid/grid.js'></script>
+    <script type='text/javascript' src='src/core/grid/stripe-placing-exception.js'></script>
+
+    <script type='text/javascript' src='src/core/hateoas/utils.service.js'></script>
+
+    <script type='text/javascript' src='src/core/http/failed-request.js'></script>
+    <script type='text/javascript' src='src/core/http/failed-request.service.js'></script>
+    <script type='text/javascript' src='src/core/http/failed-requests.js'></script>
+    <script type='text/javascript' src='src/core/http/request-color.js'></script>
+
+    <script type='text/javascript' src='src/core/ng-file/ng-file.js'></script>
+
+    <script type='text/javascript' src='src/core/reference-service/reference-genome.js'></script>
+    <script type='text/javascript' src='src/core/reference-service/reference-service-selection.service.js'></script>
+    <script type='text/javascript' src='src/core/reference-service/reference-service-type.js'></script>
+    <script type='text/javascript' src='src/core/reference-service/reference.service.js'></script>
+
+    <script type='text/javascript' src='src/core/tracks/attributes/aggregate.js'></script>
+    <script type='text/javascript' src='src/core/tracks/attributes/attribute.js'></script>
+    <script type='text/javascript' src='src/core/tracks/attributes/filter.js'></script>
+    <script type='text/javascript' src='src/core/tracks/attributes/range.js'></script>
+    <script type='text/javascript' src='src/core/tracks/attributes/unsupported-inclusion-type-exception.js'></script>
+
+    <script type='text/javascript' src='src/core/tracks/entities/aggregate.js'></script>
+    <script type='text/javascript' src='src/core/tracks/entities/filter.js'></script>
+    <script type='text/javascript' src='src/core/tracks/entities/track-filter.js'></script>
+
+    <script type='text/javascript' src='src/core/tracks/data-source-type.service.js'></script>
+    <script type='text/javascript' src='src/core/tracks/data-source.js'></script>
+    <script type='text/javascript' src='src/core/tracks/filtered-data-source.js'></script>
+    <script type='text/javascript' src='src/core/tracks/track.js'></script>
+    <script type='text/javascript' src='src/core/tracks/track.service.js'></script>
+
+    <script type='text/javascript' src='src/core/validators/track-name.validator.js'></script>
+
+    <!-- Checkbox component -->
+    <script type='text/javascript' src='src/checkbox/checkbox.js'></script>
+    <script type='text/javascript' src='src/checkbox/checkbox.controller.js'></script>
+
+    <!-- Top Panel component -->
+    <script type='text/javascript' src='src/top-panel/top-panel.js'></script>
+    <script type='text/javascript' src='src/top-panel/top-panel.controller.js'></script>
+
+    <!-- Health Panel component -->
+    <script type='text/javascript' src='src/health-panel/health-panel.js'></script>
+    <script type='text/javascript' src='src/health-panel/health-panel.controller.js'></script>
+
+    <!-- Failed Requests Indicator component -->
+    <script type='text/javascript' src='src/health-panel/failed-requests-indicator/failed-requests-indicator.js'></script>
+    <script type='text/javascript' src='src/health-panel/failed-requests-indicator/failed-requests-indicator.controller.js'></script>
+
+    <!-- Pending Requests Indicator component -->
+    <script type='text/javascript' src='src/health-panel/pending-requests-indicator/pending-requests-indicator.js'></script>
+    <script type='text/javascript' src='src/health-panel/pending-requests-indicator/pending-requests-indicator.controller.js'></script>
+
+    <!-- Reference Genome Indicator component -->
+    <script type='text/javascript' src='src/health-panel/reference-genome-indicator/reference-genome-indicator.js'></script>
+    <script type='text/javascript' src='src/health-panel/reference-genome-indicator/reference-genome-indicator.controller.js'></script>
+
+    <!-- Application pages -->
+
+    <!-- Browser page -->
+
+    <script type='text/javascript' src='src/pages/browser/browser.js'></script>
+
+    <!-- Active Stripe Card component -->
+    <script type='text/javascript' src='src/pages/browser/active-stripe-card/active-stripe-card.js'></script>
+    <script type='text/javascript' src='src/pages/browser/active-stripe-card/active-stripe-card.controller.js'></script>
+
+    <!-- Available Tracks component -->
+    <script type='text/javascript' src='src/pages/browser/available-tracks/available-tracks.js'></script>
+    <script type='text/javascript' src='src/pages/browser/available-tracks/available-tracks.controller.js'></script>
+
+    <!-- Browser View component -->
+    <script type='text/javascript' src='src/pages/browser/browser-view/browser-view.js'></script>
+    <script type='text/javascript' src='src/pages/browser/browser-view/browser-view.controller.js'></script>
+
+    <!-- Control Panel component -->
+    <script type='text/javascript' src='src/pages/browser/control-panel/control-panel.js'></script>
+    <script type='text/javascript' src='src/pages/browser/control-panel/control-panel.controller.js'></script>
+
+    <!-- Jump To Form component -->
+    <script type='text/javascript' src='src/pages/browser/jump-to-form/jump-to-form.js'></script>
+    <script type='text/javascript' src='src/pages/browser/jump-to-form/jump-to-form.controller.js'></script>
+
+    <!-- Stripe Properties component -->
+    <script type='text/javascript' src='src/pages/browser/active-stripe-card/stripe-properties/stripe-properties.js'></script>
+    <script type='text/javascript' src='src/pages/browser/active-stripe-card/stripe-properties/stripe-properties.controller.js'></script>
+
+    <!-- Stripe Structure component -->
+    <script type='text/javascript' src='src/pages/browser/active-stripe-card/stripe-structure/stripe-structure.js'></script>
+    <script type='text/javascript' src='src/pages/browser/active-stripe-card/stripe-structure/stripe-structure.controller.js'></script>
+
+    <!-- Track Option component -->
+    <script type='text/javascript' src='src/pages/browser/track-option/track-option.js'></script>
+    <script type='text/javascript' src='src/pages/browser/track-option/track-option.controller.js'></script>
+
+    <!-- Config page -->
+
+    <script type='text/javascript' src='src/pages/config/config.js'></script>
+
+    <!-- Service Select component -->
+    <script type='text/javascript' src='src/pages/config/service-select/service-select.js'></script>
+    <script type='text/javascript' src='src/pages/config/service-select/service-select.controller.js'></script>
+
+    <!-- Reference Select component -->
+    <script type='text/javascript' src='src/pages/config/reference-select/reference-select.js'></script>
+    <script type='text/javascript' src='src/pages/config/reference-select/reference-select.controller.js'></script>
+
+    <!-- Errors page -->
+
+    <script type='text/javascript' src='src/pages/errors/errors.js'></script>
+
+    <!-- Filter page -->
+
+    <script type='text/javascript' src='src/pages/filter/filter.js'></script>
+
+    <!-- Attribute List component -->
+    <script type='text/javascript' src='src/pages/filter/attribute-list/attribute-list.js'></script>
+    <script type='text/javascript' src='src/pages/filter/attribute-list/attribute-list.controller.js'></script>
+
+    <!-- Attribute Option component -->
+    <script type='text/javascript' src='src/pages/filter/attribute-option/attribute-option.js'></script>
+    <script type='text/javascript' src='src/pages/filter/attribute-option/attribute-option.controller.js'></script>
+
+    <!-- Filter Control Panel component -->
+    <script type='text/javascript' src='src/pages/filter/control-panel/control-panel.js'></script>
+    <script type='text/javascript' src='src/pages/filter/control-panel/control-panel.controller.js'></script>
+
+    <!-- Attribute Filter Form component -->
+    <script type='text/javascript' src='src/pages/filter/control-panel/attribute-filter-form/attribute-filter-form.js'></script>
+    <script type='text/javascript' src='src/pages/filter/control-panel/attribute-filter-form/attribute-filter-form.controller.js'></script>
+
+    <!-- Attribute Filter Value component -->
+    <script type='text/javascript' src='src/pages/filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.js'></script>
+    <script type='text/javascript' src='src/pages/filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.controller.js'></script>
+
+    <!-- Attribute Filter Query component -->
+    <script type='text/javascript' src='src/pages/filter/query/query.js'></script>
+    <script type='text/javascript' src='src/pages/filter/query/query.controller.js'></script>
+
+    <!-- Attribute Filter Card component -->
+    <script type='text/javascript' src='src/pages/filter/query/attribute-filter-card/attribute-filter-card.js'></script>
+    <script type='text/javascript' src='src/pages/filter/query/attribute-filter-card/attribute-filter-card.controller.js'></script>
+
+    <!-- Error component -->
+    <script type='text/javascript' src='src/pages/errors/error/error.js'></script>
+    <script type='text/javascript' src='src/pages/errors/error/error.controller.js'></script>
+
+    <!-- Upload page -->
+
+    <script type='text/javascript' src='src/pages/upload/upload.js'></script>
 </body>
 </html>

@@ -1,1 +1,1 @@
-npm install && grunt install
+npm install
