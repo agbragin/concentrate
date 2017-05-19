@@ -188,8 +188,11 @@ angular.module('concentrate')
                 }
             ).then(
                 track => {
+
                     $log.debug(`${track.name} track was successfully uploaded`);
+
                     $rootScope.availableTracks.push(track);
+                    $rootScope.$broadcast('updateBands');
                 }
             );
         },
@@ -239,8 +242,11 @@ angular.module('concentrate')
          */
         remove: track => $http.delete(`/tracks/${track.name}`).then(
             () => {
+
                 $log.debug(`${track.name} track was successfully removed`);
+
                 $rootScope.availableTracks.splice($rootScope.availableTracks.indexOf(track), 1);
+                $rootScope.$broadcast('updateBands');
             },
             e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
         )

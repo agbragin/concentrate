@@ -32,6 +32,8 @@ angular.module('concentrate')
 
     let bandsUpdate = () => {
 
+        $log.debug('Bands update triggered');
+
         let activeTracks = $rootScope.availableTracks.filter(it => it.active);
         if (activeTracks.length) {
 
@@ -87,6 +89,8 @@ angular.module('concentrate')
     $scope.$on('updateBands', bandsUpdate);
 
     $scope.$watch('bands', () => {
+
+        $log.debug('Visualization update triggered');
 
         if (!$rootScope.bands) {
             return;
