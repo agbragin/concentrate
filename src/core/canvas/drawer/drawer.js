@@ -178,7 +178,7 @@ class Drawer {
 
         for (let i = 0, vOffset = this._vProps.GRID_MARGIN_TOP; i < tracks.length; ++i) {
 
-            console.info(`Drawing ${tracks[i].track.name} track, which has ${tracks[i].levels.length} levels`);
+            console.debug(`Drawing ${tracks[i].track.name} track, which has ${tracks[i].levels.length} levels`);
 
             this._track(tracks[i], vOffset);
             vOffset += tracks[i].levels.length * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_MARGIN_BOTTOM);
@@ -193,7 +193,7 @@ class Drawer {
     _track(track, verticalOffset) {
 
         for (let i = 0; i < track.levels.length; ++i) {
-            console.info(`Drawing ${i + 1}/${track.levels.length} ${track.track.name} level, which has ${track.levels[i].items.length} items`);
+            console.debug(`Drawing ${i + 1}/${track.levels.length} ${track.track.name} level, which has ${track.levels[i].items.length} items`);
             this._level(track.levels[i], verticalOffset + i * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM));
         }
     }
@@ -262,7 +262,7 @@ class Drawer {
             break;
 
         default:
-            stripeColor = `#${((1 << 24) * Math.random() | 0).toString(16)}`;
+            stripeColor = stripe.track.color;
         }
 
         stripeShape.graphics.beginFill(stripeColor).drawRect(

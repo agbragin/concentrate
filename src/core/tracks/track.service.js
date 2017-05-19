@@ -22,7 +22,7 @@
  * https://github.com/angular/angular.js/issues/14814
  */
 angular.module('concentrate')
-.service('TrackService', function($log, $http, $rootScope, HateoasUtilsService, FailedRequestService) {
+.service('TrackService', function($log, $http, $rootScope, HateoasUtilsService, FailedRequestService, VisualizationProperties) {
 
     let trackServiceHttpErrorHandler = e => {
         $rootScope.availableTracks = new Array();
@@ -71,7 +71,11 @@ angular.module('concentrate')
                     }
 
                     return [trackName, dataSource, attributes];
-                }).map(it => new Track(...it, false));
+                }).map(it => new Track(...it, false, undefined));
+
+                for (let i = 0; i < $rootScope.availableTracks.length; ++i) {
+                    $rootScope.availableTracks[i].color = VisualizationProperties.STRIPE_COLORS[i % VisualizationProperties.STRIPE_COLORS.length];
+                }
             },
             trackServiceHttpErrorHandler
         );
@@ -180,7 +184,7 @@ angular.module('concentrate')
                         });
                     }
 
-                    return new Track(trackName, dataSource, attributes, true);
+                    return new Track(trackName, dataSource, attributes, true, VisualizationProperties.STRIPE_COLORS[$rootScope.availableTracks.length % VisualizationProperties.STRIPE_COLORS.length]);
                 }
             ).then(
                 track => {

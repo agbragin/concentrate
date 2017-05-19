@@ -47,6 +47,22 @@ angular.module('concentrate')
     STRIPE_LABEL_MARGIN_TOP: 8,
     STRIPE_LABEL_STYLE: '14px Calibri',
     STRIPE_LABEL_COLOR: '#333333',
+    STRIPE_COLORS: [
+        '#F48679', // Brick Red
+        '#94D1BA', // Lagoon Green
+        '#FAE050', // Yellow
+        '#F06AC1', // Pink
+        '#BD91FF', // Violet
+        '#B89656', // Wood Brown
+        '#FB1E50', // Rose Red
+        '#B3DA7E', // Grass Green
+        '#EFBE75', // Sand Yellow
+        '#FE9B38', // Orange
+        '#B1B773', // Swamp Mud
+        '#65F0AE', // Gum Green
+        '#BCC2B6', // Grey
+        '#E3E069'  // Ill Yellow
+    ],
 
     /** Chromosome stripe color */
     STRIPE_CHROMOSOME_COLOR: '#94c9f3',

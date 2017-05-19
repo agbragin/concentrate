@@ -26,16 +26,17 @@ class Track {
      * @param {DataSource} dataSource Track's default (original) data source
      * @param {Array<TrackAttribute>} attributes
      * @param {boolean} active Track selection status (i.e. whether the track is selected to be visualized)
+     * @param {string} color Track color
      */
-    constructor(name, dataSource, attributes, active) {
+    constructor(name, dataSource, attributes, active, color) {
 
         this._name = name;
         this._dataSource = dataSource;
         this._attributes = attributes;
-
         this._active = active;
-        this._activeDataSource = dataSource;
+        this._color = color;
 
+        this._activeDataSource = dataSource;
         /**
          * Holds track's filtered data source data
          * 
@@ -50,6 +51,8 @@ class Track {
 
     get active () { return this._active }
     set active (active) { this._active = active }
+    get color () { return this._color }
+    set color (color) { this._color = color }
     get activeDataSource () { return this._activeDataSource }
     set activeDataSource (dataSource) { this._activeDataSource = dataSource }
     get filteredDataSource () { return this._filteredDataSource }
