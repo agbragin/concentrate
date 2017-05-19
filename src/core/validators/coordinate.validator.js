@@ -18,23 +18,22 @@
 
 
 angular.module('concentrate')
-.controller('JumpToFormController', ['$log', '$scope', '$rootScope', function($log, $scope, $rootScope) {
+.directive('coordinate', function() {
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        link: (scope, elem, attrs, ctrl) => {
 
-    $log.debug('Jump to form component is running');
+            ctrl.$validators.coordinate = (modelValue, viewValue) => {
 
-    $scope.$watch('focus', () => {
-        if ($rootScope.focus) {
-            $scope.focusContigName = $rootScope.focus.genomicCoordinate.contigName;
-            $scope.focusCoordinate = $rootScope.focus.genomicCoordinate.coordinate;
+                if (ctrl.$isEmpty(modelValue)) {
+                    return true;
+                }
+
+                let value = Number.parseFloat(viewValue);
+
+                return Number.isSafeInteger(value) && (value > -1);
+            }
         }
-    });
-
-    $scope.jumpTo = () => {
-
-        let bordersNumberToTheLeft = Math.floor($rootScope.unitsNumber / 2);
-        let bordersNumberToTheRight = $rootScope.unitsNumber - bordersNumberToTheLeft;
-        $rootScope.focus = new VisualizationFocus(new GenomicCoordinate($rootScope.activeReferenceGenome.name, $scope.focusContigName, $scope.focusCoordinate), bordersNumberToTheLeft, bordersNumberToTheRight);
-
-        $scope.$emit('updateBands');
-    };
-}]);
+    }
+});

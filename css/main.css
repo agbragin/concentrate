@@ -91,6 +91,10 @@
     text-decoration: underline;
 }
 
-.track-form input.ng-invalid.ng-touched {
+.track-form input.ng-invalid.ng-touched, .jump-form input.ng-invalid.ng-touched {
     border: 1px solid rosybrown;
+}
+
+.jump-form button.disabled {
+    opacity: 0.7;
 }

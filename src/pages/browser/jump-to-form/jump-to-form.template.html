@@ -1,11 +1,11 @@
-<div class='p2'>
+<form class='p2 jump-form' name='form' novalidate>
     <div class='mb2'>
         <b>Target coordinate:</b>
     </div>
-    <select class='select' ng-options='contig as contig for contig in activeReferenceGenome.contigs'
+    <select class='select' name='contigName' ng-options='contig as contig for contig in activeReferenceGenome.contigs'
             ng-model='focusContigName'></select>
-    <input type='number' class='input' ng-model='focusCoordinate' />
+    <input type='number' class='input' name='coordinate' ng-model='focusCoordinate' coordinate required />
     <div class='mt2'>
-        <button class='btn btn-narrow bg-orange' ng-click='jumpTo()'>Jump</button>
+        <button class='btn btn-narrow bg-orange' ng-class='{ disabled: form.$invalid }' ng-disabled='form.$invalid' ng-click='jumpTo()'>Jump</button>
     </div>
-</div>
+</form>
