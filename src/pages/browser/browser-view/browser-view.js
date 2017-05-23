@@ -23,6 +23,31 @@ angular.module('concentrate')
         restrict: 'E',
         controller: 'BrowserViewController',
         templateUrl: 'src/pages/browser/browser-view/browser-view.template.html',
-        link: (scope, element, attrs, ctrl) => scope.canvasInit()
+        link: (scope, element, attrs, ctrl) => {
+
+            // Init canvas after view creation
+            scope.canvasInit();
+
+            let arrowNavHadler = e => {
+
+                switch (e.keyCode) {
+                    case 37:
+                        scope.leftTrivialJump();
+                        break;
+
+                    case 39:
+                        scope.rightTrivialJump();
+                        break;
+
+                    default:
+                        return;
+                }
+            };
+
+            let $doc = angular.element(document);
+            $doc.on('keydown', arrowNavHadler);
+            // Release resources on controller destroy event
+            scope.$on('$destroy', () => $doc.off('keydown', arrowNavHadler));
+        }
     }
 });

@@ -178,25 +178,4 @@ angular.module('concentrate')
             bandsUpdate();
         }
     };
-
-    let arrowNavHadler = e => {
-
-        switch (e.keyCode) {
-            case 37:
-                $scope.leftTrivialJump();
-                break;
-
-            case 39:
-                $scope.rightTrivialJump();
-                break;
-
-            default:
-                return;
-        }
-    };
-
-    let $doc = angular.element(document);
-    $doc.on('keydown', arrowNavHadler);
-    // Release resources on controller destroy event
-    $scope.$on('$destroy', () => $doc.off('keydown', arrowNavHadler));
 }]);

@@ -22,6 +22,21 @@ angular.module('concentrate')
     return {
         restrict: 'E',
         controller: 'JumpToFormController',
-        templateUrl: 'src/pages/browser/jump-to-form/jump-to-form.template.html'
+        templateUrl: 'src/pages/browser/jump-to-form/jump-to-form.template.html',
+        link: (scope, element) => {
+
+            let contigSelectionElement = element.find('form').find('select');
+            let coordinateInputElement = element.find('form').find('input');
+            let keydownPropagationStopper = $event => $event.stopPropagation();
+
+            contigSelectionElement.on('keydown', keydownPropagationStopper);
+            coordinateInputElement.on('keydown', keydownPropagationStopper);
+
+            // Release resources on controller destroy event
+            scope.$on('$destroy', () => {
+                contigSelectionElement.off('keydown', keydownPropagationStopper);
+                coordinateInputElement.off('keydown', keydownPropagationStopper);
+            });
+        }
     }
 });
