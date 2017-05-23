@@ -21,49 +21,32 @@ class BinarySearch {
 
     /**
      * @static
-     * @param {Array.<Object>} arr
-     * @param {Object} val 
-     * @param {function(Object, Object):number} comp 
+     * @param {number} a
+     * @param {number} b
+     * @returns {number}
      */
-    static index(arr, val, comp) {
-
-        if (comp(val, arr[0]) < 0) {
-            return -1;
-        }
-        if (comp(val, arr[arr.length - 1]) > 0) {
-            return arr.length;
-        }
-
-        let [left, right] = [0, arr.length - 1];
-        let pointer, elem, res;
-        while (left <= right) {
-
-            res = pointer = Math.floor((left + right) / 2);
-            elem = arr[pointer];
-            if (comp(elem, val) < 0) {
-                left = pointer + 1;
-            }
-            else if (comp(elem, val) > 0) {
-                right = pointer - 1;
-            }
-            else {
-                return pointer;
-            }
-        }
-
-        return right;
+    static numberComparator(a, b) {
+        return (a === b) ? 0 : ((a > b) ? 1 : (-1));
     }
 
     /**
+     * Classic binary search implementation.
+     * Returns actual item's index if the array contains it or an index of item next to the last item that is smaller than target searching value.
+     * 
      * @static
-     * @param {Array.<Object>} arr
-     * @param {Object} val 
-     * @param {function(Object, Object):number} comp 
+     * @param {Array.<Object>} arr Target sorted array value should be searched in
+     * @param {Object} val Target value to search for
+     * @param {function(Object, Object):number} comp Value comparator to use
+     * @returns {BinarySearchResult}
      */
-    static contains(arr, val, comp) {
+    static find(arr, val, comp = BinarySearch.numberComparator) {
 
-        if (comp(val, arr[0]) < 0 || comp(val, arr[arr.length - 1]) > 0) {
-            return false;
+        if (!arr.length || comp(val, arr[0]) < 0) {
+            return new BinarySearchResult(0, false);
+        }
+
+        if (comp(val, arr[arr.length - 1]) > 0) {
+            return new BinarySearchResult(arr.length, false);
         }
 
         let [left, right] = [0, arr.length - 1];
@@ -72,17 +55,17 @@ class BinarySearch {
 
             res = pointer = Math.floor((left + right) / 2);
             elem = arr[pointer];
-            if (comp(elem, val) < 0) {
+
+            let compRes = comp(elem, val);
+            if (compRes < 0) {
                 left = pointer + 1;
-            }
-            else if (comp(elem, val) > 0) {
+            } else if (compRes > 0) {
                 right = pointer - 1;
-            }
-            else {
-                return true;
+            } else {
+                return new BinarySearchResult(pointer, true);
             }
         }
 
-        return false;
+        return new BinarySearchResult(right + 1, false);
     }
 }

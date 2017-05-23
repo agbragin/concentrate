@@ -114,7 +114,7 @@ angular.module('concentrate')
              * @type {Grid}
              */
             $scope.grid = new Grid($scope.drawer.unitsNumber, $rootScope.availableTracks);
-            $scope.grid.add(stripes);
+            $scope.grid.add(stripes.sort(Striper.stripeComparator($rootScope.genomicCoordinateComparator)));
 
             $scope.drawer.draw($scope.grid);
         }

@@ -67,4 +67,8 @@ class Stripe {
         return this._track === stripe.track
                 && this._start === stripe.start && this._end === stripe.end;
     }
+
+    toString() {
+        return `${this._track}:${this._name}`;
+    }
 }

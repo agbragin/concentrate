@@ -48,16 +48,17 @@ class GridTrack {
      */
     place(stripe) {
 
-        let readyToPlaceLevelIndex = this._levels.findIndex(it => it.canBePlaced(stripe));
-        if (readyToPlaceLevelIndex === -1) {
-
-            let level = new GridTrackLevel(this._track, this._capacity);
-            level.place(stripe);
-
-            this._levels.push(level);
-        } else {
-            this._levels[readyToPlaceLevelIndex].place(stripe);
+        for (let i = 0; i < this._levels.length; ++i) {
+            if (this._levels[i].canBePlaced(stripe)) {
+                this._levels[i].place(stripe);
+                return;
+            }
         }
+
+        let newLevel = new GridTrackLevel(this._track, this._capacity);
+        newLevel.place(stripe);
+
+        this._levels.push(newLevel);
     }
 
     /**

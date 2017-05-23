@@ -23,6 +23,20 @@
  */
 angular.module('concentrate')
 .service('Striper', function() {
+
+    /**
+     * @param {Stripe} stripe
+     * @returns {number}
+     */
+    let getPhysicalLength = stripe => {
+
+        if (stripe.properties['start'].contigName !== stripe.properties['end'].contigName) {
+            throw new IllegalArgumentException(stripe, `Can't get physical length of not contiguous feature: ${stripe.toString()}`);
+        }
+
+        return stripe.properties['end'].coordinate - stripe.properties['start'].coordinate;
+    }
+
     return {
         /**
          * @param {Array<Band>} bands
@@ -43,13 +57,11 @@ angular.module('concentrate')
 
             // Compose an ordered list of bands' borders
             let points = Array.from(pointsHelperMap.values()).sort(comp);
-            // Search for bearing point inside the borders list
-            let focusPointIdx = BinarySearch.index(points, focus.genomicCoordinate, comp);
-            // If present we need not to account it while looking up for next left points
-            let leftCorrection = !BinarySearch.contains(points, focus.genomicCoordinate, comp);
+            // Search for bearing point inside the borders list and if present we need not to account it while looking up for next left points
+            let { index: focusPointIdx, contains: noLeftCorrection } = BinarySearch.find(points, focus.genomicCoordinate, comp);
             // Define a 'visualization horizonts' (every point outside 'atfer them' we threat as Infinity)
             let [leftHorizont, rightHorizont] = [
-                focusPointIdx - focus.bordersNumberToTheLeft + (leftCorrection ? 1 : 0),
+                focusPointIdx - focus.bordersNumberToTheLeft + (noLeftCorrection ? 0 : -1),
                 focusPointIdx + focus.bordersNumberToTheRight
             ];
             // Safety-clip
@@ -60,8 +72,8 @@ angular.module('concentrate')
 
             return bands.map(it => {
 
-                let start = BinarySearch.index(points, it.start, comp);
-                let end = BinarySearch.index(points, it.end, comp);
+                let start = BinarySearch.find(points, it.start, comp).index;
+                let end = BinarySearch.find(points, it.end, comp).index;
                 [start, end] = [
                     (start < leftHorizont) ? -Infinity : (start - leftHorizont),
                     (end > rightHorizont) ? +Infinity : (end - leftHorizont)
@@ -71,7 +83,49 @@ angular.module('concentrate')
                 [properties.start, properties.end] = [it.start, it.end];
 
                 return new Stripe(it.track, it.name, start, end, properties);
+            }).filter(it => {
+                /**
+                 * Obviously, this is a workaround to filter irrelevant stripes
+                 * 
+                 * TODO: change striping mechanism to avoid irrelevant stripes obtaining from the server in the first place
+                 */
+                return (it.end > -1) && (it.start < rightHorizont - leftHorizont + 2)
             });
+        },
+        /**
+         * @param {GenomicCoordinateComparator} comparator
+         * @returns {function(Stripe, Stripe):number}
+         */
+        stripeComparator: comparator => (s1, s2) => {
+
+            // Natural ascending order by stripes' start coordinates
+            let startCompRes = BinarySearch.numberComparator(s1.start, s2.start);
+            if (startCompRes < 0) {
+                return -1;
+            } else if (startCompRes > 0) {
+                return 1;
+            } else {
+
+                // In case of the same starts equal -Infinity
+                let physicalStartCompRes = comparator.compare(s1.properties['start'], s2.properties['start']);
+                if (physicalStartCompRes < 0) {
+                    return -1;
+                } else if (physicalStartCompRes > 0) {
+                    return 1;
+                } else {
+
+                    // Descending order by stripes' lengths (smaller stripe goes after the larger one)
+                    let lengthCompRes = BinarySearch.numberComparator(getPhysicalLength(s1), getPhysicalLength(s2));
+                    if (lengthCompRes < 0) {
+                        return 1;
+                    } else if (lengthCompRes > 0) {
+                        return -1;
+                    } else {
+                        // Natural lexicographical order by stripes' names
+                        return s1.name.localeCompare(s2.name);
+                    }
+                }
+            }
         }
     }
 });
