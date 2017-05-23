@@ -70,8 +70,8 @@ class GridTrackLevel {
             throw new StripePlacingException(stripe, this, `Stripe ${stripe.name} overlaps other level's stripes or does not belong to the same track`);
         }
 
-        if (stripe.start > this._capacity || (stripe.end !== +Infinity && stripe.end > this._capacity)) {
-            throw new StripePlacingException(stripe, this, `Stripe ${stripe.name} is out of level's capacity`);
+        if (stripe.start > this._capacity + 1 || (stripe.end !== +Infinity && stripe.end > this._capacity + 1)) {
+            throw new StripePlacingException(stripe, this, `Stripe ${stripe.name}[${stripe.start};${stripe.end}) is out of level's capacity: ${this._capacity}`);
         }
 
         this._items.splice(this._items.findIndex(it => it.start > stripe.start), 0, stripe);
