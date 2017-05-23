@@ -116,6 +116,39 @@ angular.module('concentrate')
             $scope.grid = new Grid($scope.drawer.unitsNumber, $rootScope.availableTracks);
             $scope.grid.add(stripes.sort(Striper.stripeComparator($rootScope.genomicCoordinateComparator)));
 
+            if (!$scope.grid.isFull()) {
+
+                if ($rootScope.leftmost && $rootScope.rightmost) {
+                    $log.debug('No more bands - all bands are present on the screen');
+                } else if (!$rootScope.leftmost && $rootScope.rightmost) {
+
+                    $log.debug('Rightmost bands reached');
+
+                    let retrievedBorderCoordinates = $scope.grid.getBorderCoordinates();
+                    let correctedBordersNumberToTheRight = retrievedBorderCoordinates.length - 1;
+                    let correctedBordersNumberToTheLeft = $scope.grid.capacity - correctedBordersNumberToTheRight;
+
+                    $rootScope.focus = new VisualizationFocus(retrievedBorderCoordinates[0], correctedBordersNumberToTheLeft, correctedBordersNumberToTheRight);
+                    bandsUpdate();
+
+                    return;
+                } else if (!$rootScope.rightmost && $rootScope.leftmost) {
+
+                    $log.debug('Leftmost bands reached');
+
+                    let retrievedBorderCoordinates = $scope.grid.getBorderCoordinates();
+                    let correctedBordersNumberToTheLeft = retrievedBorderCoordinates.length - 1;
+                    let correctedBordersNumberToTheRight = $scope.grid.capacity - correctedBordersNumberToTheLeft;
+
+                    $rootScope.focus = new VisualizationFocus(retrievedBorderCoordinates[retrievedBorderCoordinates.length - 1], correctedBordersNumberToTheLeft, correctedBordersNumberToTheRight);
+                    bandsUpdate();
+
+                    return;
+                } else {
+                    $log.error('Grid is not full, but there are more bands to the left and to the right of focus');
+                }
+            }
+
             $scope.drawer.draw($scope.grid);
         }
     });

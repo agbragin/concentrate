@@ -23,7 +23,7 @@ angular.module('concentrate')
     $log.debug('Jump to form component is running');
 
     $scope.$watch('focus', () => {
-        if ($rootScope.focus) {
+        if ($rootScope.focus && $rootScope.focus.genomicCoordinate) {
             $scope.focusContigName = $rootScope.focus.genomicCoordinate.contigName;
             $scope.focusCoordinate = $rootScope.focus.genomicCoordinate.coordinate;
         }
@@ -37,4 +37,9 @@ angular.module('concentrate')
 
         $scope.$emit('updateBands');
     };
+
+    if (!$scope.focusContigName) {
+        $rootScope.activeReferenceGenome.contigs[0];
+        $scope.focusCoordinate = 0;
+    }
 }]);

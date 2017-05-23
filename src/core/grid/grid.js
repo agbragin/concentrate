@@ -39,6 +39,7 @@ class Grid {
         }
     }
 
+    get capacity () { return this._capacity }
     get tracks () { return this._tracks }
 
     /**
