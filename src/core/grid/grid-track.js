@@ -80,4 +80,14 @@ class GridTrack {
     containsPlusInf() {
         return !this._levels.every(it => !it.rightInf);
     }
+
+    /**
+     * Checks whether the track does not contain any item
+     * 
+     * @this
+     * @returns {boolean}
+     */
+    isEmpty() {
+        return this._levels.every(it => !it.items.length);
+    }
 }
