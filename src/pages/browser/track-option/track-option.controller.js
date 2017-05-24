@@ -21,13 +21,7 @@ angular.module('concentrate')
 .controller('TrackOptionController', ['$rootScope', '$log', '$scope', '$state', 'FailedRequestService', 'TrackService',
         function($rootScope, $log, $scope, $state, FailedRequestService, TrackService) {
 
-    let noop = (() => {})();
-
     $scope.filtered = () => $scope.track.dataSource.id === $scope.track.activeDataSource.id ? '' : 'bg-olive';
-    $scope.systemTrack = () => $scope.track.dataSource.type === 'REFERENCE' || $scope.track.dataSource.type === 'CHROMOSOME';
-
-    // Trigger band collection update
-    $scope.$watch('track.active', (newValue, oldValue) => (newValue === oldValue) ? noop : $scope.$emit('updateBands'));
 
     $scope.trackDown = () => {
 

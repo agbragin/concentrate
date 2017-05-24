@@ -8,6 +8,6 @@
     </div>
     <div class='col col-2'>
         <button type='button' class='btn btn-narrow' ng-class='filtered()' ui-sref='filter({ track: track })'><i class='fa fa-filter'></i></button>
-        <button type='button' class='btn btn-narrow' ng-hide='systemTrack()' ng-click='remove()'><i class='fa fa-times red'></i></button>
+        <button type='button' class='btn btn-narrow' ng-hide='track.primary' ng-click='remove()'><i class='fa fa-times red'></i></button>
     </div>
 </div>

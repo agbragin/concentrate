@@ -29,6 +29,19 @@ angular.module('concentrate')
         FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data));
     };
 
+    /**
+     * TODO: it should be probably moved to the back-end as one of the track's fields
+     */
+    const primaryTrackNames = ['Reference', 'Chromosome'];
+
+    /**
+     * Determines whether the track is primary
+     * 
+     * @param {string} trackName
+     * @returns {boolean}
+     */
+    let isPrimary = trackName => primaryTrackNames.indexOf(trackName) !== -1;
+
     let discoverTracks = () => {
 
         $http.get('/tracks').then(
@@ -71,7 +84,7 @@ angular.module('concentrate')
                     }
 
                     return [trackName, dataSource, attributes];
-                }).map(it => new Track(...it, false, undefined));
+                }).map(it => new Track(...it, isPrimary(it[0]), false, undefined));
 
                 for (let i = 0; i < $rootScope.availableTracks.length; ++i) {
                     $rootScope.availableTracks[i].color = VisualizationProperties.STRIPE_COLORS[i % VisualizationProperties.STRIPE_COLORS.length];
@@ -184,7 +197,7 @@ angular.module('concentrate')
                         });
                     }
 
-                    return new Track(trackName, dataSource, attributes, true, VisualizationProperties.STRIPE_COLORS[$rootScope.availableTracks.length % VisualizationProperties.STRIPE_COLORS.length]);
+                    return new Track(trackName, dataSource, attributes, false, true, VisualizationProperties.STRIPE_COLORS[$rootScope.availableTracks.length % VisualizationProperties.STRIPE_COLORS.length]);
                 }
             ).then(
                 track => {

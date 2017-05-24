@@ -25,6 +25,13 @@ angular.module('concentrate')
             track: '<'
         },
         controller: 'TrackOptionController',
-        templateUrl: 'src/pages/browser/track-option/track-option.template.html'
+        templateUrl: 'src/pages/browser/track-option/track-option.template.html',
+        link: scope => {
+
+            let noop = (() => {})();
+
+            // Trigger band collection update
+            scope.$watch('track.active', (newValue, oldValue) => (newValue === oldValue) ? noop : scope.$emit('updateBands'));
+        }
     }
 });
