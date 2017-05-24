@@ -99,7 +99,7 @@ class Grid {
      */
     getFocusCandidate() {
 
-        let items = this.getStripes();
+        let items = this.getStripes().filter(it => it.track.active);
         let gridCenter = this._capacity / 2;
         let minDist = Math.min.apply(Math, items.map(it => Math.min(Math.abs(it.start - gridCenter), Math.abs(it.end - gridCenter))));
 

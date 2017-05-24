@@ -28,6 +28,11 @@ angular.module('concentrate')
             // Init canvas after view creation
             scope.canvasInit();
 
+            scope.$on('updateFocusThenBands', scope.focusUpdateThenBands);
+            scope.$on('updateBands', scope.bandsUpdate);
+
+            scope.$watch('bands', scope.visualizationUpdate);
+
             let arrowNavHadler = e => {
 
                 switch (e.keyCode) {

@@ -259,7 +259,7 @@ angular.module('concentrate')
                 $log.debug(`${track.name} track was successfully removed`);
 
                 $rootScope.availableTracks.splice($rootScope.availableTracks.indexOf(track), 1);
-                $rootScope.$broadcast('updateBands');
+                $rootScope.$broadcast('updateFocusThenBands');
             },
             e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
         )

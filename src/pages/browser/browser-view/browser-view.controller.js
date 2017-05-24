@@ -27,28 +27,6 @@ angular.module('concentrate')
 
     $log.debug('Browser view component is running');
 
-    $scope.focusSafeNullGet = () => $rootScope.focus ? $rootScope.focus : new VisualizationFocus(new GenomicCoordinate($rootScope.activeReferenceGenome.name, $rootScope.activeReferenceGenome.contigs[0], 0), 0, $scope.drawer.unitsNumber);
-    $scope.focusSafeInfSet = stripe => $rootScope.focus = (stripe.start === -Infinity) ? $rootScope.focus : $rootScope.focus = new VisualizationFocus(stripe.properties.start, stripe.start, $scope.drawer.unitsNumber - stripe.start);
-
-    let bandsUpdate = () => {
-
-        $log.debug('Bands update triggered');
-
-        let activeTracks = $rootScope.availableTracks.filter(it => it.active);
-        if (activeTracks.length) {
-
-            $log.debug(`Band collection update triggered for active tracks: ${activeTracks.map(it => it.name)}`);
-
-            $rootScope.focus = $scope.focusSafeNullGet();
-            $rootScope.activeStripe = undefined;
-
-            Bander.discoverBands($rootScope.focus, activeTracks.map(it => it.activeDataSource.id));
-        } else {
-            $log.debug(`Band collection flush triggered`);
-            $rootScope.bands = new Array();
-        }
-    };
-
     $scope.canvasInit = () => {
 
         $log.debug('Performing canvas adjusting');
@@ -86,9 +64,52 @@ angular.module('concentrate')
         });
     };
 
-    $scope.$on('updateBands', bandsUpdate);
+    $scope.focusSafeNullGet = () => $rootScope.focus ? $rootScope.focus : new VisualizationFocus(new GenomicCoordinate($rootScope.activeReferenceGenome.name, $rootScope.activeReferenceGenome.contigs[0], 0), 0, $scope.drawer.unitsNumber);
+    $scope.focusSafeInfSet = stripe => $rootScope.focus = (stripe.start === -Infinity) ? $rootScope.focus : $rootScope.focus = new VisualizationFocus(stripe.properties.start, stripe.start, $scope.drawer.unitsNumber - stripe.start);
 
-    $scope.$watch('bands', () => {
+    $scope.focusUpdateThenBands = () => {
+
+        $log.debug('Visualization focus update triggered');
+
+        /**
+         * List of disabled tracks
+         * 
+         * @type {Array.<Track>}
+         */
+        let disabledTracks = $rootScope.availableTracks.filter(it => !it.active);
+        if ($rootScope.availableTracks.length === disabledTracks.length) {
+            $rootScope.focus = undefined;
+        } else {
+
+            $rootScope.focus = $scope.grid.getFocusCandidate();
+            if (!(Number.isFinite($rootScope.focus.bordersNumberToTheLeft) && Number.isFinite($rootScope.focus.bordersNumberToTheRight))) {
+                $rootScope.focus = new VisualizationFocus($rootScope.focus.genomicCoordinate, 0, $scope.drawer.unitsNumber);
+            }
+        }
+
+        $scope.bandsUpdate();
+    }
+
+    $scope.bandsUpdate = () => {
+
+        $log.debug('Bands update triggered');
+
+        let activeTracks = $rootScope.availableTracks.filter(it => it.active);
+        if (activeTracks.length) {
+
+            $log.debug(`Band collection update triggered for active tracks: ${activeTracks.map(it => it.name)}`);
+
+            $rootScope.focus = $scope.focusSafeNullGet();
+            $rootScope.activeStripe = undefined;
+
+            Bander.discoverBands($rootScope.focus, activeTracks.map(it => it.activeDataSource.id));
+        } else {
+            $log.debug(`Band collection flush triggered`);
+            $rootScope.bands = new Array();
+        }
+    };
+
+    $scope.visualizationUpdate = () => {
 
         $log.debug('Visualization update triggered');
 
@@ -129,7 +150,7 @@ angular.module('concentrate')
                     let correctedBordersNumberToTheLeft = $scope.grid.capacity - correctedBordersNumberToTheRight;
 
                     $rootScope.focus = new VisualizationFocus(retrievedBorderCoordinates[0], correctedBordersNumberToTheLeft, correctedBordersNumberToTheRight);
-                    bandsUpdate();
+                    $scope.bandsUpdate();
 
                     return;
                 } else if (!$rootScope.rightmost && $rootScope.leftmost) {
@@ -141,7 +162,7 @@ angular.module('concentrate')
                     let correctedBordersNumberToTheRight = $scope.grid.capacity - correctedBordersNumberToTheLeft;
 
                     $rootScope.focus = new VisualizationFocus(retrievedBorderCoordinates[retrievedBorderCoordinates.length - 1], correctedBordersNumberToTheLeft, correctedBordersNumberToTheRight);
-                    bandsUpdate();
+                    $scope.bandsUpdate();
 
                     return;
                 } else {
@@ -151,7 +172,7 @@ angular.module('concentrate')
 
             $scope.drawer.draw($scope.grid);
         }
-    });
+    };
 
     /**
      * Keyboard navigation section
@@ -164,7 +185,7 @@ angular.module('concentrate')
             let focus = $scope.grid.getFocusCandidate();
             $rootScope.focus = new VisualizationFocus(focus.genomicCoordinate, focus.bordersNumberToTheLeft + 1, focus.bordersNumberToTheRight - 1);
 
-            bandsUpdate();
+            $scope.bandsUpdate();
         }
     };
 
@@ -175,7 +196,7 @@ angular.module('concentrate')
             let focus = $scope.grid.getFocusCandidate();
             $rootScope.focus = new VisualizationFocus(focus.genomicCoordinate, focus.bordersNumberToTheLeft - 1, focus.bordersNumberToTheRight + 1);
 
-            bandsUpdate();
+            $scope.bandsUpdate();
         }
     };
 }]);

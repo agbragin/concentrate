@@ -28,10 +28,19 @@ angular.module('concentrate')
         templateUrl: 'src/pages/browser/track-option/track-option.template.html',
         link: scope => {
 
-            let noop = (() => {})();
-
             // Trigger band collection update
-            scope.$watch('track.active', (newValue, oldValue) => (newValue === oldValue) ? noop : scope.$emit('updateBands'));
+            scope.$watch('track.active', (newValue, oldValue) => {
+
+                if (newValue === oldValue) {
+                    return;
+                }
+
+                if (!newValue) {
+                    scope.$emit('updateFocusThenBands');
+                } else {
+                    scope.$emit('updateBands');
+                }
+            });
         }
     }
 });
