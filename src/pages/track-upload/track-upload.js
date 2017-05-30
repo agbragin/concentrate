@@ -18,18 +18,11 @@
 
 
 angular.module('concentrate')
-.controller('TrackUploadPageController', ['$scope', '$state', '$rootScope', 'DataSourceTypeService', 'TrackService',
-        function($scope, $state, $rootScope, DataSourceTypeService, TrackService) {
-
-    DataSourceTypeService.discoverTypes();
-
-    $scope.upload = () => {
-        TrackService.createFromFile($scope.name, $scope.type, $scope.file);
-        $state.go($rootScope.applicationStates.get('browserView'));
-    };
+.controller('TrackUploadPageController', ['$scope', '$state', '$rootScope', 'TrackService',
+        function($scope, $state, $rootScope, TrackService) {
 
     $scope.ready = () => $scope.name && $scope.type && $scope.file;
-    $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
 
-    $scope.$watch('availableDataSourceTypes', () => $scope.types = $rootScope.availableDataSourceTypes);
+    $scope.upload = () => TrackService.createFromFile($scope.name, $scope.type, $scope.file).then(() => $scope.goBack());
+    $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
 }]);

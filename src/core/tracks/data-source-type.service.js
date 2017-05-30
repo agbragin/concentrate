@@ -17,10 +17,6 @@
  *******************************************************************************/
 
 
-/**
- * Can't use fat arrow syntax in service definition due to:
- * https://github.com/angular/angular.js/issues/14814
- */
 angular.module('concentrate')
 .service('DataSourceTypeService', function($http, $rootScope, FailedRequestService) {
     return {

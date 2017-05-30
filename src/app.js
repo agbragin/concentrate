@@ -53,7 +53,7 @@ angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
     // Configure page routing
     pages.map(RouterStateFactory.state).forEach($stateProvider.state);
     $urlRouterProvider.otherwise('/');
-    // Configure transitions to browser page
+    // Configure safe transitions to browser page
     let transitionToBrowserPageHookMatchCriteria = {
         to: `${browserPage.name}.**`
     };
@@ -76,6 +76,24 @@ angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
 
             return transition.router.stateService.target(configPage.toString());
         }
+    });
+    // Configure transitions to track upload page
+    let transitionToTrackUploadPageHookMatchCriteria = {
+        to: states.get(trackUploadPage.name)
+    };
+    $transitionsProvider.onStart(transitionToTrackUploadPageHookMatchCriteria, transition => {
+
+        let logger = transition.injector().get('$log');
+
+        let availableDataSourceTypes = transition.injector().get('$rootScope')['availableDataSourceTypes'];
+        if (!availableDataSourceTypes) {
+
+            logger.debug('No data source types data found: initializing it');
+
+            availableDataSourceTypes = new Array();
+        }
+
+        transition.injector().get('DataSourceTypeService').discoverTypes();
     });
     // Configure previous state information saving
     $transitionsProvider.onStart({}, transition => {

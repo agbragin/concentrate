@@ -18,10 +18,4 @@
 
 
 angular.module('concentrate')
-.controller('BrowserViewPageController', ['$rootScope', '$scope', 'TrackService',
-        function($rootScope, $scope, TrackService) {
-
-    if (!$rootScope.availableTracks) {
-        TrackService.discoverTracks();
-    }
-}]);
+.controller('BrowserViewPageController', function() {});

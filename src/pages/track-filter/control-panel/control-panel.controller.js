@@ -24,13 +24,8 @@ angular.module('concentrate')
     $scope.filterIsActive = () => $scope.track.activeDataSource.id !== $scope.track.dataSource.id;
     $scope.filterIsEmpty = () => !($scope.filter.filters.length || $scope.filter.aggregates.length);
 
-    $scope.applyFilter = () => TrackService.filter($scope.track, $scope.filter)
-            .then(() => $scope.goBack())
-            .then(() => $rootScope.$broadcast('updateBands'));
-
-    $scope.disableFilter = () => TrackService.disableFilter($scope.track)
-            .then(() => $scope.goBack())
-            .then(() => $rootScope.$broadcast('updateBands'));
+    $scope.applyFilter = () => TrackService.filter($scope.track, $scope.filter).then(() => $scope.goBack());
+    $scope.disableFilter = () => TrackService.disableFilter($scope.track).then(() => $scope.goBack());
 
     $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
 }]);

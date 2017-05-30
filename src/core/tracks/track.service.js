@@ -161,7 +161,7 @@ angular.module('concentrate')
             fd.append('type', sourceType);
             fd.append('file', sourceFile);
 
-            $http({
+            return $http({
                 method: 'POST',
                 url: '/tracks',
                 data: fd,
@@ -207,7 +207,6 @@ angular.module('concentrate')
                     $log.debug(`${track.name} track was successfully uploaded`);
 
                     $rootScope.availableTracks.push(track);
-                    $rootScope.$broadcast('updateBands');
                 }
             );
         },

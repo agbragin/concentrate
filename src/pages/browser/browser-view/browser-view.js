@@ -27,6 +27,8 @@ angular.module('concentrate')
 
             // Init canvas after view creation
             scope.canvasInit();
+            // Trigger bands update
+            scope.bandsUpdate();
 
             scope.$on('updateFocusThenBands', scope.focusUpdateThenBands);
             scope.$on('updateBands', scope.bandsUpdate);
