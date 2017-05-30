@@ -18,9 +18,8 @@
 
 
 angular.module('concentrate')
-.controller('ControlPanelController', ['$log', '$scope', '$rootScope', function($log, $scope, $rootScope) {
-
-    $log.debug('Control panel component is running');
+.controller('ControlPanelController', ['$scope', '$rootScope',
+        function($scope, $rootScope) {
 
     $scope.panelCollapse = false;
 

@@ -17,22 +17,27 @@
  *******************************************************************************/
 
 
-angular.module('concentrate')
-.controller('StripePropertiesController', ['$scope', function($scope) {
+class StringUtils {
 
-    $scope.$watch('stripe', () => {
+    /**
+     * Capitalize first letter of the input string
+     * 
+     * @static
+     * @param {string} s
+     * @return {string}
+     */
+    static capitalize(s) {
+        return s.length ? `${s.charAt(0).toUpperCase()}${s.slice(1)}` : s;
+    }
 
-        if (!$scope.stripe) {
-            return;
-        }
-
-        $scope.properties = Object.getOwnPropertyNames($scope.stripe.properties)
-                .filter(it => it !== 'start' && it !== 'end')
-                .map(it => {
-                    return {
-                        key: it,
-                        value: $scope.stripe.properties[it]
-                    };
-                });
-    });
-}]);
+    /**
+     * Convert camel-cased input to kebab case
+     * 
+     * @static
+     * @param {string} s
+     * @returns {string}
+     */
+    static toKebabCase(s) {
+        return s.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    }
+}

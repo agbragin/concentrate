@@ -21,8 +21,6 @@ angular.module('concentrate')
 .controller('AttributeFilterQueryController', ['$log', '$scope', 'TrackService',
         function($log, $scope, TrackService) {
 
-    $log.debug('Attribute filter query component is running');
-
     let noop = (() => {})();
 
     $scope.filterIsEmpty = () => !($scope.query) || !($scope.query.filters.length || $scope.query.aggregates.length);

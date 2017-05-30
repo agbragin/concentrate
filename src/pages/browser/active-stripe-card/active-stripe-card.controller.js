@@ -18,6 +18,4 @@
 
 
 angular.module('concentrate')
-.controller('ActiveStripeCardController', ['$log', '$rootScope', function($log, $rootScope) {
-    $log.debug('Active stripe card component is running')
-}]);
+.controller('ActiveStripeCardController', function() {});

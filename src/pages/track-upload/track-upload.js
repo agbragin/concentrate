@@ -18,21 +18,18 @@
 
 
 angular.module('concentrate')
-.controller('StripePropertiesController', ['$scope', function($scope) {
+.controller('TrackUploadPageController', ['$scope', '$state', '$rootScope', 'DataSourceTypeService', 'TrackService',
+        function($scope, $state, $rootScope, DataSourceTypeService, TrackService) {
 
-    $scope.$watch('stripe', () => {
+    DataSourceTypeService.discoverTypes();
 
-        if (!$scope.stripe) {
-            return;
-        }
+    $scope.upload = () => {
+        TrackService.createFromFile($scope.name, $scope.type, $scope.file);
+        $state.go($rootScope.applicationStates.get('browserView'));
+    };
 
-        $scope.properties = Object.getOwnPropertyNames($scope.stripe.properties)
-                .filter(it => it !== 'start' && it !== 'end')
-                .map(it => {
-                    return {
-                        key: it,
-                        value: $scope.stripe.properties[it]
-                    };
-                });
-    });
+    $scope.ready = () => $scope.name && $scope.type && $scope.file;
+    $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
+
+    $scope.$watch('availableDataSourceTypes', () => $scope.types = $rootScope.availableDataSourceTypes);
 }]);

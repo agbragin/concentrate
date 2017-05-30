@@ -6,6 +6,6 @@
                  ng-hide='!(filter.filters.length || filter.aggregates.length)'>Apply</button>
         <button class='btn bg-teal' ng-click='disableFilter()'
                  ng-hide='!(filter.filters.length || filter.aggregates.length) || track.activeDataSource.id === track.dataSource.id'>Disable</button>
-        <button class='btn' ui-sref='browser'>Back</button>
+        <button class='btn' ng-click='goBack()'>Back</button>
     </div>
 </div>

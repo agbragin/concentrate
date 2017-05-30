@@ -26,7 +26,7 @@ angular.module('concentrate')
             builtAttributeFilter: '='
         },
         controller: 'AttributeFilterFormController',
-        templateUrl: 'src/pages/filter/control-panel/attribute-filter-form/attribute-filter-form.template.html',
+        templateUrl: 'src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-form.template.html',
         link: scope => {
 
             scope.$watch('attribute', () => {

@@ -12,10 +12,10 @@
   },
   "license": "ISC",
   "dependencies": {
+    "@uirouter/angularjs": "^1.0.3",
     "ace-css": "^1.1.0",
     "angular": "^1.6.4",
     "angular-bootstrap-contextmenu": "^0.9.9",
-    "angular-ui-router": "^0.4.2",
     "createjs-easeljs": "^0.8.2",
     "font-awesome": "^4.7.0",
     "jquery": "^3.2.1"

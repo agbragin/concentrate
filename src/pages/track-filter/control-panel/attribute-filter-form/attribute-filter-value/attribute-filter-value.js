@@ -18,11 +18,15 @@
 
 
 angular.module('concentrate')
-.controller('AttributeFilterFormController', ['$log', '$scope', function($log, $scope) {
-
-    $log.debug(`${$scope.attribute.name} attribute filter form is running`);
-
-    $scope.readyToBuild = () => $scope.filterOperator && $scope.values.length && ($scope.values[0] || $scope.values[0] === 0 || $scope.values[0] === false);
-    $scope.buildAttributeFilter = () => $scope.builtAttributeFilter = new AttributeFilter($scope.attribute, $scope.filterOperator, $scope.values, $scope.includeNulls);
-    $scope.destroyAttributeFilter = () => $scope.builtAttributeFilter = undefined;
-}]);
+.directive('attributeFilterValue', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            value: '=',
+            attribute: '<'
+        },
+        controller: 'AttributeFilterValueController',
+        templateUrl: 'src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.template.html',
+        link: scope => scope.$watch('attribute', () => [scope.booleanValue, scope.numberValue, scope.setValue, scope.stringValue] = [true, undefined, [], ''])
+    }
+});

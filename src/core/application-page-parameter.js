@@ -17,22 +17,31 @@
  *******************************************************************************/
 
 
-angular.module('concentrate')
-.controller('StripePropertiesController', ['$scope', function($scope) {
+class ApplicationPageParameter {
 
-    $scope.$watch('stripe', () => {
+    /**
+     * @this
+     * @constructor
+     * @param {string} name
+     * @param {boolean} isArray
+     * @param {any} value Parameter's default value
+     * @param
+     */
+    constructor(name, isArray = false, value = undefined) {
 
-        if (!$scope.stripe) {
-            return;
+        this._name = name;
+        this._isArray = isArray;
+        this._value = value;
+    }
+
+    get name () { return this._name }
+    get isArray () { return this._isArray }
+    get value () { return this._value }
+
+    toJson() {
+        return {
+            array: this._isArray,
+            value: this._value
         }
-
-        $scope.properties = Object.getOwnPropertyNames($scope.stripe.properties)
-                .filter(it => it !== 'start' && it !== 'end')
-                .map(it => {
-                    return {
-                        key: it,
-                        value: $scope.stripe.properties[it]
-                    };
-                });
-    });
-}]);
+    }
+}

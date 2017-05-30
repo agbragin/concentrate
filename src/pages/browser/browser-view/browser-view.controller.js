@@ -25,8 +25,6 @@ angular.module('concentrate')
 .controller('BrowserViewController', ['$rootScope', '$log', '$scope', '$http', 'Bander', 'Striper', 'VisualizationProperties',
         function($rootScope, $log, $scope, $http, Bander, Striper, VisualizationProperties) {
 
-    $log.debug('Browser view component is running');
-
     $scope.canvasInit = () => {
 
         $log.debug('Performing canvas adjusting');

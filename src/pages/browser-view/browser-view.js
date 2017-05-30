@@ -18,21 +18,10 @@
 
 
 angular.module('concentrate')
-.controller('StripePropertiesController', ['$scope', function($scope) {
+.controller('BrowserViewPageController', ['$rootScope', '$scope', 'TrackService',
+        function($rootScope, $scope, TrackService) {
 
-    $scope.$watch('stripe', () => {
-
-        if (!$scope.stripe) {
-            return;
-        }
-
-        $scope.properties = Object.getOwnPropertyNames($scope.stripe.properties)
-                .filter(it => it !== 'start' && it !== 'end')
-                .map(it => {
-                    return {
-                        key: it,
-                        value: $scope.stripe.properties[it]
-                    };
-                });
-    });
+    if (!$rootScope.availableTracks) {
+        TrackService.discoverTracks();
+    }
 }]);

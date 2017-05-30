@@ -18,6 +18,4 @@
 
 
 angular.module('concentrate')
-.controller('TopPanelController', ['$log', function($log) {
-    $log.debug('Top panel component is running')
-}]);
+.controller('TopPanelController', function() {});

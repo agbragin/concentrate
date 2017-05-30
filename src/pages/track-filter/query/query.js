@@ -28,7 +28,7 @@ angular.module('concentrate')
             builtAttributeFilter: '='
         },
         controller: 'AttributeFilterQueryController',
-        templateUrl: 'src/pages/filter/query/query.template.html',
+        templateUrl: 'src/pages/track-filter/query/query.template.html',
         link: scope => {
 
             let enableHoverEffects = () => {

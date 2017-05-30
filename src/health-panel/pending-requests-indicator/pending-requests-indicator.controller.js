@@ -18,9 +18,7 @@
 
 
 angular.module('concentrate')
-.controller('PendingRequestsIndicatorController', ['$log', '$http', '$scope', function($log, $http, $scope) {
-
-    $log.debug('Pending requests indicator component is running');
-
+.controller('PendingRequestsIndicatorController', ['$http', '$scope',
+        function($http, $scope) {
     $scope.httpService = $http;
 }]);

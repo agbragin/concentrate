@@ -18,20 +18,14 @@
 
 
 angular.module('concentrate')
-.controller('FilterControlPanelController', ['$log', '$scope', 'TrackService', function($log, $scope, TrackService) {
-
-    $log.debug(`${$scope.track.name} track filter control panel is running`);
-
-    $scope.filterIsActive = () => $scope.track.activeDataSource.id !== $scope.track.dataSource.id;
-    $scope.filterIsEmpty = () => !($scope.filter.filters.length || $scope.filter.aggregates.length);
-
-    $scope.applyFilter = () => {
-        $log.debug(`Trying to apply ${$scope.track.name} filter`);
-        TrackService.filter($scope.track, $scope.filter);
-    };
-
-    $scope.disableFilter = () => {
-        $log.debug(`Trying to disable ${$scope.track.name} filter`);
-        TrackService.disableFilter($scope.track);
-    };
-}]);
+.directive('attributeOption', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            attribute: '<',
+            active: '<'
+        },
+        controller: 'AttributeOptionController',
+        templateUrl: 'src/pages/track-filter/attribute-option/attribute-option.template.html'
+    }
+});

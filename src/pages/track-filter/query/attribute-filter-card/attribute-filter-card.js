@@ -18,21 +18,25 @@
 
 
 angular.module('concentrate')
-.controller('StripePropertiesController', ['$scope', function($scope) {
+.directive('attributeFilterCard', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            filter: '<'
+        },
+        controller: 'AttributeFilterCardController',
+        templateUrl: 'src/pages/track-filter/query/attribute-filter-card/attribute-filter-card.template.html',
+        link: scope => {
 
-    $scope.$watch('stripe', () => {
+            scope.$watch('filter', () => {
 
-        if (!$scope.stripe) {
-            return;
+                if (!scope.filter) {
+                    return;
+                }
+
+                scope.prettifiedFilterOperator = scope.prettifyFilterOperator(scope.filter.operator);
+                scope.prettifiedFilterValues = scope.prettifyFilterValues(scope.filter.values);
+            })
         }
-
-        $scope.properties = Object.getOwnPropertyNames($scope.stripe.properties)
-                .filter(it => it !== 'start' && it !== 'end')
-                .map(it => {
-                    return {
-                        key: it,
-                        value: $scope.stripe.properties[it]
-                    };
-                });
-    });
-}]);
+    }
+});

@@ -17,22 +17,26 @@
  *******************************************************************************/
 
 
-angular.module('concentrate')
-.controller('StripePropertiesController', ['$scope', function($scope) {
+class RouterStateFactory {
 
-    $scope.$watch('stripe', () => {
+    /**
+     * @static
+     * @param {ApplicationPage} page
+     */
+    static state(page) {
 
-        if (!$scope.stripe) {
-            return;
+        let state = {
+            name: page.toString(),
+            url: page.url,
+            controller: `${StringUtils.capitalize(page.name)}PageController`,
+            templateUrl: `src/pages/${StringUtils.toKebabCase(page.name)}/${StringUtils.toKebabCase(page.name)}.html`
+        };
+
+        if (page.params.length) {
+            state.params = new Object();
+            page.params.forEach(it => state.params[it.name] = it.toJson());
         }
 
-        $scope.properties = Object.getOwnPropertyNames($scope.stripe.properties)
-                .filter(it => it !== 'start' && it !== 'end')
-                .map(it => {
-                    return {
-                        key: it,
-                        value: $scope.stripe.properties[it]
-                    };
-                });
-    });
-}]);
+        return state;
+    }
+}

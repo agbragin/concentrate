@@ -18,10 +18,8 @@
 
 
 angular.module('concentrate')
-.controller('ServiceSelectController', ['$log', '$scope', '$rootScope', 'ReferenceServiceType', 'ReferenceServiceSelectionService',
-        function($log, $scope, $rootScope, ReferenceServiceType, ReferenceServiceSelectionService) {
-
-    $log.debug('Service select component is running');
+.controller('ServiceSelectController', ['$scope', '$rootScope', 'ReferenceServiceType', 'ReferenceServiceSelectionService',
+        function($scope, $rootScope, ReferenceServiceType, ReferenceServiceSelectionService) {
 
     $scope.type = $rootScope.referenceServiceType;
 

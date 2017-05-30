@@ -17,25 +17,17 @@
  *******************************************************************************/
 
 
-/**
- * Can't use fat arrow syntax in controller definition due to:
- * https://github.com/angular/angular.js/issues/14814
- */
 angular.module('concentrate')
-.controller('UploadPageController', ['$log', '$scope', '$state', '$rootScope', 'DataSourceTypeService', 'TrackService',
-        function($log, $scope, $state, $rootScope, DataSourceTypeService, TrackService) {
-
-    $log.debug('Upload page view activated');
-
-    DataSourceTypeService.discoverTypes();
-
-    $scope.upload = () => {
-        TrackService.createFromFile($scope.name, $scope.type, $scope.file);
-        $state.go('browser');
-    };
-
-    $scope.ready = () => $scope.name && $scope.type && $scope.file;
-    $scope.goBack = () => $state.go('browser');
-
-    $scope.$watch('availableDataSourceTypes', () => $scope.types = $rootScope.availableDataSourceTypes);
-}]);
+.directive('filterControlPanel', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            activeAttribute: '<',
+            filter: '<',
+            track: '<',
+            builtAttributeFilter: '='
+        },
+        controller: 'FilterControlPanelController',
+        templateUrl: 'src/pages/track-filter/control-panel/control-panel.template.html'
+    }
+});

@@ -18,9 +18,8 @@
 
 
 angular.module('concentrate')
-.controller('JumpToFormController', ['$log', '$scope', '$rootScope', function($log, $scope, $rootScope) {
-
-    $log.debug('Jump to form component is running');
+.controller('JumpToFormController', ['$scope', '$rootScope',
+        function($scope, $rootScope) {
 
     $scope.$watch('focus', () => {
         if ($rootScope.focus && $rootScope.focus.genomicCoordinate) {

@@ -17,9 +17,22 @@
  *******************************************************************************/
 
 
+let browserPage = new ApplicationPage('browser', '/');
+let browserViewPage = new ApplicationPage('browserView', 'view', browserPage);
+let configPage = new ApplicationPage('config', '/config');
+let errorsPage = new ApplicationPage('errors', '/errors');
+let trackFilterPage = new ApplicationPage('trackFilter', 'trackFilter', browserPage, Array.of(new ApplicationPageParameter('track', false)));
+let trackUploadPage = new ApplicationPage('trackUpload', 'trackUpload', browserPage);
+// Application pages
+const pages = Array.of(browserPage, browserViewPage, configPage, errorsPage, trackFilterPage, trackUploadPage);
+// Application states
+const states = new Map();
+pages.forEach(it => states.set(it.name, it.state));
+
+
 angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
-.config(['$httpProvider', '$stateProvider', '$urlRouterProvider',
-        function($httpProvider, $stateProvider, $urlRouterProvider) {
+.config(['$httpProvider', '$stateProvider', '$transitionsProvider', '$urlRouterProvider',
+        function($httpProvider, $stateProvider, $transitionsProvider, $urlRouterProvider) {
 
     let backEndApiUrl = '';
 
@@ -37,94 +50,46 @@ angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
         }
     });
 
-    let pageTplsPath = 'src/pages';
-    let tplPath = tplName => `${pageTplsPath}/${tplName}/${tplName}.html`;
-
-    $stateProvider.state({
-        name: 'browser',
-        url: '/',
-        controller: 'BrowserPageController',
-        templateUrl: tplPath('browser'),
-        resolve: {
-            referenceServiceType: ['$rootScope', '$q', ($rootScope, $q) => {
-                if (!$rootScope.referenceServiceType) {
-                    return $q.reject('No reference service was selected');
-                }
-            }],
-            referenceGenome: ['$rootScope', '$q', ($rootScope, $q) => {
-                if (!$rootScope.activeReferenceGenome) {
-                    return $q.reject('No reference genome was selected');
-                }
-            }]
-        }
-    });
-    $stateProvider.state({
-        name: 'config',
-        url: '/config',
-        controller: 'ConfigPageController',
-        templateUrl: tplPath('config')
-    });
-    $stateProvider.state({
-        name: 'errors',
-        url: '/errors',
-        controller: 'ErrorsPageController',
-        templateUrl: tplPath('errors')
-    });
-    $stateProvider.state({
-        name: 'filter',
-        url: '/filter',
-        controller: 'FilterPageController',
-        templateUrl: tplPath('filter'),
-        params: {
-            track: {
-                array: false
-            }
-        },
-        resolve: {
-            referenceServiceType: ['$rootScope', '$q', ($rootScope, $q) => {
-                if (!$rootScope.referenceServiceType) {
-                    return $q.reject('No reference service was selected');
-                }
-            }],
-            referenceGenome: ['$rootScope', '$q', ($rootScope, $q) => {
-                if (!$rootScope.activeReferenceGenome) {
-                    return $q.reject('No reference genome was selected');
-                }
-            }]
-        }
-    });
-    $stateProvider.state({
-        name: 'upload',
-        url: '/upload',
-        controller: 'UploadPageController',
-        templateUrl: tplPath('upload'),
-        resolve: {
-            referenceServiceType: ['$rootScope', '$q', ($rootScope, $q) => {
-                if (!$rootScope.referenceServiceType) {
-                    return $q.reject('No reference service was selected');
-                }
-            }],
-            referenceGenome: ['$rootScope', '$q', ($rootScope, $q) => {
-                if (!$rootScope.activeReferenceGenome) {
-                    return $q.reject('No reference genome was selected');
-                }
-            }]
-        }
-    });
-
+    // Configure page routing
+    pages.map(RouterStateFactory.state).forEach($stateProvider.state);
     $urlRouterProvider.otherwise('/');
+    // Configure transitions to browser page
+    let transitionToBrowserPageHookMatchCriteria = {
+        to: `${browserPage.name}.**`
+    };
+    $transitionsProvider.onBefore(transitionToBrowserPageHookMatchCriteria, transition => {
+
+        let logger = transition.injector().get('$log');
+
+        let referenceServiceType = transition.injector().get('$rootScope')['referenceServiceType'];
+        if (!referenceServiceType) {
+
+            logger.warn('No reference service was selected yet: redirecting to the configuration page');
+
+            return transition.router.stateService.target(configPage.toString());
+        }
+
+        let referenceGenome = transition.injector().get('$rootScope')['activeReferenceGenome'];
+        if (!referenceGenome) {
+
+            logger.warn('No reference genome was selected yet: rediracting to the configuration page');
+
+            return transition.router.stateService.target(configPage.toString());
+        }
+    });
+    // Configure previous state information saving
+    $transitionsProvider.onStart({}, transition => {
+
+        let rootScope = transition.injector().get('$rootScope');
+
+        rootScope.previousState = transition.router.stateService.current;
+    });
 }])
-.run(['$log', '$rootScope', '$state', function($log, $rootScope, $state) {
+.run(['$log', '$rootScope', '$state',
+        function($log, $rootScope, $state) {
 
     $log.debug('Parseq Lab Concentrate genome browser is running');
 
-    $rootScope.$on('$stateChangeError', (e, to, toParams, from, fromParams, error) => {
-        $log.warn(error);
-        $state.go('config');
-    });
-
-    $rootScope.$on('$stateChangeSuccess', (e, to, toParams, from, fromParams) => {
-        $rootScope.previousState = from;
-        $rootScope.previousStateParams = fromParams;
-    });
+    $rootScope.applicationPages = pages;
+    $rootScope.applicationStates = states;
 }]);

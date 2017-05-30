@@ -17,21 +17,7 @@
  *******************************************************************************/
 
 
-/**
- * Can't use fat arrow syntax in controller definition due to:
- * https://github.com/angular/angular.js/issues/14814
- */
 angular.module('concentrate')
-.controller('FilterPageController', ['$rootScope', '$log', '$http', '$scope', '$state', '$stateParams', 'TrackService',
-        function($rootScope, $log, $http, $scope, $state, $stateParams, TrackService) {
-
-    if (!$stateParams.track) {
-        $log.warn('No track specified; back to browser view');
-        $state.go('browser');
-    } else {
-        $log.debug(`Filter page view activated for track: ${$stateParams.track.name}`);
-    }
-
-    $scope.track = $stateParams.track;
-    $scope.query = $scope.track.filteredDataSource ? $scope.track.filteredDataSource.filterQuery : AttributeAggregate.empty('AND');
+.controller('AttributeFilterValueController', ['$scope', function($scope) {
+    $scope.setAttributeFilterValue = value => $scope.value = (value instanceof Array) ? value : [value];
 }]);

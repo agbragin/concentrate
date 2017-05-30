@@ -18,6 +18,4 @@
 
 
 angular.module('concentrate')
-.controller('HealthPanelController', ['$log', function($log) {
-    $log.debug('Health panel component is running')
-}]);
+.controller('HealthPanelController', function() {});

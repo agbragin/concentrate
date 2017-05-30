@@ -14,10 +14,13 @@
     <health-panel></health-panel>
 
     <script type='text/javascript' src='node_modules/angular/angular.min.js'></script>
+    <script type='text/javascript' src='node_modules/@uirouter/angularjs/release/angular-ui-router.min.js'></script>
     <script type='text/javascript' src='node_modules/angular-bootstrap-contextmenu/contextMenu.js'></script>
-    <script type='text/javascript' src='node_modules/angular-ui-router/release/angular-ui-router.min.js'></script>
     <script type='text/javascript' src='node_modules/createjs-easeljs/lib/easeljs-0.8.2.min.js'></script>
     <script type='text/javascript' src='node_modules/jquery/dist/jquery.min.js'></script>
+
+    <script type='text/javascript' src='src/core/application-page-parameter.js'></script>
+    <script type='text/javascript' src='src/core/application-page.js'></script>
 
     <!-- Application entry point script -->
     <script type='text/javascript' src='src/app.js'></script>
@@ -35,6 +38,8 @@
     <script type='text/javascript' src='src/core/band.service.js'></script>
     <script type='text/javascript' src='src/core/genomic-coordinate-comparator.js'></script>
     <script type='text/javascript' src='src/core/genomic-coordinate.js'></script>
+    <script type='text/javascript' src='src/core/router-state.factory.js'></script>
+    <script type='text/javascript' src='src/core/string.utils.js'></script>
     <script type='text/javascript' src='src/core/stripe.js'></script>
     <script type='text/javascript' src='src/core/stripe.service.js'></script>
     <script type='text/javascript' src='src/core/visualization-focus.js'></script>
@@ -143,6 +148,10 @@
     <script type='text/javascript' src='src/pages/browser/track-option/track-option.js'></script>
     <script type='text/javascript' src='src/pages/browser/track-option/track-option.controller.js'></script>
 
+    <!-- Browser View page -->
+
+    <script type='text/javascript' src='src/pages/browser-view/browser-view.js'></script>
+
     <!-- Config page -->
 
     <script type='text/javascript' src='src/pages/config/config.js'></script>
@@ -159,44 +168,44 @@
 
     <script type='text/javascript' src='src/pages/errors/errors.js'></script>
 
-    <!-- Filter page -->
-
-    <script type='text/javascript' src='src/pages/filter/filter.js'></script>
-
-    <!-- Attribute List component -->
-    <script type='text/javascript' src='src/pages/filter/attribute-list/attribute-list.js'></script>
-    <script type='text/javascript' src='src/pages/filter/attribute-list/attribute-list.controller.js'></script>
-
-    <!-- Attribute Option component -->
-    <script type='text/javascript' src='src/pages/filter/attribute-option/attribute-option.js'></script>
-    <script type='text/javascript' src='src/pages/filter/attribute-option/attribute-option.controller.js'></script>
-
-    <!-- Filter Control Panel component -->
-    <script type='text/javascript' src='src/pages/filter/control-panel/control-panel.js'></script>
-    <script type='text/javascript' src='src/pages/filter/control-panel/control-panel.controller.js'></script>
-
-    <!-- Attribute Filter Form component -->
-    <script type='text/javascript' src='src/pages/filter/control-panel/attribute-filter-form/attribute-filter-form.js'></script>
-    <script type='text/javascript' src='src/pages/filter/control-panel/attribute-filter-form/attribute-filter-form.controller.js'></script>
-
-    <!-- Attribute Filter Value component -->
-    <script type='text/javascript' src='src/pages/filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.js'></script>
-    <script type='text/javascript' src='src/pages/filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.controller.js'></script>
-
-    <!-- Attribute Filter Query component -->
-    <script type='text/javascript' src='src/pages/filter/query/query.js'></script>
-    <script type='text/javascript' src='src/pages/filter/query/query.controller.js'></script>
-
-    <!-- Attribute Filter Card component -->
-    <script type='text/javascript' src='src/pages/filter/query/attribute-filter-card/attribute-filter-card.js'></script>
-    <script type='text/javascript' src='src/pages/filter/query/attribute-filter-card/attribute-filter-card.controller.js'></script>
-
     <!-- Error component -->
     <script type='text/javascript' src='src/pages/errors/error/error.js'></script>
     <script type='text/javascript' src='src/pages/errors/error/error.controller.js'></script>
 
-    <!-- Upload page -->
+    <!-- Track Filter page -->
 
-    <script type='text/javascript' src='src/pages/upload/upload.js'></script>
+    <script type='text/javascript' src='src/pages/track-filter/track-filter.js'></script>
+
+    <!-- Attribute List component -->
+    <script type='text/javascript' src='src/pages/track-filter/attribute-list/attribute-list.js'></script>
+    <script type='text/javascript' src='src/pages/track-filter/attribute-list/attribute-list.controller.js'></script>
+
+    <!-- Attribute Option component -->
+    <script type='text/javascript' src='src/pages/track-filter/attribute-option/attribute-option.js'></script>
+    <script type='text/javascript' src='src/pages/track-filter/attribute-option/attribute-option.controller.js'></script>
+
+    <!-- Filter Control Panel component -->
+    <script type='text/javascript' src='src/pages/track-filter/control-panel/control-panel.js'></script>
+    <script type='text/javascript' src='src/pages/track-filter/control-panel/control-panel.controller.js'></script>
+
+    <!-- Attribute Filter Form component -->
+    <script type='text/javascript' src='src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-form.js'></script>
+    <script type='text/javascript' src='src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-form.controller.js'></script>
+
+    <!-- Attribute Filter Value component -->
+    <script type='text/javascript' src='src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.js'></script>
+    <script type='text/javascript' src='src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.controller.js'></script>
+
+    <!-- Attribute Filter Query component -->
+    <script type='text/javascript' src='src/pages/track-filter/query/query.js'></script>
+    <script type='text/javascript' src='src/pages/track-filter/query/query.controller.js'></script>
+
+    <!-- Attribute Filter Card component -->
+    <script type='text/javascript' src='src/pages/track-filter/query/attribute-filter-card/attribute-filter-card.js'></script>
+    <script type='text/javascript' src='src/pages/track-filter/query/attribute-filter-card/attribute-filter-card.controller.js'></script>
+
+    <!-- Track Upload page -->
+
+    <script type='text/javascript' src='src/pages/track-upload/track-upload.js'></script>
 </body>
 </html>

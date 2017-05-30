@@ -18,9 +18,7 @@
 
 
 angular.module('concentrate')
-.controller('FailedRequestsIndicatorController', ['$log', '$scope', 'FailedRequests', function($log, $scope, FailedRequests) {
-
-    $log.debug('Failed requests indicator component is running');
-
+.controller('FailedRequestsIndicatorController', ['$scope', 'FailedRequests',
+        function($scope, FailedRequests) {
     $scope.failedRequests = FailedRequests;
 }]);

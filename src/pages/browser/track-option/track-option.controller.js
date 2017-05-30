@@ -49,6 +49,10 @@ angular.module('concentrate')
         $scope.$emit('updateBands');
     };
 
+    $scope.filter = () => {
+        $state.go($rootScope.applicationStates.get('trackFilter'), { track: $scope.track });
+    };
+
     $scope.remove = () => {
         if (confirm(`Are you sure want to remove ${$scope.track.name} track?`)) {
             TrackService.remove($scope.track);

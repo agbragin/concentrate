@@ -18,10 +18,8 @@
 
 
 angular.module('concentrate')
-.controller('ReferenceSelectController', ['$log', '$scope', '$rootScope', 'ReferenceService', 'TrackService',
-        function($log, $scope, $rootScope, ReferenceService, TrackService) {
-
-    $log.debug('Reference select component is running');
+.controller('ReferenceSelectController', ['$scope', '$rootScope', 'ReferenceService', 'TrackService',
+        function($scope, $rootScope, ReferenceService, TrackService) {
 
     $scope.referenceGenome = $rootScope.activeReferenceGenome;
 

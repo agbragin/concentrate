@@ -17,18 +17,13 @@
  *******************************************************************************/
 
 
-/**
- * Can't use fat arrow syntax in controller definition due to:
- * https://github.com/angular/angular.js/issues/14814
- */
 angular.module('concentrate')
-.controller('ErrorsPageController', ['$log', '$rootScope', '$scope', '$state', 'FailedRequests', 'FailedRequestService',
-        function($log, $rootScope, $scope, $state, FailedRequests, FailedRequestService) {
-
-    $log.debug('Errors page view activated');
+.controller('ErrorsPageController', ['$rootScope', '$scope', '$state', 'FailedRequests', 'FailedRequestService',
+        function($rootScope, $scope, $state, FailedRequests, FailedRequestService) {
 
     $scope.failedRequests = FailedRequests;
 
     $scope.flushErrors = () => FailedRequestService.flush();
-    $scope.goBack = () => $state.go($rootScope.previousState.name || 'browser', $rootScope.previousStateParams);
+
+    $scope.goBack = () => $state.go($rootScope.previousState.name || $rootScope.applicationStates.get('browserView'), $rootScope.previousState.params);
 }]);

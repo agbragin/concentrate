@@ -17,22 +17,32 @@
  *******************************************************************************/
 
 
-angular.module('concentrate')
-.controller('StripePropertiesController', ['$scope', function($scope) {
+class ApplicationPage {
 
-    $scope.$watch('stripe', () => {
+    /**
+     * @this
+     * @constructor
+     * @param {string} name
+     * @param {string} url
+     * @param {ApplicationPage} parent
+     * @param {Array.<ApplicationPageParameter} params
+     */
+    constructor(name, url, parent = undefined, params = new Array()) {
 
-        if (!$scope.stripe) {
-            return;
-        }
+        this._name = name;
+        this._url = url;
+        this._parent = parent;
+        this._params = params;
+    }
 
-        $scope.properties = Object.getOwnPropertyNames($scope.stripe.properties)
-                .filter(it => it !== 'start' && it !== 'end')
-                .map(it => {
-                    return {
-                        key: it,
-                        value: $scope.stripe.properties[it]
-                    };
-                });
-    });
-}]);
+    get name () { return this._name }
+    get url () { return this._url }
+    get parent () { return this._parent }
+    get params () { return this._params }
+
+    get state () { return `${this._parent ? `${this._parent.toString()}.` : ''}${this._name}` }
+
+    toString() {
+        return this.state;
+    }
+}

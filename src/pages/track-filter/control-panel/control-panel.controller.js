@@ -18,15 +18,19 @@
 
 
 angular.module('concentrate')
-.directive('attributeFilterValue', function() {
-    return {
-        restrict: 'E',
-        scope: {
-            value: '=',
-            attribute: '<'
-        },
-        controller: 'AttributeFilterValueController',
-        templateUrl: 'src/pages/filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.template.html',
-        link: scope => scope.$watch('attribute', () => [scope.booleanValue, scope.numberValue, scope.setValue, scope.stringValue] = [true, undefined, [], ''])
-    }
-});
+.controller('FilterControlPanelController', ['$log', '$rootScope', '$scope', '$state', 'TrackService',
+        function($log, $rootScope, $scope, $state, TrackService) {
+
+    $scope.filterIsActive = () => $scope.track.activeDataSource.id !== $scope.track.dataSource.id;
+    $scope.filterIsEmpty = () => !($scope.filter.filters.length || $scope.filter.aggregates.length);
+
+    $scope.applyFilter = () => TrackService.filter($scope.track, $scope.filter)
+            .then(() => $scope.goBack())
+            .then(() => $rootScope.$broadcast('updateBands'));
+
+    $scope.disableFilter = () => TrackService.disableFilter($scope.track)
+            .then(() => $scope.goBack())
+            .then(() => $rootScope.$broadcast('updateBands'));
+
+    $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
+}]);

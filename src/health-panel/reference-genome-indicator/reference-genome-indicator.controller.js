@@ -18,9 +18,7 @@
 
 
 angular.module('concentrate')
-.controller('ReferenceGenomeIndicatorController', ['$log', '$rootScope', '$scope', function($log, $rootScope, $scope) {
-
-    $log.debug('Reference genome indicator component is running');
-
+.controller('ReferenceGenomeIndicatorController', ['$rootScope', '$scope',
+        function($rootScope, $scope) {
     $scope.activeReferenceGenome = $rootScope.activeReferenceGenome;
 }]);

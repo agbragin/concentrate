@@ -18,25 +18,9 @@
 
 
 angular.module('concentrate')
-.directive('attributeFilterCard', function() {
-    return {
-        restrict: 'E',
-        scope: {
-            filter: '<'
-        },
-        controller: 'AttributeFilterCardController',
-        templateUrl: 'src/pages/filter/query/attribute-filter-card/attribute-filter-card.template.html',
-        link: scope => {
+.controller('AttributeFilterFormController', ['$scope', function($scope) {
 
-            scope.$watch('filter', () => {
-
-                if (!scope.filter) {
-                    return;
-                }
-
-                scope.prettifiedFilterOperator = scope.prettifyFilterOperator(scope.filter.operator);
-                scope.prettifiedFilterValues = scope.prettifyFilterValues(scope.filter.values);
-            })
-        }
-    }
-});
+    $scope.readyToBuild = () => $scope.filterOperator && $scope.values.length && ($scope.values[0] || $scope.values[0] === 0 || $scope.values[0] === false);
+    $scope.buildAttributeFilter = () => $scope.builtAttributeFilter = new AttributeFilter($scope.attribute, $scope.filterOperator, $scope.values, $scope.includeNulls);
+    $scope.destroyAttributeFilter = () => $scope.builtAttributeFilter = undefined;
+}]);

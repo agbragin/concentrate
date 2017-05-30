@@ -18,6 +18,6 @@
 
 
 angular.module('concentrate')
-.controller('AvailableTracksController', ['$log', function($log) {
-    $log.debug('Available tracks component is running')
+.controller('AvailableTracksController', ['$scope', '$rootScope', function($scope, $rootScope) {
+    $scope.uploadPage = $rootScope.applicationStates.get('trackUpload');
 }]);

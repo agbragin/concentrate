@@ -18,9 +18,8 @@
 
 
 angular.module('concentrate')
-.controller('AttributeFilterValueController', ['$log', '$scope', function($log, $scope) {
+.controller('AttributeListController', ['$scope', function($scope) {
 
-    $log.debug(`${$scope.attribute.name} attribute filter value is running`);
-
-    $scope.setAttributeFilterValue = value => $scope.value = (value instanceof Array) ? value : [value];
+    $scope.setActiveAttribute = attribute => $scope.activeAttribute = attribute;
+    $scope.isActiveAttribute = attribute => $scope.activeAttribute === attribute;
 }]);

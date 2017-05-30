@@ -18,6 +18,4 @@
 
 
 angular.module('concentrate')
-.controller('StripeStructureController', ['$log', function($log) {
-    $log.debug('Stripe structure component is running')
-}]);
+.controller('StripeStructureController', function() {});

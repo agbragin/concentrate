@@ -26,6 +26,6 @@ angular.module('concentrate')
             activeAttribute: '='
         },
         controller: 'AttributeListController',
-        templateUrl: 'src/pages/filter/attribute-list/attribute-list.template.html'
+        templateUrl: 'src/pages/track-filter/attribute-list/attribute-list.template.html'
     }
 });

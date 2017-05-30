@@ -22,12 +22,13 @@
  * https://github.com/angular/angular.js/issues/14814
  */
 angular.module('concentrate')
-.controller('ConfigPageController', ['$rootScope', '$log', '$scope', '$state', function($rootScope, $log, $scope, $state) {
-
-    $log.debug('Config page view activated');
+.controller('ConfigPageController', ['$rootScope', '$log', '$scope', '$state',
+        function($rootScope, $log, $scope, $state) {
 
     $scope.save = () => {
+
         $log.debug(`Set reference service type to: ${$rootScope.referenceServiceType}; active reference genome to: ${$rootScope.activeReferenceGenome.name}`);
-        $state.go('browser');
+        // Go to the browser view page
+        $state.go($rootScope.applicationStates.get('browserView'));
     };
 }]);

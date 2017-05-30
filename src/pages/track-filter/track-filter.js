@@ -18,10 +18,17 @@
 
 
 angular.module('concentrate')
-.controller('AttributeListController', ['$log', '$scope', function($log, $scope) {
+.controller('TrackFilterPageController', ['$rootScope', '$log', '$scope', '$state', '$stateParams',
+        function($rootScope, $log, $scope, $state, $stateParams) {
 
-    $log.debug('Attribute list component is running');
+    if (!$stateParams.track) {
 
-    $scope.setActiveAttribute = attribute => $scope.activeAttribute = attribute;
-    $scope.isActiveAttribute = attribute => $scope.activeAttribute === attribute;
+        $log.warn('No track specified; back to browser view');
+
+        $state.go($rootScope.applicationStates.get('browserView'));
+    }
+
+    $scope.track = $stateParams.track;
+
+    $scope.query = $scope.track.filteredDataSource ? $scope.track.filteredDataSource.filterQuery : AttributeAggregate.empty('AND');
 }]);

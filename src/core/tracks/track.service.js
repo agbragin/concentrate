@@ -44,6 +44,8 @@ angular.module('concentrate')
 
     let discoverTracks = () => {
 
+        $log.debug('Tracks discovering triggered');
+
         $http.get('/tracks').then(
             res => {
                 if (!res.data || !res.data['_embedded'] || !res.data['_embedded'].tracks) {
@@ -210,12 +212,13 @@ angular.module('concentrate')
             );
         },
         /**
+         * Removes previous filter first, then creates and applies new one
+         * 
          * @param {Track} track
          * @param {AttributeAggregate} query
          */
         filter: (track, query) => removeFilter(track).then(
-            () => {
-                $http.post(`/tracks/${track.name}/filters`, JSON.stringify(new TrackFilterEntity(query))).then(
+            () => $http.post(`/tracks/${track.name}/filters`, JSON.stringify(new TrackFilterEntity(query))).then(
                     res => {
 
                         let filteredDataSource = new FilteredDataSource(res.data['id'], res.data['type'], query);
@@ -231,8 +234,7 @@ angular.module('concentrate')
                         $log.debug(`${track.name} track's filter successfully applied`);
                     },
                     e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
-                )
-            }
+            )
         ),
         disableFilter: track => {
 
@@ -245,6 +247,8 @@ angular.module('concentrate')
             track = targetTrack;
 
             $log.debug(`${track.name} track's filter successfully disabled`);
+
+            return Promise.resolve();
         },
         /**
          * @param {Track} track

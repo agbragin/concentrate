@@ -17,17 +17,5 @@
  *******************************************************************************/
 
 
-/**
- * Can't use fat arrow syntax in controller definition due to:
- * https://github.com/angular/angular.js/issues/14814
- */
 angular.module('concentrate')
-.controller('BrowserPageController', ['$rootScope', '$log', '$http', '$scope', 'TrackService',
-        function($rootScope, $log, $http, $scope, TrackService) {
-
-    $log.debug('Browser page view activated');
-
-    if (!$rootScope.availableTracks) {
-        TrackService.discoverTracks();
-    }
-}]);
+.controller('BrowserPageController', function() {});
