@@ -29,10 +29,14 @@ angular.module('concentrate')
         FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data));
     };
 
+    const primaryTracks = [
+        { name: 'Reference', color: undefined },
+        { name: 'Chromosome', color: VisualizationProperties.STRIPE_CHROMOSOME_COLOR }
+    ];
     /**
      * TODO: it should be probably moved to the back-end as one of the track's fields
      */
-    const primaryTrackNames = ['Reference', 'Chromosome'];
+    const primaryTrackNames = primaryTracks.map(it => it.name);
 
     /**
      * Determines whether the track is primary
@@ -41,6 +45,23 @@ angular.module('concentrate')
      * @returns {boolean}
      */
     let isPrimary = trackName => primaryTrackNames.indexOf(trackName) !== -1;
+
+    /**
+     * Determines track color by its name and index
+     * 
+     * @param {string} trackName
+     * @param {number} index Index in the available tracks list
+     * @returns {string}
+     */
+    let getTrackColor = (trackName, index) => {
+
+        let primaryTrack = primaryTracks.find(it => it.name === trackName);
+        if (primaryTrack) {
+            return primaryTrack.color;
+        } else {
+            return VisualizationProperties.STRIPE_COLORS[index % VisualizationProperties.STRIPE_COLORS.length];
+        }
+    };
 
     let discoverTracks = () => {
 
@@ -89,7 +110,7 @@ angular.module('concentrate')
                 }).map(it => new Track(...it, isPrimary(it[0]), false, undefined));
 
                 for (let i = 0; i < $rootScope.availableTracks.length; ++i) {
-                    $rootScope.availableTracks[i].color = VisualizationProperties.STRIPE_COLORS[i % VisualizationProperties.STRIPE_COLORS.length];
+                    $rootScope.availableTracks[i].color = getTrackColor($rootScope.availableTracks[i].name, i);
                 }
             },
             trackServiceHttpErrorHandler

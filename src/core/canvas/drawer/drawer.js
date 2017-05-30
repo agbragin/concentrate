@@ -178,8 +178,8 @@ class Drawer {
 
         for (let i = 0, vOffset = this._vProps.GRID_MARGIN_TOP; i < tracks.length; ++i) {
 
-            if (tracks[i].isEmpty()) {
-                console.debug(`${tracks[i].track.name} track is empty, skip it`);
+            if (!tracks[i].track.active) {
+                console.debug(`${tracks[i].track.name} is not active, skip it`);
                 continue;
             } else {
                 console.debug(`Drawing ${tracks[i].track.name} track, which has ${tracks[i].levels.length} levels`);
@@ -187,7 +187,7 @@ class Drawer {
 
             this._trackBg(tracks[i], vOffset);
             this._track(tracks[i], vOffset + this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y);
-            vOffset += tracks[i].levels.length * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM) - this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM + 2 * this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y + this._vProps.GRID_TRACK_MARGIN_BOTTOM;
+            vOffset += (tracks[i].levels.length ? tracks[i].levels.length : 1) * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM) - this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM + 2 * this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y + this._vProps.GRID_TRACK_MARGIN_BOTTOM;
         }
     }
 
@@ -233,6 +233,10 @@ class Drawer {
          */
         let convertFromHex = hexColor => {
 
+            if (!hexColor) {
+                return 'rgba(255, 255, 255, 1)';
+            }
+
             let r = parseInt(hexColor.slice(1, 3), 16);
             let g = parseInt(hexColor.slice(3, 5), 16);
             let b = parseInt(hexColor.slice(5, 7), 16);
@@ -241,9 +245,11 @@ class Drawer {
         };
 
         let trackBackgroundShape = new createjs.Shape();
-        trackBackgroundShape.graphics.beginFill(convertFromHex(track.track.color)).drawRect(
-            0, verticalOffset, this._stageWidth, track.levels.length * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM) - this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM + 2 * this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y
-        );
+        let bg = {
+            width: this._stageWidth,
+            height: (track.levels.length ? track.levels.length : 1) * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM) - this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM + 2 * this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y
+        };
+        trackBackgroundShape.graphics.beginFill(convertFromHex(track.track.color)).drawRect(0, verticalOffset, bg.width, bg.height);
 
         this._stage.addChild(trackBackgroundShape);
     }
