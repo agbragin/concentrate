@@ -153,6 +153,41 @@ class Grid {
     }
 
     /**
+     * Returns relative density by grid unit (column)
+     * 
+     * @returns {Array.<number>}
+     */
+    getDensities() {
+
+        let borders = this.getBorderCoordinates();
+        /**
+         * Output densities
+         * 
+         * @type {Array.<number>}
+         */
+        let densities = new Array();
+
+        for (let i = 1; i < borders.length; ++i) {
+            if (borders[i - 1].contigName === borders[i].contigName) {
+                densities.push(borders[i].coordinate - borders[i - 1].coordinate);
+            } else {
+                densities.push(Infinity);
+            }
+        }
+
+        let finiteDensities = densities.filter(Number.isFinite).map(Math.log);
+        let [dMin, dMax] = [Math.min(...finiteDensities), Math.max(...finiteDensities)];
+
+        return densities.map(it => {
+            if (Number.isFinite(it)) {
+                return (dMin !== dMax) ? (it - dMin) / (dMax - dMin) : 1;
+            } else {
+                return 1;
+            }
+        });
+    }
+
+    /**
      * Adds stripe to grid
      * 
      * @this

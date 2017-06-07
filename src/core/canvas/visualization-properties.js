@@ -44,7 +44,8 @@ angular.module('concentrate')
 
     /** Stripes */
     STRIPE_BORDER_COLOR: '#9f9f9f',
-    STRIPE_HOVER_ALPHA: 0.5,
+    STRIPE_DEFAULT_ALPHA: 0.9,
+    STRIPE_HOVER_ALPHA: 1,
     STRIPE_LABEL_MARGIN_X: 10,
     STRIPE_LABEL_MARGIN_TOP: 8,
     STRIPE_LABEL_STYLE: '14px Calibri',
@@ -74,5 +75,10 @@ angular.module('concentrate')
     STRIPE_NUCLEOTIDE_COLOR_ANY: '#ada4c8',
     STRIPE_NUCLEOTIDE_COLOR_CYTOSINE: '#fab9af',
     STRIPE_NUCLEOTIDE_COLOR_GUANINE: '#9fd374',
-    STRIPE_NUCLEOTIDE_COLOR_THYMINE: '#fee77a'
+    STRIPE_NUCLEOTIDE_COLOR_THYMINE: '#fee77a',
+
+    /** Density schema */
+    STRIPE_MAX_DENSITY: 1,
+    STRIPE_MIN_DENSITY: 0.5,
+    STRIPE_GRADIENT_WIDTH: 10
 });

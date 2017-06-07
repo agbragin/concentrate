@@ -90,6 +90,10 @@ angular.module('concentrate')
 
     $scope.bandsUpdate = () => {
 
+        if (!$rootScope.availableTracks) {
+            return;
+        }
+
         $log.debug('Bands update triggered');
 
         let activeTracks = $rootScope.availableTracks.filter(it => it.active);

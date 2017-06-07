@@ -67,7 +67,7 @@ class Drawer {
         // Map border coordinates
         this._borders(grid.getBorderCoordinates());
         // Output tracks
-        this._tracks(grid.tracks);
+        this._tracks(grid);
 
         this._stage.update();
     }
@@ -172,9 +172,12 @@ class Drawer {
 
     /**
      * @this
-     * @param {Array.<GridTrack>} tracks
+     * @param {Grid} grid
      */
-    _tracks(tracks) {
+    _tracks(grid) {
+
+        let tracks = grid.tracks;
+        let densities = grid.getDensities();
 
         for (let i = 0, vOffset = this._vProps.GRID_MARGIN_TOP; i < tracks.length; ++i) {
 
@@ -186,7 +189,7 @@ class Drawer {
             }
 
             this._trackBg(tracks[i], vOffset);
-            this._track(tracks[i], vOffset + this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y);
+            this._track(tracks[i], vOffset + this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y, densities);
             vOffset += (tracks[i].levels.length ? tracks[i].levels.length : 1) * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM) - this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM + 2 * this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y + this._vProps.GRID_TRACK_MARGIN_BOTTOM;
         }
     }
@@ -195,12 +198,13 @@ class Drawer {
      * @this
      * @param {GridTrack} track
      * @param {number} verticalOffset
+     * @param {Array.<number>} densities
      */
-    _track(track, verticalOffset) {
+    _track(track, verticalOffset, densities) {
 
         for (let i = 0; i < track.levels.length; ++i) {
             console.debug(`Drawing ${i + 1}/${track.levels.length} ${track.track.name} level, which has ${track.levels[i].items.length} items`);
-            this._level(track.levels[i], verticalOffset + i * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM));
+            this._level(track.levels[i], verticalOffset + i * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM), densities);
         }
     }
 
@@ -208,15 +212,16 @@ class Drawer {
      * @this
      * @param {GridTrackLevel} level
      * @param {number} verticalOffset
+     * @param {Array.<number>} densities
      */
-    _level(level, verticalOffset) {
+    _level(level, verticalOffset, densities) {
 
         for (let i = 0; i < level.items.length; ++i) {
 
             let stripe = level.items[i];
             let stripeStartDrawingPoint = [(stripe.start === -Infinity) ? 0 : (this._leftInfUnitWidth + stripe.start * this._vProps.UNIT_WIDTH), verticalOffset];
 
-            this._stripe(stripe, ...stripeStartDrawingPoint);
+            this._stripe(stripe, ...stripeStartDrawingPoint, densities);
         }
     }
 
@@ -259,11 +264,13 @@ class Drawer {
      * @param {Stripe} stripe
      * @param {number} x
      * @param {number} y
+     * @param {Array.<number>} densities
      */
-    _stripe(stripe, x, y) {
+    _stripe(stripe, x, y, densities) {
 
         let stripeContainer = new createjs.Container();
         [stripeContainer.x, stripeContainer.y] = [x, y];
+        stripeContainer.alpha = this._vProps.STRIPE_DEFAULT_ALPHA;
         stripeContainer.cursor = 'pointer';
 
         /**
@@ -304,27 +311,27 @@ class Drawer {
             stripeColor = stripe.track.color;
         }
 
-        stripeShape.graphics.beginFill(stripeColor).drawRect(
-            0, 0, this._stripeWidth(stripe), this._vProps.UNIT_HEIGHT
-        );
+        /**
+         * Compose a stripe body
+         */
+        this._stripeBody(stripeContainer, stripe, densities, stripeColor);
 
         /**
          * Add hovering effects
          */
-        stripeShape.on('mouseover', e => {
-            e.target.alpha = this._vProps.STRIPE_HOVER_ALPHA;
-            this._showStripeTooltip(stripe);
+        stripeContainer.on('mouseover', e => {
+            e.target.parent.alpha = this._vProps.STRIPE_HOVER_ALPHA;
             this._stage.update();
         });
-        stripeShape.on('mouseout', e => {
-            e.target.alpha = 1;
+        stripeContainer.on('mouseout', e => {
+            e.target.parent.alpha = this._vProps.STRIPE_DEFAULT_ALPHA;
             this._stage.update();
         });
 
         /**
          * Add click event to transmit stripe data
          */
-        stripeShape.on('click', e => {
+        stripeContainer.on('click', e => {
             let click = new CustomEvent('stripeClick', { 'detail': stripe });
             this._stage.dispatchEvent(click);
         });
@@ -358,30 +365,55 @@ class Drawer {
     }
 
     /**
-     * @this
+     * Compose a stripe body
+     * 
+     * @param {createjs.Container} stripeContainer
      * @param {Stripe} stripe
-     * @returns {number}
+     * @param {Array.<number>} densities
+     * @param {string} stripeColor
      */
-    _stripeWidth(stripe) {
+    _stripeBody(stripeContainer, stripe, densities, stripeColor) {
 
-        if (stripe.start !== -Infinity && stripe.end !== +Infinity) {
-            return (stripe.end - stripe.start) * this._vProps.UNIT_WIDTH;
+        let containsLeftInf = stripe.start === -Infinity;
+
+        if (containsLeftInf) {
+
+            let leftInfPartShape = new createjs.Shape();
+            leftInfPartShape.graphics.beginFill(stripeColor).drawRect(
+                0, 0, this._leftInfUnitWidth, this._vProps.UNIT_HEIGHT
+            );
+
+            stripeContainer.addChild(leftInfPartShape);
         }
 
-        if (stripe.start === -Infinity && stripe.end === +Infinity) {
-            return this._stageWidth;
+        for (let i = 0, relCoord = Number.isFinite(stripe.start) ? stripe.start : 0, end = Number.isFinite(stripe.end) ? stripe.end : this._unitsNumber; relCoord < end; ++i, ++relCoord) {
+
+            let partShape = new createjs.Shape();
+            partShape.graphics.beginFill(stripeColor).drawRect(
+                (containsLeftInf ? this._leftInfUnitWidth : 0) + i * this._vProps.UNIT_WIDTH,
+                0,
+                this._vProps.UNIT_WIDTH,
+                this._vProps.UNIT_HEIGHT
+            );
+            partShape.alpha = this._vProps.STRIPE_MIN_DENSITY +  densities[relCoord] * (this._vProps.STRIPE_MAX_DENSITY - this._vProps.STRIPE_MIN_DENSITY);
+
+            stripeContainer.addChild(partShape);
         }
 
-        if (stripe.start === -Infinity) {
-            return this._leftInfUnitWidth + stripe.end * this._vProps.UNIT_WIDTH;
-        } else {
-            return (this._unitsNumber - stripe.start) * this._vProps.UNIT_WIDTH + this._rightInfUnitWidth;
+        if (stripe.end === +Infinity) {
+
+            let stripeLength = (Number.isFinite(stripe.end) ? stripe.end : this._unitsNumber) - (Number.isFinite(stripe.start) ? stripe.start : 0);
+
+            let rightInfPartShape = new createjs.Shape();
+            rightInfPartShape.graphics.beginFill(stripeColor).drawRect(
+                (containsLeftInf ? this._leftInfUnitWidth : 0) + stripeLength * this._vProps.UNIT_WIDTH,
+                0,
+                this._rightInfUnitWidth,
+                this._vProps.UNIT_HEIGHT
+            );
+
+            stripeContainer.addChild(rightInfPartShape);
         }
-    }
-
-    _showStripeTooltip(stripe) {
-
-        //console.warn(stripe);
     }
 
     _clear() {
