@@ -148,6 +148,58 @@ angular.module('concentrate')
         );
     };
 
+    /**
+     * @param {string} trackName
+     * @returns {Promise.<Array.<any>>}
+     */
+    let fetchTrackDetails = trackName => {
+
+        return Promise.all([
+            Promise.resolve(trackName),
+            $http.get(`/tracks/${trackName}/dataSource`),
+            $http.get(`/tracks/${trackName}/attributes`)
+        ]);
+    };
+
+    /**
+     * @param {Array.<any>} resTuple
+     * @returns {Track}
+     */
+    let parseTrackDetails = resTuple => {
+
+        let [trackName, trackDataSourceRes, trackAttributesRes] = resTuple;
+
+        /** Parse data source resource */
+        let dataSource = new DataSource(trackDataSourceRes.data['id'], trackDataSourceRes.data['type']);
+
+        /** Parse attributes resource */
+        let attributes = new Array();
+        if (trackAttributesRes.data && trackAttributesRes.data['_embedded'] && trackAttributesRes.data['_embedded'].attributes) {
+
+            attributes = trackAttributesRes.data['_embedded'].attributes.map(it => {
+
+                let range;
+                if (it['range']) {
+                    range = new TrackAttributeRange(it['range'].lowerBound, it['range'].upperBound, it['range'].inclusionType, it['range'].values);
+                }
+
+                return new TrackAttribute(it['id'], it['name'], it['type'], it['description'], range, it['filterOperators']);
+            });
+        }
+
+        return new Track(trackName, dataSource, attributes, false, true, VisualizationProperties.STRIPE_COLORS[$rootScope.availableTracks.length % VisualizationProperties.STRIPE_COLORS.length]);
+    };
+
+    /**
+     * @param {Track} track
+     */
+    let addTrack = track => {
+
+        $log.debug(`${track.name} track was successfully uploaded`);
+
+        $rootScope.availableTracks.push(track);
+    };
+
     return {
         discoverTracks: discoverTracks,
         /**
@@ -190,46 +242,28 @@ angular.module('concentrate')
                     'Content-Type': undefined
                 },
                 transformRequest: angular.identity
-            }).then(
-                res => Promise.all([
-                    Promise.resolve(trackName),
-                    $http.get(`/tracks/${trackName}/dataSource`),
-                    $http.get(`/tracks/${trackName}/attributes`)
-                ]),
+            })
+            .then(
+                () => fetchTrackDetails(trackName),
                 e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
-            ).then(
-                resTuple => {
+            )
+            .then(parseTrackDetails)
+            .then(addTrack);
+        },
+        /**
+         * @param {string} trackName
+         * @param {string} sourceType
+         * @param {File} sourceFilePath
+         */
+        createFromLocalFile: (trackName, sourceType, sourceFilePath) => {
 
-                    let [trackName, trackDataSourceRes, trackAttributesRes] = resTuple;
-
-                    /** Parse data source resource */
-                    let dataSource = new DataSource(trackDataSourceRes.data['id'], trackDataSourceRes.data['type']);
-
-                    /** Parse attributes resource */
-                    let attributes = new Array();
-                    if (trackAttributesRes.data && trackAttributesRes.data['_embedded'] && trackAttributesRes.data['_embedded'].attributes) {
-
-                        attributes = trackAttributesRes.data['_embedded'].attributes.map(it => {
-
-                            let range;
-                            if (it['range']) {
-                                range = new TrackAttributeRange(it['range'].lowerBound, it['range'].upperBound, it['range'].inclusionType, it['range'].values);
-                            }
-
-                            return new TrackAttribute(it['id'], it['name'], it['type'], it['description'], range, it['filterOperators']);
-                        });
-                    }
-
-                    return new Track(trackName, dataSource, attributes, false, true, VisualizationProperties.STRIPE_COLORS[$rootScope.availableTracks.length % VisualizationProperties.STRIPE_COLORS.length]);
-                }
-            ).then(
-                track => {
-
-                    $log.debug(`${track.name} track was successfully uploaded`);
-
-                    $rootScope.availableTracks.push(track);
-                }
-            );
+            return $http.post(`/tracks?track=${trackName}&type=${sourceType}&path=${sourceFilePath}`)
+                    .then(
+                        () => fetchTrackDetails(trackName),
+                        e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
+                    )
+                    .then(parseTrackDetails)
+                    .then(addTrack);
         },
         /**
          * Removes previous filter first, then creates and applies new one

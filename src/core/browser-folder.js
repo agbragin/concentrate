@@ -17,10 +17,30 @@
  *******************************************************************************/
 
 
-angular.module('concentrate')
-.controller('TrackUploadPageController', ['$scope', '$state', '$rootScope', 'TrackService',
-        function($scope, $state, $rootScope, TrackService) {
+class BrowserFolder {
 
-    $scope.upload = () => TrackService.createFromLocalFile($scope.name, $scope.type, encodeURIComponent($scope.file)).then(() => $scope.goBack());
-    $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
-}]);
+    /**
+     * @this
+     * @constructor
+     * @param {string} path Folder's absolute path on the host machine
+     * @param {Array.<File>} files Files contained in the folder (only on its root level)
+     * @param {Map.<string, string>} folderRefs Mapping from folder names to their hrefs (folders only on its root level)
+     * @param {boolean} isFile Whether the object represented by file or folder on the host machine
+     */
+    constructor(path, files, folderRefs, isFile) {
+
+        this._path = path;
+        this._files = files;
+        this._folderRefs = folderRefs;
+        this._isFile = isFile;
+    }
+
+    get path() { return this._path }
+    get files () { return this._files }
+    get folderRefs () { return this._folderRefs }
+    get isFile () { return this._isFile }
+
+    toString() {
+        return this._path;
+    }
+}

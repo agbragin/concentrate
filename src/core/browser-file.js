@@ -17,10 +17,20 @@
  *******************************************************************************/
 
 
-angular.module('concentrate')
-.controller('TrackUploadPageController', ['$scope', '$state', '$rootScope', 'TrackService',
-        function($scope, $state, $rootScope, TrackService) {
+class BrowserFile {
 
-    $scope.upload = () => TrackService.createFromLocalFile($scope.name, $scope.type, encodeURIComponent($scope.file)).then(() => $scope.goBack());
-    $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
-}]);
+    /**
+     * @this
+     * @constructor
+     * @param {string} path File's absolute path on the host machine
+     */
+    constructor(path) {
+        this._path = path;
+    }
+
+    get path () { return this._path }
+
+    toString() {
+        return this._path;
+    }
+}

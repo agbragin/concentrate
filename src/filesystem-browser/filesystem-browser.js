@@ -18,9 +18,26 @@
 
 
 angular.module('concentrate')
-.controller('TrackUploadPageController', ['$scope', '$state', '$rootScope', 'TrackService',
-        function($scope, $state, $rootScope, TrackService) {
+.directive('filesystemBrowser', function($log, FilesystemBrowserService) {
+    return {
+        restrict: 'E',
+        scope: {
+            ngModel: '=',
+            collapsed: '=',
+            initialPath: '<',
+            maxHeight: '<'
+        },
+        controller: 'FilesystemBrowserController',
+        templateUrl: 'src/filesystem-browser/filesystem-browser.template.html',
+        link: (scope, element) => {
 
-    $scope.upload = () => TrackService.createFromLocalFile($scope.name, $scope.type, encodeURIComponent($scope.file)).then(() => $scope.goBack());
-    $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
-}]);
+            if (scope.maxHeight) {
+                element.children().css('max-height', `${scope.maxHeight}px`);
+            }
+
+            // Retrieve content for initial path
+            FilesystemBrowserService.getContent(scope.initialPath)
+                    .then(folder => scope.updateContent(folder));
+        }
+    }
+});

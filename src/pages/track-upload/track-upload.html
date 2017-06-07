@@ -4,7 +4,9 @@
     <select class='select' name='type' ng-options='type disable when type === "REFERENCE" || type === "CHROMOSOME" for type in availableDataSourceTypes' ng-model='type' required>
         <option value='' disabled selected>Select source type</option>
     </select>
-    <input type='file' name='file' ng-file='file' required />
+    <div>
+        <filesystem-browser initial-path='"/"' collapsed='true' ng-model='file' max-height='300'></filesystem-browser>
+    </div>
     <div class='mt2'>
         <button class='btn btn-primary' ng-click='upload()' ng-disabled='form.$invalid || !file'>Upload</button>
         <button class='btn' ng-click='goBack()'>Cancel</button>
