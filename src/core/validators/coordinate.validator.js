@@ -30,6 +30,10 @@ angular.module('concentrate')
                     return true;
                 }
 
+                if (NaN === new Number(viewValue)) {
+                    return false;
+                }
+
                 let value = Number.parseFloat(viewValue);
 
                 return Number.isSafeInteger(value) && (value > -1);

@@ -40,7 +40,7 @@ angular.module('concentrate')
 
             $log.debug(`Requesting bands from ${visualizationFocus.genomicCoordinate.referenceGenomeName}:${visualizationFocus.genomicCoordinate.contigName}:${visualizationFocus.genomicCoordinate.coordinate}[${visualizationFocus.bordersNumberToTheLeft}:${visualizationFocus.bordersNumberToTheRight}] for data sources: ${dataSourceIds}`);
 
-            $http.get(`/bands?contig=${visualizationFocus.genomicCoordinate.contigName}&coord=${visualizationFocus.genomicCoordinate.coordinate}&left=${visualizationFocus.bordersNumberToTheLeft}&right=${visualizationFocus.bordersNumberToTheRight}&dataSources=${dataSourceIds.join(',')}`).then(
+            return $http.get(`/bands?contig=${visualizationFocus.genomicCoordinate.contigName}&coord=${visualizationFocus.genomicCoordinate.coordinate}&left=${visualizationFocus.bordersNumberToTheLeft}&right=${visualizationFocus.bordersNumberToTheRight}&dataSources=${dataSourceIds.join(',')}`).then(
                 res => {
                     if (res.data && res.data['bands']) {
 
@@ -59,8 +59,10 @@ angular.module('concentrate')
                     }
                 },
                 e => {
+
                     defaultConfiguration();
-                    FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data));
+
+                    return FailedRequestService.handle(e);
                 }
             );
         }

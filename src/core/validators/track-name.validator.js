@@ -20,7 +20,7 @@
 angular.module('concentrate')
 .directive('trackName', function() {
 
-    let TRACK_NAME_PATTERN = /^\w+$/;
+    let TRACK_NAME_PATTERN = /^[\w\s-]+$/;
 
     return {
         restrict: 'A',
@@ -31,14 +31,6 @@ angular.module('concentrate')
 
                 if (ctrl.$isEmpty(modelValue)) {
                     return true;
-                }
-
-                /**
-                 * @type {Array.<string>}
-                 */
-                let availableTrackNames = scope.$parent.availableTracks.map(it => it.name);
-                if (availableTrackNames.indexOf(viewValue) !== -1) {
-                    return false;
                 }
 
                 return TRACK_NAME_PATTERN.test(viewValue) ? true : false;

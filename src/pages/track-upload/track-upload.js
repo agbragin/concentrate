@@ -21,6 +21,21 @@ angular.module('concentrate')
 .controller('TrackUploadPageController', ['$scope', '$state', '$rootScope', 'TrackService',
         function($scope, $state, $rootScope, TrackService) {
 
-    $scope.upload = () => TrackService.createFromLocalFile($scope.name, $scope.type, encodeURIComponent($scope.file)).then(() => $scope.goBack());
+    const unavailableTypes = Array.of('REFERENCE', 'CHROMOSOME');
+    const featureFileTypes = Array.of('GFF', 'INDEXED_GFF');
+    const indexedTypes = Array.of('INDEXED_GFF');
+
+    // TODO: this function is subject of change during the development
+    $scope.unavailableType = type => unavailableTypes.concat(indexedTypes).indexOf(type) !== -1;
+    $scope.isFeatureFileType = type => featureFileTypes.indexOf(type) !== -1;
+    $scope.isIndexedType = type => indexedTypes.indexOf(type) !== -1;
+
+    $scope.upload = () => {
+        TrackService.createFromLocalFile($scope.name, $scope.type,
+                        encodeURIComponent($scope.file),
+                        $scope.isFeatureFileType($scope.type) ? encodeURIComponent($scope.specFile) : undefined)
+                .then(() => $scope.goBack());
+    };
+
     $scope.goBack = () => $state.go($rootScope.applicationStates.get('browserView'));
 }]);

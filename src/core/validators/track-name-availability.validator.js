@@ -17,27 +17,27 @@
  *******************************************************************************/
 
 
-/**
- * Can't use fat arrow syntax in service definition due to:
- * https://github.com/angular/angular.js/issues/14814
- */
 angular.module('concentrate')
-.service('ReferenceServiceSelectionService', function($log, $http, $rootScope, FailedRequestService) {
+.directive('trackNameAvailability', function() {
+
     return {
-        select: serviceType => {
-            return $http.post(`/referenceService?type=${serviceType}`).then(
-                () => {
-                    $rootScope.referenceServiceType = serviceType;
-                    $log.debug(`Reference service type was set to: ${serviceType}`);
-                },
-                e => {
+        restrict: 'A',
+        require: 'ngModel',
+        link: (scope, elem, attrs, ctrl) => {
 
-                    $rootScope.referenceServiceType = undefined;
-                    $rootScope.activeReferenceGenome = undefined;
+            ctrl.$validators.trackNameAvailability = (modelValue, viewValue) => {
 
-                    return FailedRequestService.handle(e);
+                if (ctrl.$isEmpty(modelValue)) {
+                    return true;
                 }
-            );
+
+                /**
+                 * @type {Array.<string>}
+                 */
+                let availableTrackNames = scope.$parent.availableTracks.map(it => it.name);
+
+                return availableTrackNames.indexOf(viewValue) === -1;
+            }
         }
     }
 });

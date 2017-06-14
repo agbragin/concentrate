@@ -10,7 +10,7 @@
     </span>
 </button>
 <div class='clearfix file-browser auto-overflow' ng-hide='collapsed'>
-    <div ng-repeat='f in folders | orderBy: "name"' ng-mouseenter='hover = true' ng-mouseleave='hover = false' ng-class='{ "bg-darken-1": hover }'>
+    <div ng-repeat='f in folders' ng-mouseenter='hover = true' ng-mouseleave='hover = false' ng-class='{ "bg-darken-1": hover }'>
         <button class='btn width-expand left-align' ng-click='open(f)'>
             <i class='fa fa-folder'></i> <span ng-bind='f.name'></span>
         </button>

@@ -30,5 +30,5 @@ angular.module('concentrate')
 
     $scope.track = $stateParams.track;
 
-    $scope.query = $scope.track.filteredDataSource ? $scope.track.filteredDataSource.filterQuery : AttributeAggregate.empty('AND');
+    $scope.query = $scope.track.filteredDataSource ? angular.copy($scope.track.filteredDataSource.filterQuery) : AttributeAggregate.empty('AND');
 }]);

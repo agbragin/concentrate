@@ -273,10 +273,6 @@ class Drawer {
         stripeContainer.alpha = this._vProps.STRIPE_DEFAULT_ALPHA;
         stripeContainer.cursor = 'pointer';
 
-        /**
-         * Compose a stripe shape
-         */
-        let stripeShape = new createjs.Shape();
         let stripeColor;
         switch (stripe.track.name) {
         case 'Reference':
@@ -336,17 +332,6 @@ class Drawer {
             this._stage.dispatchEvent(click);
         });
 
-        /**
-         * Compose a stripe label
-         */
-        let stripeLabel = new createjs.Text(stripe.name, this._vProps.STRIPE_LABEL_STYLE, this._vProps.STRIPE_LABEL_COLOR);
-        [stripeLabel.x, stripeLabel.y] = [this._vProps.STRIPE_LABEL_MARGIN_X, this._vProps.STRIPE_LABEL_MARGIN_TOP];
-        stripeLabel.maxWidth = this._vProps.UNIT_WIDTH * (((stripe.end === Infinity) ? this._unitsNumber : stripe.end) - ((stripe.start === -Infinity) ? 0 : stripe.start)) - 2 * this._vProps.STRIPE_LABEL_MARGIN_X;
-        stripeLabel.mouseEnabled = false;
-
-        stripeContainer.addChild(stripeShape);
-        stripeContainer.addChild(stripeLabel);
-
         if (x !== 0) {
 
             /**
@@ -374,45 +359,51 @@ class Drawer {
      */
     _stripeBody(stripeContainer, stripe, densities, stripeColor) {
 
-        let containsLeftInf = stripe.start === -Infinity;
+        let stripeShape = new createjs.Shape();
+        stripeShape.graphics.beginFill(stripeColor).drawRect(
+            0, 0, this._stripeWidth(stripe), this._vProps.UNIT_HEIGHT
+        );
 
-        if (containsLeftInf) {
+        stripeContainer.addChild(stripeShape);
 
-            let leftInfPartShape = new createjs.Shape();
-            leftInfPartShape.graphics.beginFill(stripeColor).drawRect(
-                0, 0, this._leftInfUnitWidth, this._vProps.UNIT_HEIGHT
-            );
+        /**
+         * Compose a stripe label only for stripe containing minimum one full-fledged unit
+         */
+        if (!(stripe.start === this._unitsNumber && stripe.end === +Infinity
+                || stripe.start === -Infinity && stripe.end === 0)) {
+            this._stripeLabel(stripeContainer, stripe);
+        }
+    }
 
-            stripeContainer.addChild(leftInfPartShape);
+    _stripeLabel(stripeContainer, stripe) {
+
+        let stripeLabel = new createjs.Text(stripe.name, this._vProps.STRIPE_LABEL_STYLE, this._vProps.STRIPE_LABEL_COLOR);
+        [stripeLabel.x, stripeLabel.y] = [this._vProps.STRIPE_LABEL_MARGIN_X, this._vProps.STRIPE_LABEL_MARGIN_TOP];
+        stripeLabel.maxWidth = this._vProps.UNIT_WIDTH * (((stripe.end === Infinity) ? this._unitsNumber : stripe.end) - ((stripe.start === -Infinity) ? 0 : stripe.start)) - 2 * this._vProps.STRIPE_LABEL_MARGIN_X;
+        stripeLabel.mouseEnabled = false;
+
+        stripeContainer.addChild(stripeLabel);
+    }
+
+    /**
+     * @this
+     * @param {Stripe} stripe
+     * @returns {number}
+     */
+    _stripeWidth(stripe) {
+
+        if (stripe.start !== -Infinity && stripe.end !== +Infinity) {
+            return (stripe.end - stripe.start) * this._vProps.UNIT_WIDTH;
         }
 
-        for (let i = 0, relCoord = Number.isFinite(stripe.start) ? stripe.start : 0, end = Number.isFinite(stripe.end) ? stripe.end : this._unitsNumber; relCoord < end; ++i, ++relCoord) {
-
-            let partShape = new createjs.Shape();
-            partShape.graphics.beginFill(stripeColor).drawRect(
-                (containsLeftInf ? this._leftInfUnitWidth : 0) + i * this._vProps.UNIT_WIDTH,
-                0,
-                this._vProps.UNIT_WIDTH,
-                this._vProps.UNIT_HEIGHT
-            );
-            partShape.alpha = this._vProps.STRIPE_MIN_DENSITY +  densities[relCoord] * (this._vProps.STRIPE_MAX_DENSITY - this._vProps.STRIPE_MIN_DENSITY);
-
-            stripeContainer.addChild(partShape);
+        if (stripe.start === -Infinity && stripe.end === +Infinity) {
+            return this._stageWidth;
         }
 
-        if (stripe.end === +Infinity) {
-
-            let stripeLength = (Number.isFinite(stripe.end) ? stripe.end : this._unitsNumber) - (Number.isFinite(stripe.start) ? stripe.start : 0);
-
-            let rightInfPartShape = new createjs.Shape();
-            rightInfPartShape.graphics.beginFill(stripeColor).drawRect(
-                (containsLeftInf ? this._leftInfUnitWidth : 0) + stripeLength * this._vProps.UNIT_WIDTH,
-                0,
-                this._rightInfUnitWidth,
-                this._vProps.UNIT_HEIGHT
-            );
-
-            stripeContainer.addChild(rightInfPartShape);
+        if (stripe.start === -Infinity) {
+            return this._leftInfUnitWidth + stripe.end * this._vProps.UNIT_WIDTH;
+        } else {
+            return (this._unitsNumber - stripe.start) * this._vProps.UNIT_WIDTH + this._rightInfUnitWidth;
         }
     }
 

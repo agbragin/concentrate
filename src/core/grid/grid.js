@@ -104,6 +104,10 @@ class Grid {
         let minDist = Math.min.apply(Math, items.map(it => Math.min(Math.abs(it.start - gridCenter), Math.abs(it.end - gridCenter))));
 
         let focusStripe = items.filter(it => Math.min(Math.abs(it.start - gridCenter), Math.abs(it.end - gridCenter)) === minDist)[0];
+        if (!focusStripe) {
+            return undefined;
+        }
+
         /**
          * @type {GenomicCoordinate}
          */

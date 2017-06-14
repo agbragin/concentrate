@@ -26,19 +26,36 @@ class FailedRequestService {
     get failedRequests () { return this._failedRequestsValue.array }
 
     /**
-     * Add another failed HTTP request
+     * Flush failed HTTP requests array
      * 
-     * @param {FailedRequest} failedRequest Failed HTTP request
+     * @this
      */
-    add (failedRequest) {
-        this._failedRequestsValue.array.push(failedRequest);
+    flush() {
+        this._failedRequestsValue.array = new Array();
     }
 
     /**
-     * Flush failed HTTP requests array
+     * Handle function for failed HTTP requests
+     * 
+     * @this
+     * @param {any} e Angular HTTP service error response object
+     * @returns {Promise.<any>}
      */
-    flush () {
-        this._failedRequestsValue.array = new Array();
+    handle(e) {
+
+        this._add(new FailedRequest(e.config.method, e.status, e.config.url, e.data));
+
+        return Promise.reject(e);
+    }
+
+    /**
+     * Adds another failed HTTP request
+     * 
+     * @this
+     * @param {FailedRequest} failedRequest Failed HTTP request
+     */
+    _add(failedRequest) {
+        this._failedRequestsValue.array.push(failedRequest);
     }
 }
 

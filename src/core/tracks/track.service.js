@@ -24,11 +24,6 @@
 angular.module('concentrate')
 .service('TrackService', function($log, $http, $rootScope, HateoasUtilsService, FailedRequestService, VisualizationProperties) {
 
-    let trackServiceHttpErrorHandler = e => {
-        $rootScope.availableTracks = new Array();
-        FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data));
-    };
-
     const primaryTracks = [
         { name: 'Reference', color: undefined },
         { name: 'Chromosome', color: VisualizationProperties.STRIPE_CHROMOSOME_COLOR }
@@ -80,7 +75,12 @@ angular.module('concentrate')
                             ])));
                 }
             },
-            trackServiceHttpErrorHandler
+            e => {
+
+                $rootScope.availableTracks = new Array();
+
+                return FailedRequestService.handle(e);
+            }
         ).then(
             resTuples => {
 
@@ -113,7 +113,12 @@ angular.module('concentrate')
                     $rootScope.availableTracks[i].color = getTrackColor($rootScope.availableTracks[i].name, i);
                 }
             },
-            trackServiceHttpErrorHandler
+            e => {
+
+                $rootScope.availableTracks = new Array();
+
+                return FailedRequestService.handle(e);
+            }
         );
     };
 
@@ -144,7 +149,7 @@ angular.module('concentrate')
 
                 $log.debug(`${track.name} track's filter successfully removed`);
             },
-            e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
+            FailedRequestService.handle
         );
     };
 
@@ -207,7 +212,7 @@ angular.module('concentrate')
          */
         selectReferenceGenome: referenceGenome => {
 
-            $http.post(`/tracks?genome=${referenceGenome.name}`).then(
+            return $http.post(`/tracks?genome=${referenceGenome.name}`).then(
                 res => {
 
                     $log.debug(`Chromosome track was created for reference genome: ${referenceGenome.name}`);
@@ -219,7 +224,7 @@ angular.module('concentrate')
                     // Trigger track discovery
                     discoverTracks();
                 },
-                e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
+                FailedRequestService.handle
             );
         },
         /**
@@ -245,7 +250,7 @@ angular.module('concentrate')
             })
             .then(
                 () => fetchTrackDetails(trackName),
-                e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
+                FailedRequestService.handle
             )
             .then(parseTrackDetails)
             .then(addTrack);
@@ -253,14 +258,15 @@ angular.module('concentrate')
         /**
          * @param {string} trackName
          * @param {string} sourceType
-         * @param {File} sourceFilePath
+         * @param {string} sourceFilePath
+         * @param {string} specFilePath Specification file path on the host machine (for feature files)
          */
-        createFromLocalFile: (trackName, sourceType, sourceFilePath) => {
+        createFromLocalFile: (trackName, sourceType, sourceFilePath, specFilePath = undefined) => {
 
-            return $http.post(`/tracks?track=${trackName}&type=${sourceType}&path=${sourceFilePath}`)
+            return $http.post(`/tracks?track=${trackName}&type=${sourceType}&path=${sourceFilePath}${specFilePath ? `&specPath=${specFilePath}` : ''}`)
                     .then(
                         () => fetchTrackDetails(trackName),
-                        e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
+                        FailedRequestService.handle
                     )
                     .then(parseTrackDetails)
                     .then(addTrack);
@@ -272,23 +278,25 @@ angular.module('concentrate')
          * @param {AttributeAggregate} query
          */
         filter: (track, query) => removeFilter(track).then(
-            () => $http.post(`/tracks/${track.name}/filters`, JSON.stringify(new TrackFilterEntity(query))).then(
-                    res => {
+            () => {
+                return $http.post(`/tracks/${track.name}/filters`, JSON.stringify(new TrackFilterEntity(query))).then(
+                        res => {
 
-                        let filteredDataSource = new FilteredDataSource(res.data['id'], res.data['type'], query);
-                        /**
-                         * @type {Track}
-                         */
-                        let targetTrack = $rootScope.availableTracks.find(it => it.name === track.name);
+                            let filteredDataSource = new FilteredDataSource(res.data['id'], res.data['type'], query);
+                            /**
+                             * @type {Track}
+                             */
+                            let targetTrack = $rootScope.availableTracks.find(it => it.name === track.name);
 
-                        targetTrack.filteredDataSource = filteredDataSource;
-                        targetTrack.activeDataSource = filteredDataSource;
-                        track = targetTrack;
+                            targetTrack.filteredDataSource = filteredDataSource;
+                            targetTrack.activeDataSource = filteredDataSource;
+                            track = targetTrack;
 
-                        $log.debug(`${track.name} track's filter successfully applied`);
-                    },
-                    e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
-            )
+                            $log.debug(`${track.name} track's filter successfully applied`);
+                        },
+                        FailedRequestService.handle
+                )
+            }
         ),
         disableFilter: track => {
 
@@ -319,7 +327,7 @@ angular.module('concentrate')
                 $rootScope.availableTracks.splice($rootScope.availableTracks.indexOf(track), 1);
                 $rootScope.$broadcast('updateFocusThenBands');
             },
-            e => FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data))
+            FailedRequestService.handle
         )
     }
 });

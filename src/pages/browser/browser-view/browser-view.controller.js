@@ -79,9 +79,23 @@ angular.module('concentrate')
             $rootScope.focus = undefined;
         } else {
 
-            $rootScope.focus = $scope.grid.getFocusCandidate();
-            if (!(Number.isFinite($rootScope.focus.bordersNumberToTheLeft) && Number.isFinite($rootScope.focus.bordersNumberToTheRight))) {
-                $rootScope.focus = new VisualizationFocus($rootScope.focus.genomicCoordinate, 0, $scope.drawer.unitsNumber);
+            /**
+             * If there is no focus candidate (no stripes left) just "jump" to the last focus
+             * 
+             * @type {VisualizationFocus}
+             */
+            let focusCandidate = $scope.grid.getFocusCandidate();
+            if (focusCandidate) {
+
+                $rootScope.focus = focusCandidate;
+                if (!(Number.isFinite($rootScope.focus.bordersNumberToTheLeft) && Number.isFinite($rootScope.focus.bordersNumberToTheRight))) {
+                    $rootScope.focus = new VisualizationFocus($rootScope.focus.genomicCoordinate, 0, $scope.drawer.unitsNumber);
+                }
+            } else {
+
+                let bordersNumberToTheLeft = Math.floor($rootScope.unitsNumber / 2);
+                let bordersNumberToTheRight = $rootScope.unitsNumber - bordersNumberToTheLeft;
+                $rootScope.focus = new VisualizationFocus($rootScope.focus.genomicCoordinate, bordersNumberToTheLeft, bordersNumberToTheRight);
             }
         }
 

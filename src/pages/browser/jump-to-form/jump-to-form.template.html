@@ -4,7 +4,8 @@
     </div>
     <select class='select' name='contigName' ng-options='contig as contig for contig in activeReferenceGenome.contigs'
             ng-model='focusContigName' required></select>
-    <input type='number' class='input' name='coordinate' ng-model='focusCoordinate' coordinate required />
+    <div class='p1 bg-red white' ng-show='form.coordinate.$invalid'>Invalid coordinate value</div>
+    <input type='number' class='input' name='coordinate' ng-model='focusCoordinate' ng-class='{ "border border-red": form.coordinate.$invalid }' coordinate required />
     <div class='mt2'>
         <button class='btn btn-narrow bg-orange' ng-class='{ disabled: form.$invalid }' ng-disabled='form.$invalid' ng-click='jumpTo()'>Jump</button>
     </div>

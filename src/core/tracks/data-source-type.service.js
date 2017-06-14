@@ -20,18 +20,22 @@
 angular.module('concentrate')
 .service('DataSourceTypeService', function($http, $rootScope, FailedRequestService) {
     return {
-        discoverTypes: () => $http.get('/dataSourceTypes').then(
-            res => {
-                if (res.data && res.data['_embedded'] && res.data['_embedded'].dataSourceTypes) {
-                    $rootScope.availableDataSourceTypes = Array.from(res.data['_embedded'].dataSourceTypes);
-                } else {
+        discoverTypes: () => {
+            return $http.get('/dataSourceTypes').then(
+                res => {
+                    if (res.data && res.data['_embedded'] && res.data['_embedded'].dataSourceTypes) {
+                        $rootScope.availableDataSourceTypes = Array.from(res.data['_embedded'].dataSourceTypes);
+                    } else {
+                        $rootScope.availableDataSourceTypes = new Array();
+                    }
+                },
+                e => {
+
                     $rootScope.availableDataSourceTypes = new Array();
+
+                    return FailedRequestService.handle(e);
                 }
-            },
-            e => {
-                FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data));
-                $rootScope.availableDataSourceTypes = new Array();
-            }
-        )
+            )
+        }
     }
 });

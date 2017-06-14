@@ -17,10 +17,6 @@
  *******************************************************************************/
 
 
-/**
- * Can't use fat arrow syntax in service definition due to:
- * https://github.com/angular/angular.js/issues/14814
- */
 angular.module('concentrate')
 .service('ReferenceService', function($log, $http, $rootScope, HateoasUtilsService, FailedRequestService) {
 
@@ -29,12 +25,12 @@ angular.module('concentrate')
         $rootScope.activeReferenceGenome = undefined;
         $rootScope.availableReferenceGenomes = new Array();
 
-        FailedRequestService.add(new FailedRequest(e.config.method, e.status, e.config.url, e.data));
+        return FailedRequestService.handle(e);
     };
 
     return {
         discoverGenomes: () => {
-            $http.get('/references').then(
+            return $http.get('/references').then(
                 res => {
                     if (!res.data || !res.data['_embedded'] || !res.data['_embedded'].referenceGenomes) {
                         return Promise.all([]);
