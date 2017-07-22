@@ -1,0 +1,23 @@
+<div class='clearfix p1 bg-darken-1'>
+    <i ng-hide='ngModel'>Select file to upload</i>
+    <b ng-show='ngModel' ng-bind='ngModel'></b>
+</div>
+<button class='btn width-expand p1 bg-orange left-align' ng-click='collapse()'>
+    <i class='fa fa-folder-o'></i> <b ng-bind='folder.path'></b>
+    <span class='right'>
+        <i class='fa fa-minus-square' ng-hide='collapsed'></i>
+        <i class='fa fa-plus-square' ng-show='collapsed'></i>
+    </span>
+</button>
+<div class='clearfix file-browser auto-overflow' ng-hide='collapsed'>
+    <div ng-repeat='f in folders' ng-mouseenter='hover = true' ng-mouseleave='hover = false' ng-class='{ "bg-darken-1": hover }'>
+        <button class='btn width-expand left-align' ng-click='open(f)'>
+            <i class='fa fa-folder'></i> <span ng-bind='f.name'></span>
+        </button>
+    </div>
+    <div ng-repeat='file in folder.files' ng-mouseenter='hover = true' ng-mouseleave='hover = false' ng-class='{ "bg-darken-1": hover, "bg-darken-2": isActive(file) }'>
+        <button class='btn width-expand left-align' ng-click='select(file)'>
+            <span ng-bind='file.name'></span>
+        </button>
+    </div>
+</div>

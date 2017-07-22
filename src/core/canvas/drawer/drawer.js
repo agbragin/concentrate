@@ -33,19 +33,26 @@ class Drawer {
         this._stageWidth = stage.canvas['clientWidth'];
         this._stageHeight = stage.canvas['clientHeight'];
 
-        if (this._stageWidth % vProps.UNIT_WIDTH) {
+        /**
+         * Screen space to visualize infinity units (-Inf and +Inf)
+         * 
+         * @type {number}
+         */
+        let screenWidthRemainder = this._stageWidth % vProps.UNIT_WIDTH;
+        if (Math.floor(screenWidthRemainder / 2) < vProps.INFINITY_UNIT_MIN_WIDTH) {
 
-            this._unitsNumber = Math.floor(this._stageWidth / vProps.UNIT_WIDTH);
-
-            this._leftInfUnitWidth = Math.floor((this._stageWidth % vProps.UNIT_WIDTH) / 2);
-            this._rightInfUnitWidth = Math.ceil((this._stageWidth % vProps.UNIT_WIDTH) / 2);
-        } else {
-
-            this._unitsNumber = this._stageWidth / vProps.UNIT_WIDTH - 1;
-
-            this._leftInfUnitWidth = Math.floor(vProps.UNIT_WIDTH / 2);
-            this._rightInfUnitWidth = Math.ceil(vProps.UNIT_WIDTH / 2);
+            /*
+             * If single infinity unit width is too small,
+             * just withdraw extra unit for infinity units visualization
+             */
+            screenWidthRemainder += vProps.UNIT_WIDTH;
         }
+
+        // Number of full-fledged units
+        this._unitsNumber = (this._stageWidth - screenWidthRemainder) / vProps.UNIT_WIDTH;
+        // Split equally remain screen space between -Inf and +Inf units
+        this._leftInfUnitWidth = Math.floor(screenWidthRemainder / 2);
+        this._rightInfUnitWidth = Math.ceil(screenWidthRemainder / 2);
 
         this._stage.enableMouseOver();
 
@@ -91,7 +98,7 @@ class Drawer {
 
         let bg = new createjs.Shape();
 
-        /** -Infinity column's background */
+        // -Infinity column's background
         bg.graphics
                 .beginFill(this._vProps.BG_COLUMN_ODD)
                 .drawRect(
@@ -101,7 +108,7 @@ class Drawer {
                     this._stageHeight
                 );
 
-        /** Unit columns' background */
+        // Unit columns' background
         for (let i = 0; i < this._unitsNumber; ++i) {
             bg.graphics
                     .beginFill((i % 2) ? this._vProps.BG_COLUMN_ODD : this._vProps.BG_COLUMN_EVEN)
@@ -113,7 +120,7 @@ class Drawer {
                     );
         }
 
-        /** +Infinity column's background */
+        // +Infinity column's background
         bg.graphics
                 .beginFill((this._unitsNumber % 2) ? this._vProps.BG_COLUMN_ODD : this._vProps.BG_COLUMN_EVEN)
                 .drawRect(
@@ -146,8 +153,9 @@ class Drawer {
 
             this._stage.addChild(coordinateDash);
 
-            /**
-             * Do not output coordinate label for last screen unit end as its width (~ +Inf unit width) can be shrunk
+            /*
+             * Do not output coordinate label for last screen unit end
+             * as its width (~ +Inf unit width) can be shrunk
              */
             if (!(i < this._unitsNumber)) {
                 continue;
@@ -232,29 +240,14 @@ class Drawer {
      */
     _trackBg(track, verticalOffset) {
 
-        /**
-         * @param {string} hexColor
-         * @returns {string}
-         */
-        let convertFromHex = hexColor => {
-
-            if (!hexColor) {
-                return 'rgba(255, 255, 255, 1)';
-            }
-
-            let r = parseInt(hexColor.slice(1, 3), 16);
-            let g = parseInt(hexColor.slice(3, 5), 16);
-            let b = parseInt(hexColor.slice(5, 7), 16);
-
-            return `rgba(${r}, ${g}, ${b}, ${this._vProps.GRID_TRACK_BACKGROUND_ALPHA})`;
-        };
-
         let trackBackgroundShape = new createjs.Shape();
         let bg = {
             width: this._stageWidth,
             height: (track.levels.length ? track.levels.length : 1) * (this._vProps.UNIT_HEIGHT + this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM) - this._vProps.GRID_TRACK_LEVEL_MARGIN_BOTTOM + 2 * this._vProps.GRID_TRACK_BACKGROUND_PADDING_Y
         };
-        trackBackgroundShape.graphics.beginFill(convertFromHex(track.track.color)).drawRect(0, verticalOffset, bg.width, bg.height);
+        let fillColor = track.track.color ? createjs.Graphics.getRGB(`0x${track.track.color.slice(1)}`, this._vProps.GRID_TRACK_BACKGROUND_ALPHA) : 'rgba(255, 255, 255, 0)';
+
+        trackBackgroundShape.graphics.beginFill(fillColor).drawRect(0, verticalOffset, bg.width, bg.height);
 
         this._stage.addChild(trackBackgroundShape);
     }
@@ -307,12 +300,10 @@ class Drawer {
             stripeColor = stripe.track.color;
         }
 
-        /**
-         * Compose a stripe body
-         */
+        // Compose a stripe body
         this._stripeBody(stripeContainer, stripe, densities, stripeColor);
 
-        /**
+        /*
          * Add hovering effects
          */
         stripeContainer.on('mouseover', e => {
@@ -324,7 +315,7 @@ class Drawer {
             this._stage.update();
         });
 
-        /**
+        /*
          * Add click event to transmit stripe data
          */
         stripeContainer.on('click', e => {
@@ -334,10 +325,9 @@ class Drawer {
 
         if (x !== 0) {
 
-            /**
+            /*
              * Add start stripe border
              */
-
             let stripeBorder = new createjs.Shape();
             stripeBorder.graphics
                     .beginFill(this._vProps.STRIPE_BORDER_COLOR)
@@ -359,14 +349,176 @@ class Drawer {
      */
     _stripeBody(stripeContainer, stripe, densities, stripeColor) {
 
+        /**
+         * Calculates visualization opacity based on unit grid index
+         * 
+         * @param {number} n Unit grid index
+         * @returns {number}
+         */
+        let getOpacityByUnitNumber = n => this._vProps.STRIPE_MIN_DENSITY +  densities[n] * (this._vProps.STRIPE_MAX_DENSITY - this._vProps.STRIPE_MIN_DENSITY);
+
+        /**
+         * Returns color with aplha channel applied
+         * 
+         * @param {string} color CSS hex-string (e.g. #AABBCC)
+         * @param {number} opacity Aplha channel value to apply
+         * @returns {string}
+         */
+        let applyOpacity = (color, opacity) => createjs.Graphics.getRGB(`0x${color.slice(1)}`, opacity);
+
         let stripeShape = new createjs.Shape();
-        stripeShape.graphics.beginFill(stripeColor).drawRect(
-            0, 0, this._stripeWidth(stripe), this._vProps.UNIT_HEIGHT
-        );
+
+        let containsLeftInf = stripe.start === -Infinity;
+        if (containsLeftInf) {
+
+            /*
+             * Compose a stripe part falling apart to -Infinity
+             */
+            let leftInfPartShape = new createjs.Shape();
+
+            /*
+             * Use gradient fill from its start up to its end
+             * (~ start of the first full-fledged unit)
+             */
+            leftInfPartShape.graphics.beginLinearGradientFill(
+
+                [
+                    // Perform gradient fill from this color
+                    applyOpacity(stripeColor, 1),
+                    // To this
+                    applyOpacity(stripeColor, getOpacityByUnitNumber(0))
+                ],
+
+                [
+                    // Begin gradient after this percents of its length
+                    this._vProps.INFINITY_STRIPE_PLAIN_FILL_RATIO,
+                    // Up to this
+                    1
+                ],
+                // Gradient vector's start point
+                0, 0,
+                // Gradient vector's end point
+                this._leftInfUnitWidth, 0
+            ).drawRect(
+                0, 0,
+                this._leftInfUnitWidth, this._vProps.UNIT_HEIGHT
+            );
+
+            stripeContainer.addChild(leftInfPartShape);
+        }
+
+        /**
+         * Half a width of the gradient visualization
+         * 
+         * @type {number}
+         */
+        let gradientHalfWidth = (1 - this._vProps.STRIPE_PLAIN_FILL_RATIO) * this._vProps.UNIT_WIDTH;
+
+        for (let i = 0, relCoord = Number.isFinite(stripe.start) ? stripe.start : 0, end = Number.isFinite(stripe.end) ? stripe.end : this._unitsNumber, offset = containsLeftInf ? this._leftInfUnitWidth : 0; relCoord < end; ++i, ++relCoord, offset += this._vProps.UNIT_WIDTH) {
+
+            if (relCoord === end - 1) {
+
+                // The last stripe's part case
+
+                let lastPartShape = new createjs.Shape();
+                lastPartShape.graphics.beginFill(stripeColor).drawRect(
+                    // If end === 1, stripe doesn't contain gradient-intersections, so we should draw full-fledged unit
+                    offset, 0, this._vProps.UNIT_WIDTH - ((offset && (end !== 1)) ? gradientHalfWidth : 0), this._vProps.UNIT_HEIGHT
+                );
+                lastPartShape.alpha = getOpacityByUnitNumber(relCoord);
+
+                stripeContainer.addChild(lastPartShape);
+            } else if (relCoord === 0 || relCoord === stripe.start) {
+
+                // The first stripe's part case
+
+                let firstPartShape = new createjs.Shape();
+                firstPartShape.graphics.beginLinearGradientFill(
+                    [
+                        applyOpacity(stripeColor, getOpacityByUnitNumber(relCoord)),
+                        applyOpacity(stripeColor, getOpacityByUnitNumber(relCoord + 1))
+                    ],
+                    [
+                        (this._vProps.UNIT_WIDTH - gradientHalfWidth) / (this._vProps.UNIT_WIDTH + gradientHalfWidth),
+                        1
+                    ],
+                    offset, 0,
+                    offset + this._vProps.UNIT_WIDTH + gradientHalfWidth, 0
+                ).drawRect(
+                    offset, 0,
+                    this._vProps.UNIT_WIDTH + gradientHalfWidth, this._vProps.UNIT_HEIGHT
+                );
+
+                offset += gradientHalfWidth;
+
+                stripeContainer.addChild(firstPartShape);
+            } else {
+
+                // Stripe's internal part case
+
+                let partShape = new createjs.Shape();
+                partShape.graphics.beginLinearGradientFill(
+                    [
+                        applyOpacity(stripeColor, getOpacityByUnitNumber(relCoord)),
+                        applyOpacity(stripeColor, getOpacityByUnitNumber(relCoord + 1))
+                    ],
+                    [
+                        (this._vProps.UNIT_WIDTH - 2 * gradientHalfWidth) / this._vProps.UNIT_WIDTH,
+                        1
+                    ],
+                    offset, 0,
+                    offset + this._vProps.UNIT_WIDTH, 0
+                ).drawRect(
+                    offset, 0,
+                    this._vProps.UNIT_WIDTH, this._vProps.UNIT_HEIGHT
+                );
+
+                stripeContainer.addChild(partShape);
+            }
+        }
+
+        if (stripe.end === +Infinity) {
+
+            /*
+             * Compose a stripe part falling apart to +Infinity
+             */
+            let rightInfPartShape = new createjs.Shape();
+
+            /**
+             * Stripe's full-fledged units number
+             * 
+             * @type {number}
+             */
+            let stripeLength = (Number.isFinite(stripe.end) ? stripe.end : this._unitsNumber) - (Number.isFinite(stripe.start) ? stripe.start : 0);
+
+            /*
+             * Use gradient fill from its start
+             * (~ end of the last full-fledged unit)
+             * up to its end
+             */
+            // See parameters explanation comment above (in -Infinity stripe part section)
+            rightInfPartShape.graphics.beginLinearGradientFill(
+                [
+                    applyOpacity(stripeColor, getOpacityByUnitNumber(densities.length - 1)),
+                    applyOpacity(stripeColor, 1)
+                ],
+                [
+                    0,
+                    this._vProps.INFINITY_STRIPE_PLAIN_FILL_RATIO
+                ],
+                (containsLeftInf ? this._leftInfUnitWidth : 0) + stripeLength * this._vProps.UNIT_WIDTH, 0,
+                this._stageWidth, 0
+            ).drawRect(
+                (containsLeftInf ? this._leftInfUnitWidth : 0) + stripeLength * this._vProps.UNIT_WIDTH, 0,
+                this._rightInfUnitWidth, this._vProps.UNIT_HEIGHT
+            );
+
+            stripeContainer.addChild(rightInfPartShape);
+        }
 
         stripeContainer.addChild(stripeShape);
 
-        /**
+        /*
          * Compose a stripe label only for stripe containing minimum one full-fledged unit
          */
         if (!(stripe.start === this._unitsNumber && stripe.end === +Infinity
@@ -383,28 +535,6 @@ class Drawer {
         stripeLabel.mouseEnabled = false;
 
         stripeContainer.addChild(stripeLabel);
-    }
-
-    /**
-     * @this
-     * @param {Stripe} stripe
-     * @returns {number}
-     */
-    _stripeWidth(stripe) {
-
-        if (stripe.start !== -Infinity && stripe.end !== +Infinity) {
-            return (stripe.end - stripe.start) * this._vProps.UNIT_WIDTH;
-        }
-
-        if (stripe.start === -Infinity && stripe.end === +Infinity) {
-            return this._stageWidth;
-        }
-
-        if (stripe.start === -Infinity) {
-            return this._leftInfUnitWidth + stripe.end * this._vProps.UNIT_WIDTH;
-        } else {
-            return (this._unitsNumber - stripe.start) * this._vProps.UNIT_WIDTH + this._rightInfUnitWidth;
-        }
     }
 
     _clear() {

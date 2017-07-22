@@ -179,10 +179,11 @@ class Grid {
             }
         }
 
-        let finiteDensities = densities.filter(Number.isFinite).map(Math.log);
-        let [dMin, dMax] = [Math.min(...finiteDensities), Math.max(...finiteDensities)];
+        let logDensities = densities.map(Math.log);
+        let finiteLogDensities = logDensities.filter(Number.isFinite);
+        let [dMin, dMax] = [Math.min(...finiteLogDensities), Math.max(...finiteLogDensities)];
 
-        return densities.map(it => {
+        return logDensities.map(it => {
             if (Number.isFinite(it)) {
                 return (dMin !== dMax) ? (it - dMin) / (dMax - dMin) : 1;
             } else {

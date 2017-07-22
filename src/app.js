@@ -17,22 +17,9 @@
  *******************************************************************************/
 
 
-let browserPage = new ApplicationPage('browser', '/');
-let browserViewPage = new ApplicationPage('browserView', 'view', browserPage);
-let configPage = new ApplicationPage('config', '/config');
-let errorsPage = new ApplicationPage('errors', '/errors');
-let trackFilterPage = new ApplicationPage('trackFilter', 'trackFilter', browserPage, Array.of(new ApplicationPageParameter('track', false)));
-let trackUploadPage = new ApplicationPage('trackUpload', 'trackUpload', browserPage);
-// Application pages
-const pages = Array.of(browserPage, browserViewPage, configPage, errorsPage, trackFilterPage, trackUploadPage);
-// Application states
-const states = new Map();
-pages.forEach(it => states.set(it.name, it.state));
-
-
 angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
-.config(['$httpProvider', '$stateProvider', '$transitionsProvider', '$urlRouterProvider',
-        function($httpProvider, $stateProvider, $transitionsProvider, $urlRouterProvider) {
+.config(['$httpProvider', '$stateProvider', '$transitionsProvider', '$urlRouterProvider', 'RoutingConfig',
+        function($httpProvider, $stateProvider, $transitionsProvider, $urlRouterProvider, RoutingConfig) {
 
     let backEndApiUrl = '';
 
@@ -50,14 +37,14 @@ angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
         }
     });
 
-    // Configure page routing
-    pages.map(RouterStateFactory.state).forEach($stateProvider.state);
-    $urlRouterProvider.otherwise('/');
-    // Configure safe transitions to browser page
-    let transitionToBrowserPageHookMatchCriteria = {
-        to: `${browserPage.name}.**`
+    // Configure view routing
+    views.map(RouterStateFactory.state).forEach($stateProvider.state);
+    $urlRouterProvider.otherwise(RoutingConfig.views.get('browser').url);
+    // Configure safe transitions to main view
+    let transitionToMainViewHookMatchCriteria = {
+        to: `${RoutingConfig.views.get('main').name}.**`
     };
-    $transitionsProvider.onBefore(transitionToBrowserPageHookMatchCriteria, transition => {
+    $transitionsProvider.onBefore(transitionToMainViewHookMatchCriteria, transition => {
 
         let logger = transition.injector().get('$log');
 
@@ -66,7 +53,7 @@ angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
 
             logger.warn('No reference service was selected yet: redirecting to the configuration page');
 
-            return transition.router.stateService.target(configPage.toString());
+            return transition.router.stateService.target(RoutingConfig.states.get('config'));
         }
 
         let referenceGenome = transition.injector().get('$rootScope')['activeReferenceGenome'];
@@ -74,14 +61,14 @@ angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
 
             logger.warn('No reference genome was selected yet: rediracting to the configuration page');
 
-            return transition.router.stateService.target(configPage.toString());
+            return transition.router.stateService.target(RoutingConfig.states.get('config'));
         }
     });
-    // Configure transitions to track upload page
-    let transitionToTrackUploadPageHookMatchCriteria = {
-        to: states.get(trackUploadPage.name)
+    // Configure transitions to upload view
+    let transitionToUploadViewHookMatchCriteria = {
+        to: RoutingConfig.states.get('upload')
     };
-    $transitionsProvider.onStart(transitionToTrackUploadPageHookMatchCriteria, transition => {
+    $transitionsProvider.onStart(transitionToUploadViewHookMatchCriteria, transition => {
 
         let logger = transition.injector().get('$log');
 
@@ -103,11 +90,6 @@ angular.module('concentrate', ['ui.bootstrap.contextMenu', 'ui.router'])
         rootScope.previousState = transition.router.stateService.current;
     });
 }])
-.run(['$log', '$rootScope', '$state',
-        function($log, $rootScope, $state) {
-
+.run(['$log', function($log) {
     $log.debug('Parseq Lab Concentrate genome browser is running');
-
-    $rootScope.applicationPages = pages;
-    $rootScope.applicationStates = states;
 }]);

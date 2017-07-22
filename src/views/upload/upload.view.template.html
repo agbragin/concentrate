@@ -1,0 +1,23 @@
+<form name='form' class='track-form mt2 col-6 mx-auto' novalidate>
+    <h3>Track parameters</h3>
+    <div class='p1 bg-red white' ng-show='form.name.$error.trackNameAvailability'>Track of this name is already present, please, use another one</div>
+    <div class='p1 bg-red white' ng-show='form.name.$error.trackName'>Track name can only contain character on this types: latin letter, digit, space, underscore, hyphen</div>
+    <input type='text' class='input' name='name' ng-model='name' ng-class='{ "border border-red": form.name.$invalid && form.name.$touched }' placeholder='Enter track name' track-name track-name-availability required />
+    <select class='select' name='type' ng-options='type disable when unavailableType(type) for type in availableDataSourceTypes' ng-model='type' required>
+        <option value='' disabled selected>Select source type</option>
+    </select>
+    <div>
+        <label><b>Source file:</b></label>
+        <filesystem-browser initial-path='$root.lastOpenedFolder' collapsed='true' ng-model='file' max-height='300'></filesystem-browser>
+    </div>
+    <div ng-if='isFeatureFileType(type)' class='mt2'>
+        <label ng-click='$parent.switchSelect()'>
+            <i ng-class='checkboxStyle($parent.oboSelect)'></i> Select ontology file (OBO) <i class='gray'>optional</i>
+        </label>
+        <filesystem-browser ng-if='$parent.oboSelect' initial-path='$root.lastOpenedSpecFolder' collapsed='true' ng-model='$parent.$parent.specFile' max-height='300'></filesystem-browser>
+    </div>
+    <div class='mt2 mb4'>
+        <button class='btn btn-primary' ng-click='upload()' ng-disabled='httpService.pendingRequests.length || form.$invalid || !file || (isFeatureFileType(type) && oboSelect && !specFile)'>Upload</button>
+        <button class='btn' ng-click='goBack()'>Cancel</button>
+    </div>
+</form>

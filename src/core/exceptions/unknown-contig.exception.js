@@ -27,7 +27,7 @@ class UnknownContigException extends Exception {
      */
     constructor(referenceGenome, contigName) {
 
-        super(`Unknown contig of name: ${contigName} for reference genome ${referenceGenome.name}, which only has: ${referenceGenome.contigs}`);
+        super(`Unknown contig of name: ${contigName} for reference genome ${referenceGenome.name}, which only has: ${referenceGenome.contigs.map(it => it.id)}`);
 
         this._referenceGenome = referenceGenome;
         this._contigName = contigName;

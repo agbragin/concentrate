@@ -20,16 +20,19 @@
 class RouterStateFactory {
 
     /**
+     * Compose an application routing state
+     * 
+     * @public
      * @static
-     * @param {ApplicationPage} page
+     * @param {ApplicationView} page
      */
     static state(page) {
 
         let state = {
             name: page.toString(),
             url: page.url,
-            controller: `${StringUtils.capitalize(page.name)}PageController`,
-            templateUrl: `src/pages/${StringUtils.toKebabCase(page.name)}/${StringUtils.toKebabCase(page.name)}.html`
+            controller: `${StringUtils.capitalize(page.name)}ViewController`,
+            templateUrl: `src/views/${StringUtils.toKebabCase(page.name)}/${StringUtils.toKebabCase(page.name)}.view.template.html`
         };
 
         if (page.params.length) {

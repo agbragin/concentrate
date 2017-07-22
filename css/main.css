@@ -98,3 +98,7 @@
 .jump-form button.disabled {
     opacity: 0.7;
 }
+
+canvas {
+    display: block;
+}

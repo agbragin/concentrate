@@ -18,14 +18,17 @@
     <script type='text/javascript' src='node_modules/angular-bootstrap-contextmenu/contextMenu.js'></script>
     <script type='text/javascript' src='node_modules/createjs-easeljs/lib/easeljs-0.8.2.min.js'></script>
     <script type='text/javascript' src='node_modules/jquery/dist/jquery.min.js'></script>
+    <script type='text/javascript' src='node_modules/lodash/lodash.min.js'></script>
 
-    <script type='text/javascript' src='src/core/application-page-parameter.js'></script>
-    <script type='text/javascript' src='src/core/application-page.js'></script>
+    <!-- Core classes -->
 
-    <!-- Application entry point script -->
-    <script type='text/javascript' src='src/app.js'></script>
+    <script type='text/javascript' src='src/core/application-views/application-view-parameter.js'></script>
+    <script type='text/javascript' src='src/core/application-views/application-view.js'></script>
 
-    <!-- Core classes and services -->
+    <script type='text/javascript' src='src/core/binary-search/binary-search-result.js'></script>
+    <script type='text/javascript' src='src/core/binary-search/binary-search.js'></script>
+
+    <script type='text/javascript' src='src/core/canvas/drawer/drawer.js'></script>
 
     <script type='text/javascript' src='src/core/exceptions/exception.js'></script>
     <script type='text/javascript' src='src/core/exceptions/illegal-argument.exception.js'></script>
@@ -34,41 +37,19 @@
     <script type='text/javascript' src='src/core/exceptions/unknown-reference-genome.exception.js'></script>
     <script type='text/javascript' src='src/core/exceptions/unsupported-inclusion-type.exception.js'></script>
 
-    <script type='text/javascript' src='src/core/band.js'></script>
-    <script type='text/javascript' src='src/core/band.service.js'></script>
-    <script type='text/javascript' src='src/core/browser-file.js'></script>
-    <script type='text/javascript' src='src/core/browser-folder.js'></script>
-    <script type='text/javascript' src='src/core/genomic-coordinate-comparator.js'></script>
-    <script type='text/javascript' src='src/core/genomic-coordinate.js'></script>
-    <script type='text/javascript' src='src/core/router-state.factory.js'></script>
-    <script type='text/javascript' src='src/core/string.utils.js'></script>
-    <script type='text/javascript' src='src/core/stripe.js'></script>
-    <script type='text/javascript' src='src/core/stripe.service.js'></script>
-    <script type='text/javascript' src='src/core/visualization-focus.js'></script>
+    <script type='text/javascript' src='src/core/filesystem/local-file.js'></script>
+    <script type='text/javascript' src='src/core/filesystem/local-folder.js'></script>
 
-    <script type='text/javascript' src='src/core/binary-search/binary-search-result.js'></script>
-    <script type='text/javascript' src='src/core/binary-search/binary-search.js'></script>
-
-    <script type='text/javascript' src='src/core/canvas/drawer/drawer.js'></script>
-    <script type='text/javascript' src='src/core/canvas/visualization-properties.js'></script>
+    <script type='text/javascript' src='src/core/gentypes/contig.js'></script>
+    <script type='text/javascript' src='src/core/gentypes/genomic-coordinate-comparator.js'></script>
+    <script type='text/javascript' src='src/core/gentypes/genomic-coordinate.js'></script>
+    <script type='text/javascript' src='src/core/gentypes/reference-genome.js'></script>
 
     <script type='text/javascript' src='src/core/grid/grid-track-level.js'></script>
     <script type='text/javascript' src='src/core/grid/grid-track.js'></script>
     <script type='text/javascript' src='src/core/grid/grid.js'></script>
 
-    <script type='text/javascript' src='src/core/hateoas/utils.service.js'></script>
-
     <script type='text/javascript' src='src/core/http/failed-request.js'></script>
-    <script type='text/javascript' src='src/core/http/failed-request.service.js'></script>
-    <script type='text/javascript' src='src/core/http/failed-requests.js'></script>
-    <script type='text/javascript' src='src/core/http/request-color.js'></script>
-
-    <script type='text/javascript' src='src/core/ng-file/ng-file.js'></script>
-
-    <script type='text/javascript' src='src/core/reference-service/reference-genome.js'></script>
-    <script type='text/javascript' src='src/core/reference-service/reference-service-selection.service.js'></script>
-    <script type='text/javascript' src='src/core/reference-service/reference-service-type.js'></script>
-    <script type='text/javascript' src='src/core/reference-service/reference.service.js'></script>
 
     <script type='text/javascript' src='src/core/tracks/attributes/aggregate.js'></script>
     <script type='text/javascript' src='src/core/tracks/attributes/attribute.js'></script>
@@ -79,141 +60,160 @@
     <script type='text/javascript' src='src/core/tracks/entities/filter.js'></script>
     <script type='text/javascript' src='src/core/tracks/entities/track-filter.js'></script>
 
-    <script type='text/javascript' src='src/core/tracks/data-source-type.service.js'></script>
+    <script type='text/javascript' src='src/core/tracks/band.js'></script>
     <script type='text/javascript' src='src/core/tracks/data-source.js'></script>
     <script type='text/javascript' src='src/core/tracks/filtered-data-source.js'></script>
+    <script type='text/javascript' src='src/core/tracks/stripe.js'></script>
     <script type='text/javascript' src='src/core/tracks/track.js'></script>
-    <script type='text/javascript' src='src/core/tracks/track.service.js'></script>
+    <script type='text/javascript' src='src/core/tracks/visualization-focus.js'></script>
 
-    <script type='text/javascript' src='src/core/validators/coordinate.validator.js'></script>
-    <script type='text/javascript' src='src/core/validators/track-name-availability.validator.js'></script>
-    <script type='text/javascript' src='src/core/validators/track-name.validator.js'></script>
+    <script type='text/javascript' src='src/core/hateoas.utils.js'></script>
+    <script type='text/javascript' src='src/core/router-state.factory.js'></script>
+    <script type='text/javascript' src='src/core/string.utils.js'></script>
 
-    <!-- Checkbox component -->
-    <script type='text/javascript' src='src/checkbox/checkbox.js'></script>
-    <script type='text/javascript' src='src/checkbox/checkbox.controller.js'></script>
+    <!-- Application entry point script -->
+    <script type='text/javascript' src='src/app.js'></script>
 
-    <!-- Top Panel component -->
-    <script type='text/javascript' src='src/top-panel/top-panel.js'></script>
-    <script type='text/javascript' src='src/top-panel/top-panel.controller.js'></script>
+    <!-- Shared values -->
 
-    <!-- Health Panel component -->
-    <script type='text/javascript' src='src/health-panel/health-panel.js'></script>
-    <script type='text/javascript' src='src/health-panel/health-panel.controller.js'></script>
+    <script type='text/javascript' src='src/share/failed-requests.value.js'></script>
+    <script type='text/javascript' src='src/share/reference-service-type.constant.js'></script>
+    <script type='text/javascript' src='src/share/request-color.constant.js'></script>
+    <script type='text/javascript' src='src/share/routing-config.constant.js'></script>
+    <script type='text/javascript' src='src/share/visualization-properties.constant.js'></script>
 
-    <!-- Failed Requests Indicator component -->
-    <script type='text/javascript' src='src/health-panel/failed-requests-indicator/failed-requests-indicator.js'></script>
-    <script type='text/javascript' src='src/health-panel/failed-requests-indicator/failed-requests-indicator.controller.js'></script>
+    <!-- Validators -->
 
-    <!-- Filesystem Browser component -->
-    <script type='text/javascript' src='src/filesystem-browser/filesystem-browser.controller.js'></script>
-    <script type='text/javascript' src='src/filesystem-browser/filesystem-browser.service.js'></script>
-    <script type='text/javascript' src='src/filesystem-browser/filesystem-browser.js'></script>
+    <script type='text/javascript' src='src/validators/coordinate.validator.js'></script>
+    <script type='text/javascript' src='src/validators/track-name-availability.validator.js'></script>
+    <script type='text/javascript' src='src/validators/track-name.validator.js'></script>
 
-    <!-- Pending Requests Indicator component -->
-    <script type='text/javascript' src='src/health-panel/pending-requests-indicator/pending-requests-indicator.js'></script>
-    <script type='text/javascript' src='src/health-panel/pending-requests-indicator/pending-requests-indicator.controller.js'></script>
+    <!-- Services -->
 
-    <!-- Reference Genome Indicator component -->
-    <script type='text/javascript' src='src/health-panel/reference-genome-indicator/reference-genome-indicator.js'></script>
-    <script type='text/javascript' src='src/health-panel/reference-genome-indicator/reference-genome-indicator.controller.js'></script>
+    <script type='text/javascript' src='src/services/band.service.js'></script>
+    <script type='text/javascript' src='src/services/data-source-type.service.js'></script>
+    <script type='text/javascript' src='src/services/failed-request.service.js'></script>
+    <script type='text/javascript' src='src/services/filesystem-browser.service.js'></script>
+    <script type='text/javascript' src='src/services/reference-service-selection.service.js'></script>
+    <script type='text/javascript' src='src/services/reference.service.js'></script>
+    <script type='text/javascript' src='src/services/stripe.service.js'></script>
+    <script type='text/javascript' src='src/services/track.service.js'></script>
 
-    <!-- Application pages -->
+    <!-- Directives -->
 
-    <!-- Browser page -->
+    <script type='text/javascript' src='src/directives/ng-file/ng-file.js'></script>
 
-    <script type='text/javascript' src='src/pages/browser/browser.js'></script>
+    <script type='text/javascript' src='src/directives/resize/resize.js'></script>
+
+    <!-- Components -->
 
     <!-- Active Stripe Card component -->
-    <script type='text/javascript' src='src/pages/browser/active-stripe-card/active-stripe-card.js'></script>
-    <script type='text/javascript' src='src/pages/browser/active-stripe-card/active-stripe-card.controller.js'></script>
-
-    <!-- Available Tracks component -->
-    <script type='text/javascript' src='src/pages/browser/available-tracks/available-tracks.js'></script>
-    <script type='text/javascript' src='src/pages/browser/available-tracks/available-tracks.controller.js'></script>
-
-    <!-- Browser View component -->
-    <script type='text/javascript' src='src/pages/browser/browser-view/browser-view.js'></script>
-    <script type='text/javascript' src='src/pages/browser/browser-view/browser-view.controller.js'></script>
-
-    <!-- Control Panel component -->
-    <script type='text/javascript' src='src/pages/browser/control-panel/control-panel.js'></script>
-    <script type='text/javascript' src='src/pages/browser/control-panel/control-panel.controller.js'></script>
-
-    <!-- Jump To Form component -->
-    <script type='text/javascript' src='src/pages/browser/jump-to-form/jump-to-form.js'></script>
-    <script type='text/javascript' src='src/pages/browser/jump-to-form/jump-to-form.controller.js'></script>
-
-    <!-- Stripe Properties component -->
-    <script type='text/javascript' src='src/pages/browser/active-stripe-card/stripe-properties/stripe-properties.js'></script>
-    <script type='text/javascript' src='src/pages/browser/active-stripe-card/stripe-properties/stripe-properties.controller.js'></script>
-
-    <!-- Stripe Structure component -->
-    <script type='text/javascript' src='src/pages/browser/active-stripe-card/stripe-structure/stripe-structure.js'></script>
-    <script type='text/javascript' src='src/pages/browser/active-stripe-card/stripe-structure/stripe-structure.controller.js'></script>
-
-    <!-- Track Option component -->
-    <script type='text/javascript' src='src/pages/browser/track-option/track-option.js'></script>
-    <script type='text/javascript' src='src/pages/browser/track-option/track-option.controller.js'></script>
-
-    <!-- Browser View page -->
-
-    <script type='text/javascript' src='src/pages/browser-view/browser-view.js'></script>
-
-    <!-- Config page -->
-
-    <script type='text/javascript' src='src/pages/config/config.js'></script>
-
-    <!-- Service Select component -->
-    <script type='text/javascript' src='src/pages/config/service-select/service-select.js'></script>
-    <script type='text/javascript' src='src/pages/config/service-select/service-select.controller.js'></script>
-
-    <!-- Reference Select component -->
-    <script type='text/javascript' src='src/pages/config/reference-select/reference-select.js'></script>
-    <script type='text/javascript' src='src/pages/config/reference-select/reference-select.controller.js'></script>
-
-    <!-- Errors page -->
-
-    <script type='text/javascript' src='src/pages/errors/errors.js'></script>
-
-    <!-- Error component -->
-    <script type='text/javascript' src='src/pages/errors/error/error.js'></script>
-    <script type='text/javascript' src='src/pages/errors/error/error.controller.js'></script>
-
-    <!-- Track Filter page -->
-
-    <script type='text/javascript' src='src/pages/track-filter/track-filter.js'></script>
-
-    <!-- Attribute List component -->
-    <script type='text/javascript' src='src/pages/track-filter/attribute-list/attribute-list.js'></script>
-    <script type='text/javascript' src='src/pages/track-filter/attribute-list/attribute-list.controller.js'></script>
-
-    <!-- Attribute Option component -->
-    <script type='text/javascript' src='src/pages/track-filter/attribute-option/attribute-option.js'></script>
-    <script type='text/javascript' src='src/pages/track-filter/attribute-option/attribute-option.controller.js'></script>
-
-    <!-- Filter Control Panel component -->
-    <script type='text/javascript' src='src/pages/track-filter/control-panel/control-panel.js'></script>
-    <script type='text/javascript' src='src/pages/track-filter/control-panel/control-panel.controller.js'></script>
-
-    <!-- Attribute Filter Form component -->
-    <script type='text/javascript' src='src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-form.js'></script>
-    <script type='text/javascript' src='src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-form.controller.js'></script>
-
-    <!-- Attribute Filter Value component -->
-    <script type='text/javascript' src='src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.js'></script>
-    <script type='text/javascript' src='src/pages/track-filter/control-panel/attribute-filter-form/attribute-filter-value/attribute-filter-value.controller.js'></script>
-
-    <!-- Attribute Filter Query component -->
-    <script type='text/javascript' src='src/pages/track-filter/query/query.js'></script>
-    <script type='text/javascript' src='src/pages/track-filter/query/query.controller.js'></script>
+    <script type='text/javascript' src='src/components/active-stripe-card/active-stripe-card.js'></script>
+    <script type='text/javascript' src='src/components/active-stripe-card/active-stripe-card.controller.js'></script>
 
     <!-- Attribute Filter Card component -->
-    <script type='text/javascript' src='src/pages/track-filter/query/attribute-filter-card/attribute-filter-card.js'></script>
-    <script type='text/javascript' src='src/pages/track-filter/query/attribute-filter-card/attribute-filter-card.controller.js'></script>
+    <script type='text/javascript' src='src/components/attribute-filter-card/attribute-filter-card.js'></script>
+    <script type='text/javascript' src='src/components/attribute-filter-card/attribute-filter-card.controller.js'></script>
 
-    <!-- Track Upload page -->
+    <!-- Attribute Filter Form component -->
+    <script type='text/javascript' src='src/components/attribute-filter-form/attribute-filter-form.js'></script>
+    <script type='text/javascript' src='src/components/attribute-filter-form/attribute-filter-form.controller.js'></script>
 
-    <script type='text/javascript' src='src/pages/track-upload/track-upload.js'></script>
+    <!-- Attribute Filter Query component -->
+    <script type='text/javascript' src='src/components/attribute-filter-query/attribute-filter-query.js'></script>
+    <script type='text/javascript' src='src/components/attribute-filter-query/attribute-filter-query.controller.js'></script>
+
+    <!-- Attribute Filter Value component -->
+    <script type='text/javascript' src='src/components/attribute-filter-value/attribute-filter-value.js'></script>
+    <script type='text/javascript' src='src/components/attribute-filter-value/attribute-filter-value.controller.js'></script>
+
+    <!-- Attribute List component -->
+    <script type='text/javascript' src='src/components/attribute-list/attribute-list.js'></script>
+    <script type='text/javascript' src='src/components/attribute-list/attribute-list.controller.js'></script>
+
+    <!-- Attribute Option component -->
+    <script type='text/javascript' src='src/components/attribute-option/attribute-option.js'></script>
+    <script type='text/javascript' src='src/components/attribute-option/attribute-option.controller.js'></script>
+
+    <!-- Available Tracks component -->
+    <script type='text/javascript' src='src/components/available-tracks/available-tracks.js'></script>
+    <script type='text/javascript' src='src/components/available-tracks/available-tracks.controller.js'></script>
+
+    <!-- Browser Canvas component -->
+    <script type='text/javascript' src='src/components/browser-canvas/browser-canvas.js'></script>
+    <script type='text/javascript' src='src/components/browser-canvas/browser-canvas.controller.js'></script>
+
+    <!-- Checkbox component -->
+    <script type='text/javascript' src='src/components/checkbox/checkbox.js'></script>
+    <script type='text/javascript' src='src/components/checkbox/checkbox.controller.js'></script>
+
+    <!-- Control Panel component -->
+    <script type='text/javascript' src='src/components/control-panel/control-panel.js'></script>
+    <script type='text/javascript' src='src/components/control-panel/control-panel.controller.js'></script>
+
+    <!-- Error component -->
+    <script type='text/javascript' src='src/components/error/error.js'></script>
+    <script type='text/javascript' src='src/components/error/error.controller.js'></script>
+
+    <!-- Failed Requests Indicator component -->
+    <script type='text/javascript' src='src/components/failed-requests-indicator/failed-requests-indicator.js'></script>
+    <script type='text/javascript' src='src/components/failed-requests-indicator/failed-requests-indicator.controller.js'></script>
+
+    <!-- Filesystem Browser component -->
+    <script type='text/javascript' src='src/components/filesystem-browser/filesystem-browser.js'></script>
+    <script type='text/javascript' src='src/components/filesystem-browser/filesystem-browser.controller.js'></script>
+
+    <!-- Filter Control Panel component -->
+    <script type='text/javascript' src='src/components/filter-control-panel/filter-control-panel.js'></script>
+    <script type='text/javascript' src='src/components/filter-control-panel/filter-control-panel.controller.js'></script>
+
+    <!-- Health Panel component -->
+    <script type='text/javascript' src='src/components/health-panel/health-panel.js'></script>
+    <script type='text/javascript' src='src/components/health-panel/health-panel.controller.js'></script>
+
+    <!-- Jump To Form component -->
+    <script type='text/javascript' src='src/components/jump-to-form/jump-to-form.js'></script>
+    <script type='text/javascript' src='src/components/jump-to-form/jump-to-form.controller.js'></script>
+
+    <!-- Pending Requests Indicator component -->
+    <script type='text/javascript' src='src/components/pending-requests-indicator/pending-requests-indicator.js'></script>
+    <script type='text/javascript' src='src/components/pending-requests-indicator/pending-requests-indicator.controller.js'></script>
+
+    <!-- Reference Genome Indicator component -->
+    <script type='text/javascript' src='src/components/reference-genome-indicator/reference-genome-indicator.js'></script>
+    <script type='text/javascript' src='src/components/reference-genome-indicator/reference-genome-indicator.controller.js'></script>
+
+    <!-- Reference Select component -->
+    <script type='text/javascript' src='src/components/reference-select/reference-select.js'></script>
+    <script type='text/javascript' src='src/components/reference-select/reference-select.controller.js'></script>
+
+    <!-- Service Select component -->
+    <script type='text/javascript' src='src/components/service-select/service-select.js'></script>
+    <script type='text/javascript' src='src/components/service-select/service-select.controller.js'></script>
+
+    <!-- Stripe Properties component -->
+    <script type='text/javascript' src='src/components/stripe-properties/stripe-properties.js'></script>
+    <script type='text/javascript' src='src/components/stripe-properties/stripe-properties.controller.js'></script>
+
+    <!-- Stripe Structure component -->
+    <script type='text/javascript' src='src/components/stripe-structure/stripe-structure.js'></script>
+    <script type='text/javascript' src='src/components/stripe-structure/stripe-structure.controller.js'></script>
+
+    <!-- Top Panel component -->
+    <script type='text/javascript' src='src/components/top-panel/top-panel.js'></script>
+    <script type='text/javascript' src='src/components/top-panel/top-panel.controller.js'></script>
+
+    <!-- Track Option component -->
+    <script type='text/javascript' src='src/components/track-option/track-option.js'></script>
+    <script type='text/javascript' src='src/components/track-option/track-option.controller.js'></script>
+
+    <!-- Views -->
+
+    <script type='text/javascript' src='src/views/browser/browser.view.js'></script>
+    <script type='text/javascript' src='src/views/config/config.view.js'></script>
+    <script type='text/javascript' src='src/views/errors/errors.view.js'></script>
+    <script type='text/javascript' src='src/views/filter/filter.view.js'></script>
+    <script type='text/javascript' src='src/views/main/main.view.js'></script>
+    <script type='text/javascript' src='src/views/upload/upload.view.js'></script>
 </body>
 </html>
